@@ -1,0 +1,128 @@
+/* carrinho.css - RedeMaisFarma (patch DS) */
+:root{
+  --cart-bg: var(--layout-card);
+  --cart-border: var(--layout-border);
+  --cart-text: var(--layout-dark);
+  --cart-accent: var(--action-500);
+  --cart-accent-dark: var(--action-600);
+  --cart-total: var(--color-success);
+  --cart-shadow: var(--shadow-1);
+  --cart-radius: var(--radius-lg);
+  --cart-gap: var(--gap-16);
+  --cart-font: var(--font-sans);
+}
+
+body.cart-page{ font-family:var(--cart-font); background:var(--layout-bg); color:var(--cart-text); }
+
+.cart-page .container{
+  max-width:var(--container-max);
+  margin-inline:auto;
+  padding:clamp(8px,1.2vw,14px);
+}
+
+.cart-page .carrinho{
+  margin-top:var(--gap-16);
+  display:grid; grid-template-columns:2fr 1fr; gap:var(--cart-gap);
+}
+@media (max-width:768px){ .cart-page .carrinho{ grid-template-columns:1fr; } }
+
+.cart-page .lista-produtos,
+.cart-page .resumo-pedido{
+  background:var(--cart-bg);
+  border:1px solid var(--cart-border);
+  border-radius:var(--cart-radius);
+  padding:var(--gap-16);
+  box-shadow:var(--cart-shadow);
+}
+
+.cart-page .produto-item{
+  display:flex; gap:var(--gap-16);
+  padding-block:var(--gap-12);
+  border-bottom:1px solid var(--cart-border);
+  align-items:center;
+}
+.cart-page .produto-item:last-child{ border-bottom:none; }
+
+.cart-page .produto-item img{
+  width:80px; height:80px; object-fit:cover; border-radius:8px;
+}
+
+.cart-page .produto-info{ flex:1; }
+.cart-page .produto-nome{ font-size:1rem; font-weight:600; }
+.cart-page .produto-preco{ font-size:.95rem; color:var(--color-neutral-5); }
+
+.cart-page .produto-quantidade{ display:flex; align-items:center; gap:var(--gap-8); margin-top:var(--gap-8); }
+.cart-page .produto-quantidade input{
+  width:56px; padding:.35rem; text-align:center;
+  border:1px solid var(--cart-border); border-radius:8px; background:var(--layout-card); color:var(--layout-dark);
+}
+
+.cart-page .remover{
+  background:none; border:0; color:var(--cart-accent);
+  font-size:.875rem; cursor:pointer; text-decoration:underline; padding:0;
+}
+
+.cart-page .resumo-pedido h2{
+  font-size:1.25rem; margin-bottom:var(--gap-16); color:var(--color-primary);
+}
+.cart-page .resumo-linha{ display:flex; justify-content:space-between; margin-bottom:var(--gap-12); font-size:.95rem; }
+.cart-page .total{ font-weight:800; font-size:1.15rem; color:var(--cart-total); }
+
+.cart-page .btn-finalizar{
+  margin-top:var(--gap-24); width:100%; padding:var(--gap-16);
+  background:var(--cart-accent); color:#fff; border:0; border-radius:var(--radius-md);
+  font-size:1rem; font-weight:700; cursor:pointer; transition:filter .2s ease;
+  box-shadow:var(--shadow-1);
+}
+.cart-page .btn-finalizar:hover{ background:var(--cart-accent-dark); }
+.cart-page .btn-finalizar:focus-visible{ outline:0; box-shadow:var(--focus-ring); }
+
+.cart-page .cart-empty-state{
+  display:grid;
+  justify-items:center;
+  gap:var(--gap-12);
+  border:1px dashed var(--cart-border);
+  background:linear-gradient(135deg,#f8fbff,#f2f7ff);
+}
+
+.cart-page .cart-empty-state__mascot{
+  width:min(180px, 58vw);
+  height:auto;
+  border-radius:12px;
+}
+
+.cart-page .cart-empty-state p{
+  margin:0;
+}
+
+.cart-page .cart-mascot{
+  margin:4px 0 0;
+  padding:var(--gap-12);
+  border-radius:14px;
+  border:1px solid color-mix(in oklab, var(--cart-border) 75%, #000 25%);
+  background:
+    radial-gradient(circle at 88% 6%, rgba(255, 79, 115, 0.28), transparent 45%),
+    linear-gradient(135deg, #1a3a89 0%, #0e275f 46%, #151515 100%);
+  display:grid;
+  justify-items:center;
+  gap:0.45rem;
+}
+
+.cart-page .cart-mascot img{
+  width:min(170px, 100%);
+  height:auto;
+  object-fit:contain;
+  border-radius:12px;
+}
+
+.cart-page .cart-mascot figcaption{
+  color:#e7eefc;
+  font-size:0.9rem;
+  text-align:center;
+}
+
+@media (max-width:768px){
+  .cart-page .cart-mascot{
+    margin-top:0.5rem;
+  }
+}

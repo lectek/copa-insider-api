@@ -1,0 +1,5 @@
+-- V23072023_04__auth_login_fix.sql
+-- NO-OP: migração desnecessária hoje.
+-- Os ajustes de usuário e a tabela refresh_tokens já foram
+-- contemplados nas versões posteriores (V20250830__... e V20250830_02__...).
+-- Mantemos esta versão apenas para alinhamento de histórico do Flyway.

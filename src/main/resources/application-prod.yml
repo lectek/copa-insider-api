@@ -1,0 +1,239 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jackson:
+    time-zone: ${SPRING_JACKSON_TIME_ZONE:America/Fortaleza}
+  messages:
+    encoding: ${SPRING_MESSAGES_ENCODING:UTF-8}
+
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    test-connection: ${SPRING_MAIL_TEST_CONNECTION:false}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+          connectiontimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_CONNECTIONTIMEOUT:20000}
+          timeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_TIMEOUT:20000}
+          writetimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_WRITETIMEOUT:20000}
+          quitwait: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_QUITWAIT:false}
+          starttls:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
+            required: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED:true}
+          ssl:
+            trust: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST:smtp.gmail.com}
+            checkserveridentity: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_CHECKSERVERIDENTITY:true}
+            protocols: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_PROTOCOLS:TLSv1.3 TLSv1.2}
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:}
+    username: ${SPRING_DATASOURCE_USERNAME:}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: mysqlHikari
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:20}
+      minimum-idle: ${SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE:4}
+      idle-timeout: ${SPRING_DATASOURCE_HIKARI_IDLE_TIMEOUT:600000}
+      connection-timeout: ${SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT:30000}
+
+  servlet:
+    multipart:
+      max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:20MB}
+      max-request-size: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:20MB}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    table: flyway_schema_history
+    locations: classpath:db/migration,classpath:db/migration-mysql,classpath:db/migration/PROD
+    url: ${SPRING_FLYWAY_URL:${SPRING_DATASOURCE_URL:}}
+    user: ${SPRING_FLYWAY_USER:${SPRING_DATASOURCE_USERNAME:}}
+    password: ${SPRING_FLYWAY_PASSWORD:${SPRING_DATASOURCE_PASSWORD:}}
+
+  kafka:
+    enabled: false
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:}
+    listener:
+      missing-topics-fatal: ${SPRING_KAFKA_MISSING_TOPICS_FATAL:true}
+
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+  task:
+    scheduling:
+      pool:
+        size: ${SPRING_TASK_SCHEDULING_POOL_SIZE:2}
+
+redis:
+  enabled: ${REDIS_ENABLED:false}
+
+server:
+  port: ${PORT:${SERVER_PORT:8080}}
+  servlet:
+    context-path: /
+    encoding:
+      enabled: ${SERVER_SERVLET_ENCODING_ENABLED:true}
+      force: ${SERVER_SERVLET_ENCODING_FORCE:true}
+      charset: ${SERVER_SERVLET_ENCODING_CHARSET:UTF-8}
+  forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY:framework}
+  compression:
+    enabled: ${SERVER_COMPRESSION_ENABLED:true}
+    mime-types: ${SERVER_COMPRESSION_MIME_TYPES:application/json,text/html,text/css,text/javascript,application/javascript,application/xml,text/plain}
+    min-response-size: ${SERVER_COMPRESSION_MIN_RESPONSE_SIZE:1024}
+  error:
+    include-message: ${SERVER_ERROR_INCLUDE_MESSAGE:never}
+    include-binding-errors: ${SERVER_ERROR_INCLUDE_BINDING_ERRORS:never}
+    include-exception: ${SERVER_ERROR_INCLUDE_EXCEPTION:false}
+
+management:
+  health:
+    redis:
+      enabled: ${MANAGEMENT_HEALTH_REDIS_ENABLED:false}
+    mail:
+      enabled: ${MANAGEMENT_HEALTH_MAIL_ENABLED:false}
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info}
+  endpoint:
+    health:
+      show-details: ${MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS:when_authorized}
+      probes:
+        enabled: ${MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED:true}
+  server:
+    # Health divulgates na mesma porta do app com fallback PORT/SERVER_PORT
+    port: ${MANAGEMENT_SERVER_PORT:${PORT:${SERVER_PORT:8080}}}
+
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:WARN}
+    org.springframework: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK:INFO}
+  pattern:
+    level: "%5p [%X{X-Correlation-Id}]"
+
+security:
+  jwt:
+    enabled: ${JWT_ENABLED:true}
+    issuer: ${JWT_ISSUER:redemaisfarma-api}
+    secret: ${JWT_SECRET}
+    access-token:
+      ttl-seconds: ${JWT_ACCESS_TOKEN_TTL_SECONDS:3600}
+    refresh-token:
+      ttl-seconds: ${JWT_REFRESH_TOKEN_TTL_SECONDS:2592000}
+
+jwt:
+  enabled: ${JWT_ENABLED:true}
+  issuer: ${JWT_ISSUER:redemaisfarma-api}
+  secret: ${JWT_SECRET}
+  accessTokenExpirationMinutes: ${JWT_ACCESS_TOKEN_EXPIRATION_MINUTES:60}
+  refreshTokenExpirationMinutes: ${JWT_REFRESH_TOKEN_EXPIRATION_MINUTES:43200}
+
+app:
+  web:
+    base-url: ${APP_WEB_BASE_URL:http://localhost:8080}
+    cors:
+      allowed-origins: ${APP_WEB_CORS_ALLOWED_ORIGENS:}
+  media:
+    provider: ${APP_MEDIA_PROVIDER:local}
+    dir: ${APP_MEDIA_DIR:${java.io.tmpdir:/tmp}/redemaisfarma/media/products}
+    public-base: ${APP_MEDIA_PUBLIC_BASE:/media/products}
+    user-dir: ${APP_MEDIA_USER_DIR:${java.io.tmpdir:/tmp}/redemaisfarma/media/users}
+    user-public-base: ${APP_MEDIA_USER_PUBLIC_BASE:/media/users}
+    s3:
+      bucket: ${APP_MEDIA_S3_BUCKET:}
+      region: ${APP_MEDIA_S3_REGION:us-east-1}
+      endpoint: ${APP_MEDIA_S3_ENDPOINT:}
+      access-key: ${APP_MEDIA_S3_ACCESS_KEY:}
+      secret-key: ${APP_MEDIA_S3_SECRET_KEY:}
+      path-style-access: ${APP_MEDIA_S3_PATH_STYLE_ACCESS:true}
+      product-prefix: ${APP_MEDIA_S3_PRODUCT_PREFIX:products}
+      user-prefix: ${APP_MEDIA_S3_USER_PREFIX:users}
+  mail:
+    enabled: ${APP_MAIL_ENABLED:true}
+    from: ${APP_MAIL_FROM:no-reply@local.redemaisfarma}
+    bcc: ${APP_MAIL_BCC:}
+    css-url: ${APP_MAIL_CSS_URL:}
+    send-timeout-ms: ${APP_MAIL_SEND_TIMEOUT_MS:10000}
+    noop: ${APP_MAIL_NOOP:false}
+  sms:
+    enabled: ${APP_SMS_ENABLED:false}
+    provider: ${APP_SMS_PROVIDER:twilio}
+    from: ${APP_SMS_FROM:}
+    default-country-code: ${APP_SMS_DEFAULT_COUNTRY_CODE:55}
+    twilio:
+      account-sid: ${APP_SMS_TWILIO_ACCOUNT_SID:${TWILIO_ACCOUNT_SID:}}
+      auth-token: ${APP_SMS_TWILIO_AUTH_TOKEN:${TWILIO_AUTH_TOKEN:}}
+      messaging-service-sid: ${APP_SMS_TWILIO_MESSAGING_SERVICE_SID:${TWILIO_MESSAGING_SERVICE_SID:}}
+  ai:
+    assistant:
+      provider: ${APP_AI_ASSISTANT_PROVIDER:openai}
+    openai:
+      enabled: ${APP_AI_OPENAI_ENABLED:true}
+      base-url: ${APP_AI_OPENAI_BASE_URL:https://api.openai.com/v1}
+      api-key: ${OPENAI_API_KEY:}
+      chat-model: ${APP_AI_OPENAI_CHAT_MODEL:gpt-5-mini}
+      vision-model: ${APP_AI_OPENAI_VISION_MODEL:gpt-5-mini}
+      image-model: ${APP_AI_OPENAI_IMAGE_MODEL:gpt-image-1.5}
+      reasoning-effort: ${APP_AI_OPENAI_REASONING_EFFORT:low}
+      timeout-ms: ${APP_AI_OPENAI_TIMEOUT_MS:30000}
+      store-responses: ${APP_AI_OPENAI_STORE_RESPONSES:true}
+      system-prompt: ${APP_AI_OPENAI_SYSTEM_PROMPT:Voce e Alysson, o assistente virtual da RedeMaisFarma. Responda em portugues claro, natural, objetivo e cordial. Mantenha o contexto da conversa e nao se reapresente a cada mensagem. Quando perguntarem seu nome, responda que seu nome e Alysson. Para frete, prazo ou entrega, aceite CEP ou endereco completo com rua, numero, bairro e cidade. Se o cliente enviar apenas o CEP, reconheca o CEP recebido e continue a conversa sem reiniciar o atendimento. Faca perguntas objetivas, de uma em uma. Nao invente estoque, preco ou promessas operacionais. Se o cliente pedir diagnostico, prescricao ou orientacao medica, deixe claro que nao substitui um profissional de saude.}
+      product-vision-prompt: ${APP_AI_OPENAI_PRODUCT_VISION_PROMPT:Analise profundamente a imagem enviada e pesquise o produto com base nos identificadores disponiveis antes de escrever o prompt final. Confirme marca, nome do produto, variante, concentracao, volume, sabor, quantidade, formato da embalagem, cores, tipografia e selos oficiais. Escreva somente um prompt curto para gerar um packshot fiel do produto em fundo branco puro com sombreamento basico suave de estudio para ecommerce.}
+      image-quality: ${APP_AI_OPENAI_IMAGE_QUALITY:medium}
+      image-size: ${APP_AI_OPENAI_IMAGE_SIZE:1024x1024}
+      image-background: ${APP_AI_OPENAI_IMAGE_BACKGROUND:opaque}
+      image-output-format: ${APP_AI_OPENAI_IMAGE_OUTPUT_FORMAT:png}
+    image:
+      provider: ${APP_AI_IMAGE_PROVIDER:openai}
+      pollinations:
+        base-url: ${APP_AI_IMAGE_POLLINATIONS_BASE_URL:https://image.pollinations.ai/prompt}
+        model: ${APP_AI_IMAGE_POLLINATIONS_MODEL:flux}
+        width: ${APP_AI_IMAGE_POLLINATIONS_WIDTH:1024}
+        height: ${APP_AI_IMAGE_POLLINATIONS_HEIGHT:1024}
+        nologo: ${APP_AI_IMAGE_POLLINATIONS_NOLOGO:true}
+        private: ${APP_AI_IMAGE_POLLINATIONS_PRIVATE:false}
+  route:
+    engine: ${APP_ROUTE_ENGINE:auto}
+    nominatim:
+      base-url: ${APP_ROUTE_NOMINATIM_BASE_URL:https://nominatim.openstreetmap.org/search}
+      user-agent: ${APP_ROUTE_NOMINATIM_USER_AGENT:RedeMaisFarma/1.0}
+      timeout-ms: ${APP_ROUTE_NOMINATIM_TIMEOUT_MS:6000}
+    osrm:
+      base-url: ${APP_ROUTE_OSRM_BASE_URL:http://localhost:5000}
+  kafka:
+    groups:
+      pedidos: ${APP_KAFKA_GROUP_PEDIDOS:pedidos-consumer}
+
+kafka:
+  enabled: ${KAFKA_ENABLED:false}
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:}
+
+legacy:
+  sync:
+    enabled: false
+
+admin:
+  legacy:
+    enabled: false
+
+catalogo-venda:
+  local:
+    bootstrap-enabled: ${CATALOGO_VENDA_LOCAL_BOOTSTRAP_ENABLED:true}

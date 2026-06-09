@@ -1,0 +1,63 @@
+/* =============================
+   OTP Modal (dialog)
+   ============================= */
+
+:root{
+  --otp-radius:16px; --otp-gap:12px;
+  --otp-surface:#ffffff; --otp-surface-2:#f7fafc;
+  --otp-text:#0f172a; --otp-muted:#475569;
+  --otp-border:#e2e8f0; --otp-primary:#0ea5e9; --otp-primary-600:#0284c7;
+  --otp-danger:#dc2626; --otp-success:#059669;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --otp-surface:#0b0f1a; --otp-surface-2:#0e1424; --otp-text:#e5f0ff; --otp-muted:#93a3bf; --otp-border:#1f2a44;
+    --otp-primary:#38bdf8; --otp-primary-600:#0ea5e9;
+  }
+}
+
+dialog#otpDialog{border:0;padding:0;width:min(560px,92vw);max-width:560px;background:transparent}
+dialog#otpDialog::backdrop{background:rgba(0,0,0,.45);backdrop-filter:blur(4px)}
+
+#otpDialog .otp-card{
+  display:grid;gap:18px;padding:22px;border-radius:var(--otp-radius);
+  background:linear-gradient(180deg,var(--otp-surface),var(--otp-surface-2));
+  color:var(--otp-text);box-shadow:0 20px 60px rgba(2,6,23,.18),0 2px 12px rgba(2,6,23,.06);
+  border:1px solid var(--otp-border);position:relative;isolation:isolate;
+}
+#otpDialog h2{margin:2px 0 0;font-size:clamp(1.1rem,1vw + .9rem,1.35rem)}
+#otpDialog p{margin:0;color:var(--otp-muted);font-size:.95rem}
+#otpDestino{font-weight:600;color:var(--otp-text);background:color-mix(in srgb,var(--otp-primary) 10%,transparent);border:1px solid color-mix(in srgb,var(--otp-primary) 30%, var(--otp-border));padding:2px 8px;border-radius:999px}
+
+#otpDialog .otp-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(46px,1fr));
+  gap:var(--otp-gap);
+  margin-top:6px;
+  border:0;
+  padding:0;
+  min-inline-size:0;
+}
+#otpDialog .otp-grid .otp{
+  text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.5px;font-size:clamp(1.15rem,2.6vw,1.5rem);
+  padding:12px 0;border:1px solid var(--otp-border);border-radius:12px;background:#fff0;color:var(--otp-text);outline:0;transition:border-color .15s,box-shadow .15s,transform .06s;caret-color:transparent;
+}
+#otpDialog .otp-grid .otp:focus{border-color:var(--otp-primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--otp-primary) 25%, transparent);transform:translateY(-1px)}
+#otpDialog .otp-grid.valid .otp{border-color:color-mix(in srgb,var(--otp-success) 55%, var(--otp-border))}
+#otpDialog .error-message{min-height:1.2em;color:var(--otp-danger);font-weight:600;letter-spacing:.2px}
+
+#otpDialog .otp-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+#otpDialog .btn{appearance:none;border-radius:12px;padding:10px 14px;font:inherit;cursor:pointer;border:1px solid transparent;transition:transform .06s,box-shadow .15s,background-color .15s,border-color .15s}
+#otpDialog .btn:active{transform:translateY(1px)}
+#otpDialog .btn--primary{background:linear-gradient(180deg,color-mix(in srgb,var(--otp-primary) 90%,#fff),var(--otp-primary-600));color:#fff;border-color:color-mix(in srgb,var(--otp-primary-600) 60%, transparent)}
+#otpDialog .btn--ghost{background:color-mix(in srgb,var(--otp-surface-2) 60%, transparent);color:var(--otp-text);border-color:var(--otp-border)}
+
+#otpDialog .otp-secondary{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#otpTimer{color:var(--otp-muted);font-size:.9rem}
+#otpNoCodeLink{color:var(--otp-primary-600);text-decoration:none;font-weight:600}
+#otpNoCodeLink:hover{text-decoration:underline}
+
+@media (max-width:420px){
+  #otpDialog .otp-grid{grid-template-columns:repeat(6,minmax(38px,1fr));gap:10px}
+  #otpDialog .otp-card{padding:18px}
+}

@@ -1,0 +1,145 @@
+# READMEPROJETO
+
+## O que este sistema faz
+Este projeto e o sistema da farmacia online.
+Ele tem:
+- API (o "cerebro" que recebe pedidos e responde)
+- Banco de dados (onde tudo fica salvo)
+- Frontend (as telas que o usuario enxerga)
+
+## Explicacao simples da API
+Pense na API como um atendente:
+1. O usuario pede algo na tela (ex: "listar produtos").
+2. A API recebe esse pedido.
+3. A API consulta o banco.
+4. A API devolve a resposta para a tela.
+
+A tela nao "fala direto" com o banco. Sempre passa pela API.
+
+## Quem usa a API
+- Cliente final (area publica e area logada)
+- Admin (painel interno)
+- Integracoes (servicos externos, jobs, etc)
+
+## Fluxo do cliente (passo a passo)
+1. Entra no site.
+2. Vê produtos.
+3. Faz login.
+4. Adiciona itens no carrinho.
+5. Vai para checkout.
+6. Finaliza pedido.
+7. Pedido e salvo no banco.
+
+## Fluxo do admin (passo a passo)
+1. Admin entra no painel.
+2. Cadastra/edita produto.
+3. API salva alteracoes.
+4. Produto aparece para cliente apenas se cumprir regras de vitrine.
+
+Regra principal da vitrine publica:
+- disponivel = true
+- estoque > 0
+- preco_venda > 0
+
+## Banco de dados (explicacao leiga)
+O banco principal e MySQL.
+Ele guarda:
+- usuarios e login
+- clientes
+- produtos e estoque
+- pedidos
+- emails e campanhas
+- configuracoes do sistema
+
+Tambem existe Firebird (legado), usado em cenarios especificos de integracao.
+
+## Migracoes (Flyway)
+Flyway e o "historico de mudancas do banco".
+Sempre que o banco precisa de ajuste (nova coluna, tabela, indice), isso vai em um script de migracao.
+Assim, todos os ambientes ficam alinhados.
+
+## Frontend
+As telas sao feitas com Thymeleaf, CSS e JavaScript.
+Exemplos de areas:
+- Cliente: home, produtos, carrinho, checkout, conta
+- Admin: dashboard, produtos, pedidos, clientes, marketing, configuracoes
+
+## Docker (para rodar facil)
+Com Docker, sobe tudo mais rapido para desenvolvimento:
+- app
+- mysql
+- mailpit
+- mocks
+
+Isso evita configuracao manual e deixa o ambiente mais padrao.
+
+## Resumo final
+- Frontend mostra as telas.
+- API processa as regras.
+- Banco guarda os dados.
+- Flyway controla evolucao do banco.
+- Docker facilita subir o ambiente.
+
+## Especificacoes reais do projeto
+
+### Stack e versoes reais
+- Java: 21
+- Spring Boot: 3.5.11
+- Maven Wrapper: `./mvnw`
+- Spring Security, Spring Data JPA, Flyway, Thymeleaf
+- MapStruct: 1.6.2
+- Lombok: 1.18.34
+- Testcontainers: 1.20.2
+
+### Estrutura real da aplicacao
+- Classe principal: `br.com.redemaisfarma.RedeMaisFarmaApiApplication`
+- Arquitetura em camadas (hexagonal):
+  - `domain`
+  - `application`
+  - `adapters` (inbound e outbound)
+  - `config`
+
+### Banco de dados real
+- Banco principal: MySQL
+- Banco legado (opcional): Firebird
+- Migracoes: Flyway
+  - Pastas: `src/main/resources/db/migration` e `db/migration-mysql`
+  - Total aproximado atual de scripts: 87
+
+### Perfis reais de execucao
+- `dev`
+- `docker`
+- `prod`
+- `legacy`
+- `test`
+
+### Portas reais (ambiente docker dev)
+- App: `18090`
+- MySQL: `3310`
+- Mailpit UI: `8026`
+- Cliente mock (WireMock): `8081`
+
+### Endpoints/prefixos reais mais usados
+- Publico:
+  - `/api/public/produtos`
+  - `/api/public/vitrine`
+- Autenticacao:
+  - `/api/auth/*`
+- Cliente logado:
+  - `/api/cliente/me/*`
+- Admin API:
+  - `/api/admin/produtos`
+  - `/api/admin/marketing/emails/campanhas`
+  - `/api/admin/estoque-fisico`
+- Admin web:
+  - `/admin/*`
+
+### Frontend real
+- Templates: `src/main/resources/templates`
+  - `pages/admin`
+  - `pages/cliente`
+  - `pages/auth`
+- Arquivos estaticos: `src/main/resources/static`
+  - `css`, `js`, `images`, `animations`
+- Midias de upload:
+  - `/media/**` apontando para pasta local `media/`

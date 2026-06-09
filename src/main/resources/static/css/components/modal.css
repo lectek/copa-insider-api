@@ -1,0 +1,32 @@
+/* =============================
+   Modal genérico
+   ============================= */
+
+.modal{position:fixed;inset:0;align-items:center;justify-content:center;z-index:9999;padding:2rem;isolation:isolate}
+.modal[hidden]{display:none !important}
+.modal:not([hidden]){display:flex}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);z-index:0}
+.modal-content{
+  background:var(--layout-card,#fff);color:var(--layout-dark,#1f2937);
+  border-radius:var(--layout-radius,12px);box-shadow:var(--layout-shadow);
+  width:min(500px,92vw);display:flex;flex-direction:column;overflow:hidden;animation:modalIn .28s ease-out;
+  border:1px solid var(--layout-border,#e5e7eb);position:relative;z-index:1;
+}
+.modal-header{padding:1rem 1.5rem;border-bottom:1px solid var(--layout-border);display:flex;justify-content:space-between;align-items:center;font-weight:700;background:var(--color-neutral-2,#f9fafb)}
+.modal-header h2{font-size:1.125rem;margin:0}
+.modal-close{background:transparent;border:0;font-size:1.5rem;cursor:pointer;color:var(--color-neutral-5,#6b7280)}
+.modal-close:hover{color:var(--layout-accent,#111827)}
+.modal-body{padding:1.5rem}
+.modal-footer{display:flex;justify-content:flex-end;gap:.75rem;padding:1rem 1.5rem;border-top:1px solid var(--layout-border);background:var(--color-neutral-2,#f9fafb)}
+.modal-footer .btn-cancelar{padding:.5rem 1.25rem;border-radius:8px;background:var(--layout-border);color:var(--layout-dark)}
+.modal-footer .btn-confirmar{padding:.5rem 1.25rem;border-radius:8px;background:var(--color-primary,#22a653);color:#fff}
+.modal-footer .btn-confirmar:hover{filter:brightness(.97)}
+
+@keyframes modalIn{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}
+
+@media (max-width: 480px){
+  .modal-content{border-radius:10px}
+  .modal-footer{flex-direction:column;align-items:stretch}
+  .modal-footer button{width:100%}
+}
+

@@ -1,0 +1,25 @@
+spring:
+  config:
+    activate:
+      on-profile: mail-465
+
+  mail:
+    # SSL implícito (465) — sem STARTTLS
+    port: 465
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+          connectiontimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_CONNECTIONTIMEOUT:20000}
+          timeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_TIMEOUT:20000}
+          writetimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_WRITETIMEOUT:20000}
+          quitwait: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_QUITWAIT:false}
+          starttls:
+            enable: false
+            required: false
+          ssl:
+            enable: true
+            trust: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST:smtp.gmail.com}
+            checkserveridentity: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_CHECKSERVERIDENTITY:true}
+            # protocolos separados por ESPAÇO (sem vírgula)
+            protocols: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_PROTOCOLS:TLSv1.3 TLSv1.2}

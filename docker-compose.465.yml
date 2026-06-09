@@ -1,0 +1,20 @@
+services:
+  app:
+    environment:
+      # Ative este profile adicional
+      SPRING_PROFILES_ACTIVE: "prod,docker,mail-465"
+
+      # Porta 465 + SSL implícito
+      SPRING_MAIL_PORT: "465"
+
+      # SSL ON; STARTTLS OFF
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_ENABLE: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "false"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: "false"
+
+      # Segurança/validação
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST: "smtp.gmail.com"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_CHECKSERVERIDENTITY: "true"
+
+      # Protocolos corretamente formatados (com espaço)
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_PROTOCOLS: "TLSv1.3 TLSv1.2"

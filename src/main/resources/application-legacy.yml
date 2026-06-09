@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: legacy
+
+  flyway:
+    enabled: false
+
+  datasource:
+    firebird:
+      # App rodando no Windows e Firebird no Docker:
+      # porta mapeada no compose: 3054 -> 3050
+      jdbc-url: jdbc:firebirdsql://${FIREBIRD_HOST:localhost}:${FIREBIRD_PORT:3054}/firebird/data/${FIREBIRD_DB:digifarma6.fdb}?encoding=WIN1252&wireCrypt=enabled&authPlugins=Srp,Legacy_Auth
+      username: ${FIREBIRD_USER:SYSDBA}
+      password: ${FIREBIRD_PASSWORD:masterkey}
+      driver-class-name: org.firebirdsql.jdbc.FBDriver
+      hikari:
+        maximum-pool-size: 5
+        minimum-idle: 0
+        idle-timeout: 60000
+        connection-timeout: 10000

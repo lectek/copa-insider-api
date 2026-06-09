@@ -1,0 +1,139 @@
+/* PDV layout */
+.pdv-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 1.5rem;
+}
+.pdv-left, .pdv-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.pdv-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--layout-border);
+  margin-bottom: 1rem;
+}
+.pdv-search {
+  display: grid;
+  grid-template-columns: 1fr 120px auto;
+  gap: .75rem;
+  align-items: end;
+}
+.pdv-qty { max-width: 120px; }
+.pdv-results {
+  margin-top: .75rem;
+  display: grid;
+  gap: .5rem;
+}
+.pdv-scan-status {
+  margin-top: .5rem;
+  font-size: .9rem;
+  color: var(--layout-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+.pdv-scan-status::before {
+  content: "";
+  width: .55rem;
+  height: .55rem;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 0 6px rgba(46, 194, 126, 0.18);
+}
+.pdv-result {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: .5rem;
+  padding: .5rem .75rem;
+  border: 1px solid var(--layout-border);
+  border-radius: .75rem;
+  background: var(--layout-card);
+}
+.pdv-result small { color: var(--layout-muted); }
+.pdv-table td, .pdv-table th { vertical-align: middle; }
+.pdv-cart-qty {
+  width: 80px;
+}
+.pdv-empty {
+  margin-top: .75rem;
+  color: var(--layout-muted);
+}
+.pdv-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+.pdv-section {
+  border-top: 1px solid var(--layout-border);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+.pdv-section h3 {
+  margin: 0 0 .75rem 0;
+  font-size: 1rem;
+}
+.pdv-radio {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  margin-bottom: .5rem;
+}
+.pdv-field {
+  display: grid;
+  gap: .25rem;
+  margin-bottom: .75rem;
+}
+.btn--full {
+  width: 100%;
+}
+.pdv-status {
+  margin-top: .75rem;
+  color: var(--layout-muted);
+}
+.pdv-cash-grid {
+  display: grid;
+  gap: .5rem;
+}
+.pdv-cash-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .75rem;
+  padding: .4rem 0;
+  border-bottom: 1px solid var(--layout-border);
+}
+.pdv-cash-row:last-child {
+  border-bottom: 0;
+}
+.pdv-cash-row strong {
+  font-size: 1rem;
+}
+.pdv-cash-row--strong {
+  margin-top: .5rem;
+}
+#pdv-caixa-diferenca.is-positive {
+  color: #0369a1;
+}
+#pdv-caixa-diferenca.is-negative {
+  color: #b91c1c;
+}
+#pdv-caixa-diferenca.is-neutral {
+  color: var(--layout-fg);
+}
+.pdv-cash-periodo {
+  margin-top: .5rem;
+}
+@media (max-width: 1024px) {
+  .pdv-layout { grid-template-columns: 1fr; }
+  .pdv-search { grid-template-columns: 1fr; }
+  .pdv-qty { max-width: none; }
+}
+

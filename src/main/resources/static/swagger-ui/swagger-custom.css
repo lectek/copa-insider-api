@@ -1,0 +1,16 @@
+/* Barra superior com a cor da marca */
+.topbar { background: #0F766E; }
+
+/* Substitui o texto "Swagger UI" pelo seu logo (opcional) */
+.topbar .link {
+  width: 200px; height: 36px;
+  background: url('/swagger-ui/rede-maisfarma-logo.png') no-repeat left center / contain;
+  text-indent: -9999px; overflow: hidden;
+}
+
+/* Limpeza visual */
+.topbar .download-url-wrapper { display: none !important; } /* esconde seletor de URL */
+.models { display: none !important; }                        /* esconde "Schemas" gigante */
+
+/* Legibilidade melhor nas descrições */
+.swagger-ui .opblock-summary-description { max-width: 60ch; }

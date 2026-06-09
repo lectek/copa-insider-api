@@ -1,0 +1,261 @@
+name: redemaisfarma-api-dev
+
+networks:
+  backend-net:
+    driver: bridge
+    name: redemaisfarma-api-dev_backend-net
+
+volumes:
+  mysql_data_dev:
+  kafka_data_dev:
+  firebird_data_dev:
+  app_logs_dev:
+  app_media_dev:
+  nominatim_db_dev:
+  nominatim_flatnode_dev:
+
+services:
+  nominatim:
+    image: mediagis/nominatim:5.2
+    container_name: redemaisfarma-nominatim-dev
+    restart: unless-stopped
+    profiles: ["routing"]
+    shm_size: 1gb
+    environment:
+      PBF_PATH: "/nominatim/data/${NOMINATIM_PBF_FILE:-paraiba-latest.osm.pbf}"
+      NOMINATIM_PASSWORD: "${NOMINATIM_PASSWORD:-nominatim}"
+      THREADS: "${NOMINATIM_THREADS:-2}"
+      IMPORT_WIKIPEDIA: "${NOMINATIM_IMPORT_WIKIPEDIA:-false}"
+      UPDATE_MODE: "${NOMINATIM_UPDATE_MODE:-none}"
+      POSTGRES_SHARED_BUFFERS: "${NOMINATIM_POSTGRES_SHARED_BUFFERS:-512MB}"
+      POSTGRES_MAINTENANCE_WORK_MEM: "${NOMINATIM_POSTGRES_MAINTENANCE_WORK_MEM:-512MB}"
+      POSTGRES_AUTOVACUUM_WORK_MEM: "${NOMINATIM_POSTGRES_AUTOVACUUM_WORK_MEM:-256MB}"
+      POSTGRES_WORK_MEM: "${NOMINATIM_POSTGRES_WORK_MEM:-32MB}"
+      POSTGRES_EFFECTIVE_CACHE_SIZE: "${NOMINATIM_POSTGRES_EFFECTIVE_CACHE_SIZE:-1024MB}"
+      POSTGRES_MAX_WAL_SIZE: "${NOMINATIM_POSTGRES_MAX_WAL_SIZE:-1024MB}"
+      POSTGRES_CHECKPOINT_TIMEOUT: "${NOMINATIM_POSTGRES_CHECKPOINT_TIMEOUT:-10min}"
+      POSTGRES_CHECKPOINT_COMPLETION_TARGET: "${NOMINATIM_POSTGRES_CHECKPOINT_COMPLETION_TARGET:-0.9}"
+    ports:
+      - "${HOST_NOMINATIM_PORT:-8088}:8080"
+    volumes:
+      - nominatim_db_dev:/var/lib/postgresql/16/main
+      - nominatim_flatnode_dev:/nominatim/flatnode
+      - ./infra/nominatim/data:/nominatim/data:ro
+    networks: [backend-net]
+
+  osrm:
+    image: ghcr.io/project-osrm/osrm-backend:latest
+    container_name: redemaisfarma-osrm-dev
+    restart: unless-stopped
+    profiles: ["routing"]
+    command:
+      [
+        "osrm-routed",
+        "--algorithm",
+        "mld",
+        "/data/${OSRM_DATA_FILE:-paraiba-latest.osrm}"
+      ]
+    ports:
+      - "${HOST_OSRM_PORT:-5000}:5000"
+    volumes:
+      - ./infra/osrm/data:/data:ro
+    networks: [backend-net]
+
+  mysql:
+    image: mysql:8.0
+    container_name: redemaisfarma-mysql-dev
+    restart: unless-stopped
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --host_cache_size=0
+      --log_bin_trust_function_creators=1
+    env_file:
+      - ./.env
+      - ./.env.local
+    environment:
+      TZ: ${TZ:-America/Fortaleza}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER:-app_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_data_dev:/var/lib/mysql
+      - ./mysql_init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL","mysqladmin ping -h 127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks: [backend-net]
+
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: redemaisfarma-kafka-dev
+    restart: unless-stopped
+    env_file:
+      - ./.env
+      - ./.env.local
+    environment:
+      TZ: ${TZ:-America/Fortaleza}
+      KAFKA_ENABLE_KRAFT: "yes"
+      KAFKA_CFG_NODE_ID: "0"
+      KAFKA_CFG_PROCESS_ROLES: "controller,broker"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094"
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "0@kafka:9093"
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_CLIENT_USERS: ""
+    ports:
+      - "9094:9094"
+    volumes:
+      - kafka_data_dev:/bitnami/kafka
+    healthcheck:
+      test: ["CMD-SHELL","bash -ec 'echo > /dev/tcp/127.0.0.1/9092'"]
+      interval: 15s
+      timeout: 8s
+      retries: 15
+      start_period: 40s
+    networks: [backend-net]
+
+  firebird:
+    # Firebird 2.5 (ODS 11.2) — compatível com bases antigas
+    image: jacobalberty/firebird:v2.5.9-sc
+    container_name: redemaisfarma-firebird
+    restart: unless-stopped
+    env_file:
+      - ./.env
+      - ./.env.local
+    environment:
+      TZ: ${TZ:-America/Fortaleza}
+      ISC_PASSWORD: ${ISC_PASSWORD:-masterkey}
+      FIREBIRD_DATABASE: ${FIREBIRD_DATABASE}
+    ports:
+      - "${HOST_FB_PORT:-3054}:3050"
+    volumes:
+      - firebird_data_dev:/firebird
+      - ./infra/firebird/data:/firebird/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "echo 'select 1 from rdb$$database; quit;' | /usr/local/firebird/bin/isql -user SYSDBA -password \"$ISC_PASSWORD\" 127.0.0.1/3050:/firebird/data/${FIREBIRD_DATABASE} >/dev/null 2>&1 || exit 1"
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+    networks: [backend-net]
+
+  cliente-mock:
+    image: wiremock/wiremock:3.8.0
+    container_name: redemaisfarma-cliente-mock-dev
+    restart: unless-stopped
+    command: ["--verbose","--global-response-templating"]
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./infra/wiremock:/home/wiremock
+    healthcheck:
+      test: ["CMD-SHELL","wget -qO- http://127.0.0.1:8080/__admin | grep -q 'mappings'"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks: [backend-net]
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: redemaisfarma-api-app-dev
+    container_name: redemaisfarma-app-dev
+    restart: unless-stopped
+    env_file:
+      - ./.env
+      - ./.env.local
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_OPTS: "--spring.output.ansi.enabled=ALWAYS --spring.profiles.active=${SPRING_PROFILES_ACTIVE}"
+      TZ: ${TZ:-America/Fortaleza}
+      SPRING_OUTPUT_ANSI_ENABLED: "ALWAYS"
+      SERVER_FORWARD_HEADERS_STRATEGY: native
+      # Desliga mail e Kafka no dev para evitar dependências externas
+      APP_MAIL_ENABLED: "false"
+      KAFKA_ENABLED: "false"
+
+      # Bind interno
+      SERVER_ADDRESS: "0.0.0.0"
+      SERVER_PORT: "8080"
+      JAVA_TOOL_OPTIONS: "-Dserver.address=0.0.0.0"
+      SPRING_FLYWAY_ENABLED: "true"
+
+      # Probes do actuator
+      MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+
+      # MySQL
+      MYSQL_URL: "mysql://${MYSQL_USER:-app_user}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?sslMode=PREFERRED&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER:-app_user}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: "com.mysql.cj.jdbc.Driver"
+
+      # Firebird (Jaybird) — FB 2.5 requer wireCrypt=DISABLED
+      SPRING_DATASOURCE_LEGACY_URL: "jdbc:firebirdsql://firebird:3050//firebird/data/${FIREBIRD_DATABASE}?encoding=WIN1252&sql_dialect=3&wireCrypt=DISABLED"
+      SPRING_DATASOURCE_LEGACY_USERNAME: "${SPRING_DATASOURCE_LEGACY_USERNAME:-SYSDBA}"
+      SPRING_DATASOURCE_LEGACY_PASSWORD: "${SPRING_DATASOURCE_LEGACY_PASSWORD:-masterkey}"
+      SPRING_DATASOURCE_LEGACY_DRIVER_CLASS_NAME: "${SPRING_DATASOURCE_LEGACY_DRIVER_CLASS_NAME:-org.firebirdsql.jdbc.FBDriver}"
+
+      # Kafka
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+
+      # Base URL
+      APP_WEB_BASE_URL: "${APP_WEB_BASE_URL:-http://127.0.0.1:${APP_HTTP_PORT:-18090}}"
+      APP_MEDIA_PROVIDER: "${APP_MEDIA_PROVIDER:-local}"
+      APP_MEDIA_DIR: "${APP_MEDIA_DIR:-/opt/app/media/products}"
+      APP_MEDIA_PUBLIC_BASE: "${APP_MEDIA_PUBLIC_BASE:-/media/products}"
+      APP_MEDIA_USER_DIR: "${APP_MEDIA_USER_DIR:-/opt/app/media/users}"
+      APP_MEDIA_USER_PUBLIC_BASE: "${APP_MEDIA_USER_PUBLIC_BASE:-/media/users}"
+      APP_ROUTE_ENGINE: "${APP_ROUTE_ENGINE:-geo}"
+      APP_ROUTE_OSRM_BASE_URL: "${APP_ROUTE_OSRM_BASE_URL:-http://osrm:5000}"
+      # Quando o profile "routing" estiver ativo, sobrescreva para http://nominatim:8080/search
+      APP_ROUTE_NOMINATIM_BASE_URL: "${APP_ROUTE_NOMINATIM_BASE_URL:-https://nominatim.openstreetmap.org/search}"
+
+      # Cliente mock
+      INTEGRATIONS_CLIENTE_BASE_URL: "http://cliente-mock:8080"
+      INTEGRATIONS_CLIENTE_BASEURL: "http://cliente-mock:8080"
+
+      # Encoding/locale
+      SERVER_SERVLET_ENCODING_ENABLED: "true"
+      SERVER_SERVLET_ENCODING_FORCE: "true"
+      SERVER_SERVLET_ENCODING_CHARSET: "UTF-8"
+      SPRING_MESSAGES_ENCODING: "UTF-8"
+      SPRING_JACKSON_TIME_ZONE: "${SPRING_JACKSON_TIME_ZONE:-America/Fortaleza}"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      firebird:
+        condition: service_started
+      cliente-mock:
+        condition: service_healthy
+    ports:
+      - "${APP_HTTP_PORT:-18090}:8080"
+    healthcheck:
+      # Usa liveness do Actuator para não depender de readiness de integrações pesadas
+      test: ["CMD", "true"]
+      interval: 30s
+      timeout: 5s
+      retries: 1
+      start_period: 5s
+    networks: [backend-net]
+    volumes:
+      - app_logs_dev:/opt/app/logs
+      - app_media_dev:/opt/app/media

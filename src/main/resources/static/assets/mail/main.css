@@ -1,0 +1,72 @@
+/* Email-safe CSS (sem @import) */
+
+:root{
+  --text:#111;
+  --muted:#6b7280;
+  --border:#eeeeee;
+  --bg:#ffffff;
+  --bg-soft:#fafafa;
+  --primary:#2563eb;
+}
+
+html,body{margin:0;padding:0;background:#fff;}
+body{
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.45;
+  padding: 16px;
+}
+
+/* container principal */
+.card{
+  max-width:680px;
+  margin:0 auto;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px;
+  box-sizing:border-box;
+  background:#fff;
+}
+
+/* títulos e separadores */
+h1{font-size:18px;margin:0 0 12px 0;}
+hr{border:0;border-top:1px solid var(--border);margin:14px 0;}
+
+/* pares chave-valor */
+.kv{margin:8px 0;}
+.kv b{display:inline-block;min-width:140px;}
+
+/* destaque de categoria/prioridade */
+.pill{
+  display:inline-block;
+  padding:3px 8px;
+  border-radius:999px;
+  background:#eef2ff;
+  color:#111;
+  font-weight:600;
+  font-size:12px;
+}
+
+/* bloco de mensagem */
+pre{
+  white-space:pre-wrap;
+  background: var(--bg-soft);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px;
+  margin:0;
+}
+
+/* rodapé */
+.foot{margin-top:16px;color:var(--muted);font-size:12px;}
+
+/* links */
+a{color:var(--primary);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* listas */
+ul{padding-left:18px;margin:8px 0;}
+li{margin:4px 0;}

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+  <!-- ===== Variáveis comuns ===== -->
+  <property name="LOG_PATH" value="${LOG_PATH:-/tmp/logs}"/>
+  <property name="LOG_FILE" value="${LOG_FILE:-app.log}"/>
+  <property name="ACCESS_FILE" value="${ACCESS_FILE:-access.log}"/>
+  <property name="MAX_HISTORY" value="${MAX_HISTORY:-7}"/>
+  <property name="TOTAL_SIZE_CAP" value="${TOTAL_SIZE_CAP:-2GB}"/>
+  <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] cid=%X{cid} %logger{36} - %msg%n"/>
+  <property name="ACCESS_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level cid=%X{cid} - %msg%n"/>
+
+  <!-- ===== Appenders comuns (console + arquivos) ===== -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="STDOUT_COLORED" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] cid=%X{cid} %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Arquivo principal do app -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/${LOG_FILE}</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- Mantido prefixo 'app.' para padronizar arquivo de rotação -->
+      <fileNamePattern>${LOG_PATH}/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxHistory>${MAX_HISTORY}</maxHistory>
+      <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+      <maxFileSize>50MB</maxFileSize>
+    </rollingPolicy>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Arquivo de access/auditoria -->
+  <appender name="ACCESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/${ACCESS_FILE}</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_PATH}/access.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxHistory>${MAX_HISTORY}</maxHistory>
+      <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+      <maxFileSize>50MB</maxFileSize>
+    </rollingPolicy>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>${ACCESS_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- =================================================================== -->
+  <!-- =============================== DEV =============================== -->
+  <!-- =================================================================== -->
+  <springProfile name="dev">
+    <!-- Níveis -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework.web" level="DEBUG"/>
+    <logger name="org.springframework.security" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+    <logger name="org.springframework.kafka" level="INFO"/>
+    <logger name="br.com.redemaisfarma" level="DEBUG"/>
+
+    <!-- ROOT no dev: console colorido + arquivo síncrono -->
+    <root level="DEBUG">
+      <appender-ref ref="STDOUT_COLORED"/>
+      <appender-ref ref="FILE"/>
+    </root>
+
+    <!-- Access/Auditoria no dev: console + arquivo síncrono -->
+    <logger name="br.com.redemaisfarma.adapters.inbound.web.filter.RequestLoggingFilter" level="INFO" additivity="false">
+      <appender-ref ref="STDOUT_COLORED"/>
+      <appender-ref ref="ACCESS_FILE"/>
+    </logger>
+    <logger name="br.com.redemaisfarma.infra.logging.HttpAuditFilter" level="INFO" additivity="false">
+      <appender-ref ref="STDOUT_COLORED"/>
+      <appender-ref ref="ACCESS_FILE"/>
+    </logger>
+    <logger name="br.com.redemaisfarma.infra.logging.AuthEventsLogger" level="INFO" additivity="false">
+      <appender-ref ref="STDOUT_COLORED"/>
+      <appender-ref ref="ACCESS_FILE"/>
+    </logger>
+  </springProfile>
+
+  <!-- =================================================================== -->
+  <!-- ============================== DOCKER ============================= -->
+  <!-- =================================================================== -->
+  <springProfile name="docker">
+    <!-- Níveis -->
+    <logger name="org.springframework" level="${LOG_LEVEL_SPRING:-INFO}"/>
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.security" level="INFO"/>
+    <logger name="org.flywaydb" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="INFO"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+    <logger name="org.springframework.kafka" level="INFO"/>
+    <logger name="br.com.redemaisfarma" level="${LOG_LEVEL_APP:-INFO}"/>
+
+    <!-- Async wrappers (definidos SOMENTE neste perfil) -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+      <queueSize>16384</queueSize>
+      <discardingThreshold>0</discardingThreshold>
+      <neverBlock>false</neverBlock>          <!-- lossless -->
+      <includeCallerData>false</includeCallerData>
+      <maxFlushTime>2000</maxFlushTime>
+      <appender-ref ref="FILE"/>
+    </appender>
+
+    <appender name="ASYNC_ACCESS_FILE" class="ch.qos.logback.classic.AsyncAppender">
+      <queueSize>8192</queueSize>
+      <discardingThreshold>0</discardingThreshold>
+      <neverBlock>false</neverBlock>          <!-- lossless -->
+      <includeCallerData>false</includeCallerData>
+      <maxFlushTime>2000</maxFlushTime>
+      <appender-ref ref="ACCESS_FILE"/>
+    </appender>
+
+    <!-- Root no Docker: console colorido + arquivo assíncrono -->
+    <root level="${LOG_LEVEL_ROOT:-INFO}">
+      <appender-ref ref="STDOUT_COLORED"/>
+      <appender-ref ref="ASYNC_FILE"/>
+    </root>
+
+    <!-- Access/Auditoria (assíncrono) -->
+    <logger name="br.com.redemaisfarma.adapters.inbound.web.filter.RequestLoggingFilter" level="INFO" additivity="false">
+      <appender-ref ref="STDOUT_COLORED"/>
+      <appender-ref ref="ASYNC_ACCESS_FILE"/>
+    </logger>
+    <logger name="br.com.redemaisfarma.infra.logging.HttpAuditFilter" level="INFO" additivity="false">
+      <appender-ref ref="STDOUT_COLORED"/>
+      <appender-ref ref="ASYNC_ACCESS_FILE"/>
+    </logger>
+    <logger name="br.com.redemaisfarma.infra.logging.AuthEventsLogger" level="INFO" additivity="false">
+      <appender-ref ref="STDOUT_COLORED"/>
+      <appender-ref ref="ASYNC_ACCESS_FILE"/>
+    </logger>
+  </springProfile>
+
+  <!-- =================================================================== -->
+  <!-- =============================== PROD ============================== -->
+  <!-- =================================================================== -->
+  <springProfile name="prod">
+    <!-- Níveis -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.security" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="OFF"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+    <logger name="org.springframework.kafka" level="INFO"/>
+    <logger name="br.com.redemaisfarma" level="INFO"/>
+
+    <!-- Async wrappers (definidos SOMENTE neste perfil) -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+      <queueSize>16384</queueSize>
+      <discardingThreshold>0</discardingThreshold>
+      <neverBlock>false</neverBlock>          <!-- lossless -->
+      <includeCallerData>false</includeCallerData>
+      <maxFlushTime>2000</maxFlushTime>
+      <appender-ref ref="FILE"/>
+    </appender>
+
+    <appender name="ASYNC_ACCESS_FILE" class="ch.qos.logback.classic.AsyncAppender">
+      <queueSize>8192</queueSize>
+      <discardingThreshold>0</discardingThreshold>
+      <neverBlock>false</neverBlock>          <!-- lossless -->
+      <includeCallerData>false</includeCallerData>
+      <maxFlushTime>2000</maxFlushTime>
+      <appender-ref ref="ACCESS_FILE"/>
+    </appender>
+
+    <!-- Root em produção: console simples (sem cor) + arquivo assíncrono -->
+    <root level="${LOG_LEVEL_ROOT:-INFO}">
+      <appender-ref ref="STDOUT"/>
+      <appender-ref ref="ASYNC_FILE"/>
+    </root>
+
+    <!-- Access/Auditoria (assíncrono) -->
+    <logger name="br.com.redemaisfarma.adapters.inbound.web.filter.RequestLoggingFilter" level="INFO" additivity="false">
+      <appender-ref ref="STDOUT"/>
+      <appender-ref ref="ASYNC_ACCESS_FILE"/>
+    </logger>
+    <logger name="br.com.redemaisfarma.infra.logging.HttpAuditFilter" level="INFO" additivity="false">
+      <appender-ref ref="STDOUT"/>
+      <appender-ref ref="ASYNC_ACCESS_FILE"/>
+    </logger>
+    <logger name="br.com.redemaisfarma.infra.logging.AuthEventsLogger" level="INFO" additivity="false">
+      <appender-ref ref="STDOUT"/>
+      <appender-ref ref="ASYNC_ACCESS_FILE"/>
+    </logger>
+  </springProfile>
+
+  <!-- =================================================================== -->
+  <!-- =============================== TEST ============================== -->
+  <!-- =================================================================== -->
+  <springProfile name="test">
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.security" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+    <logger name="org.hibernate.tool.schema" level="DEBUG"/>
+    <logger name="org.flywaydb.core" level="INFO"/>
+    <logger name="org.testcontainers" level="INFO"/>
+    <logger name="br.com.redemaisfarma" level="INFO"/>
+
+    <root level="INFO">
+      <appender-ref ref="STDOUT"/>
+      <appender-ref ref="FILE"/>
+    </root>
+  </springProfile>
+
+  <!-- =================================================================== -->
+  <!-- ============================== LEGACY ============================= -->
+  <!-- =================================================================== -->
+  <springProfile name="legacy">
+    <logger name="br.com.redemaisfarma.legacy" level="INFO"/>
+  </springProfile>
+</configuration>

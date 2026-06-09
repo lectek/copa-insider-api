@@ -1,0 +1,97 @@
+# src/test/resources/application-test.yml
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    # MySQL efêmero via Testcontainers (mesmo DataSource para Flyway e JPA)
+    url: jdbc:tc:mysql:8.0.43:///redemaisfarma_test?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: test
+    password: test
+    # driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver  # ← opcional; pode omitir
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+        # jdbc.time_zone: UTC  # opcional, se precisar alinhar timestamps
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    baseline-on-migrate: true
+    table: flyway_schema_history
+
+  sql:
+    init:
+      mode: never
+
+  task:
+    scheduling:
+      enabled: false
+
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+
+  kafka:
+    listener:
+      auto-startup: false
+
+redis:
+  enabled: false
+
+security:
+  refresh:
+    store: in-memory
+
+jwt:
+  enabled: false
+  issuer: RedeMaisFarma-Test
+  secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  accessTokenExpirationMinutes: 5
+  refreshTokenExpirationMinutes: 60
+
+app:
+  jpa.auditing.enabled: false
+  sync.legacy.enabled: false
+  config:
+    envProfileLabel: "TEST"
+    networkPortLabel: "HTTP"
+  web:
+    base-url: http://localhost:8080
+    cors.allowed-origins: "*"
+  security.oauth2.enabled: false
+  mail:
+    enabled: false
+    from: "noreply@test.local"
+
+integrations:
+  cliente:
+    enabled: false
+    base-url: http://localhost/dummy
+
+kafka:
+  enabled: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework: WARN
+    org.hibernate.SQL: OFF

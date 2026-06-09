@@ -1,0 +1,45 @@
+.input-with-action {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+
+.btn--icon {
+  padding: .625rem .75rem;
+  line-height: 1;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: var(--gray-700, #374151);
+}
+
+.btn--icon:hover {
+  color: var(--gray-900, #111827);
+}
+
+.match-hint {
+  font-size: .875rem;
+  margin-top: .25rem;
+}
+
+.match-ok {
+  color: var(--success-600, #16a34a);
+}
+
+.match-bad {
+  color: var(--danger-600, #dc2626);
+}
+
+.links {
+  margin-top: 1rem;
+  font-size: .9rem;
+}
+
+.links a {
+  color: var(--primary-700, #2563eb);
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}

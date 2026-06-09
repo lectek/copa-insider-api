@@ -1,0 +1,211 @@
+.alysson-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.8fr);
+  gap: 1.25rem;
+  padding: clamp(1.15rem, 2.4vw, 1.8rem);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(128deg, #0f172a 0%, #1d4ed8 54%, #dc2626 100%);
+  color: #f8fafc;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+}
+
+.alysson-cta__orb {
+  position: absolute;
+  inset: auto auto 0 0;
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  pointer-events: none;
+  filter: blur(8px);
+  opacity: 0.72;
+  z-index: -1;
+}
+
+.alysson-cta__orb--blue {
+  inset: -80px auto auto -60px;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.42), transparent 68%);
+}
+
+.alysson-cta__orb--red {
+  inset: auto -80px -120px auto;
+  background: radial-gradient(circle, rgba(248, 113, 113, 0.42), transparent 68%);
+}
+
+.alysson-cta__copy,
+.alysson-cta__actions {
+  position: relative;
+  z-index: 1;
+}
+
+.alysson-cta__copy {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.alysson-cta__eyebrow {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.84);
+}
+
+.alysson-cta__title {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.8vw, 2.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  max-width: 14ch;
+}
+
+.alysson-cta__text,
+.alysson-cta__note {
+  margin: 0;
+  color: rgba(241, 245, 249, 0.88);
+  line-height: 1.65;
+}
+
+.alysson-cta__chips {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.alysson-cta__chips span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.58rem 0.82rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.alysson-cta__actions {
+  align-self: stretch;
+  display: grid;
+  align-content: center;
+  gap: 0.9rem;
+  padding: clamp(0.9rem, 2vw, 1.25rem);
+  border-radius: 22px;
+  background: rgba(15, 23, 42, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+}
+
+.alysson-cta__assistant {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.alysson-cta__assistant-copy {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.alysson-cta__assistant-copy strong {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.alysson-cta__assistant-copy span {
+  font-size: 0.9rem;
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.alysson-cta__avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #0f172a;
+  background: linear-gradient(145deg, #ffffff 0%, #dbeafe 100%);
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.18);
+}
+
+.alysson-cta__button {
+  width: 100%;
+  justify-content: center;
+  padding: 0.9rem 1.15rem;
+  border-radius: 999px;
+  border: 0;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 800;
+  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.18);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  text-decoration: none;
+}
+
+.alysson-cta__button:hover,
+.alysson-cta__button:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 30px rgba(15, 23, 42, 0.22);
+  background: #f8fafc;
+}
+
+.alysson-cta--catalog,
+.alysson-cta--detail {
+  grid-template-columns: 1fr;
+}
+
+.alysson-cta--catalog {
+  border-radius: 24px;
+}
+
+.alysson-cta--detail {
+  border-radius: 22px;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.alysson-cta--detail .alysson-cta__title {
+  max-width: none;
+  font-size: 1.28rem;
+}
+
+.alysson-cta--detail .alysson-cta__chips span {
+  padding: 0.5rem 0.72rem;
+  font-size: 0.82rem;
+}
+
+.catalog-intro__support .alysson-cta,
+.produto-detalhe__buy-panel .alysson-cta {
+  width: 100%;
+}
+
+.produto-detalhe__buy-panel .alysson-cta {
+  margin-top: 1rem;
+}
+
+@media (max-width: 960px) {
+  .alysson-cta {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .alysson-cta {
+    padding: 1rem;
+    border-radius: 22px;
+  }
+
+  .alysson-cta__actions {
+    padding: 0.9rem;
+  }
+
+  .alysson-cta__title {
+    max-width: none;
+  }
+}

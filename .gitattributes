@@ -1,0 +1,27 @@
+# Padroniza fim de linha
+*.java text eol=lf
+*.kt    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.md    text eol=lf
+*.json  text eol=lf
+*.xml   text eol=lf
+
+# Arquivos que precisam CRLF (se tiver)
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# Arquivos pesados para migracao completa no GitHub
+app-logs/** filter=lfs diff=lfs merge=lfs -text
+logs/** filter=lfs diff=lfs merge=lfs -text
+infra/firebird/data/** filter=lfs diff=lfs merge=lfs -text
+mobile/.gradle/** filter=lfs diff=lfs merge=lfs -text
+mobile/.gradle-user/** filter=lfs diff=lfs merge=lfs -text
+mobile/_gradle/** filter=lfs diff=lfs merge=lfs -text
+mobile/build/** filter=lfs diff=lfs merge=lfs -text
+mobile/app/build/** filter=lfs diff=lfs merge=lfs -text
+mobile/gradle/wrapper/gradle-*.zip filter=lfs diff=lfs merge=lfs -text
+mobile/**/*.apk filter=lfs diff=lfs merge=lfs -text
+mobile/**/*.aab filter=lfs diff=lfs merge=lfs -text
+tmp/app.jar filter=lfs diff=lfs merge=lfs -text

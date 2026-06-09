@@ -1,0 +1,60 @@
+services:
+
+  firebird:
+    image: jacobalberty/firebird:v2.5.9-sc
+    container_name: redemaisfarma-firebird
+    restart: unless-stopped
+    ports:
+      - "${HOST_FB_PORT:-3054}:3050"
+    environment:
+      TZ: "${TZ:-America/Fortaleza}"
+      ISC_PASSWORD: "${ISC_PASSWORD:-masterkey}"
+      FIREBIRD_DATABASE: "digifarma6.fdb"
+    volumes:
+      - ./infra/firebird/data:/firebird/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - |
+          echo 'select 1 from rdb$$database; quit;' | \
+          /usr/local/firebird/bin/isql -user sysdba -password "$ISC_PASSWORD" \
+            127.0.0.1/3050:/firebird/data/${FIREBIRD_DATABASE} >/dev/null 2>&1 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 25s
+
+  app:
+    container_name: redemaisfarma-app-dev
+    depends_on:
+      firebird:
+        condition: service_healthy
+    build:
+      context: .
+    ports:
+      - "18090:8080"
+    environment:
+
+      # 🔥 Variáveis lidas pelo seu backend
+      FIREBIRD_HOST: "firebird"               # nunca localhost
+      FIREBIRD_PORT: "3050"                   # porta interna
+      FIREBIRD_DB: "/firebird/data/digifarma6.fdb"
+
+      # 🔥 Datasource legado (Jaybird)
+      SPRING_DATASOURCE_LEGACY_URL: "jdbc:firebirdsql://firebird:3050//firebird/data/digifarma6.fdb?encoding=WIN1252&sql_dialect=3&wireCrypt=DISABLED"
+      SPRING_DATASOURCE_LEGACY_USERNAME: "SYSDBA"
+      SPRING_DATASOURCE_LEGACY_PASSWORD: "${ISC_PASSWORD:-masterkey}"
+      SPRING_DATASOURCE_LEGACY_DRIVER_CLASS_NAME: "org.firebirdsql.jdbc.FBDriver"
+
+
+      # 🔍 LOGS
+      LOGGING_LEVEL_ROOT: "INFO"
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK: "DEBUG"
+      LOGGING_LEVEL_BR_COM_REDEMAISFARMA: "DEBUG"
+
+      # 🔧 ACTUATOR
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,loggers"
+      MANAGEMENT_ENDPOINT_LOGGERS_ENABLED: "true"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "ALWAYS"
+
+

@@ -1,0 +1,222 @@
+.cliente-pedido-resumo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.7fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.cliente-pedido-status {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(14, 116, 144, 0.06), rgba(255, 255, 255, 0.96));
+}
+
+.cliente-pedido-status__lead {
+  margin: 0;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.cliente-pedido-status__hint {
+  margin: 0;
+  color: #475569;
+}
+
+.cliente-pedido-timeline {
+  display: grid;
+  gap: 12px;
+}
+
+.cliente-pedido-timeline__item {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.cliente-pedido-timeline__dot {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  border-radius: 999px;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 0 0 6px rgba(148, 163, 184, 0.08);
+}
+
+.cliente-pedido-timeline__content {
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.cliente-pedido-timeline__item:last-child .cliente-pedido-timeline__content {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.cliente-pedido-timeline__content strong {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.cliente-pedido-timeline__content p {
+  margin: 0;
+  color: #64748b;
+}
+
+.cliente-pedido-timeline__item.is-completed .cliente-pedido-timeline__dot {
+  background: #0f766e;
+  border-color: #0f766e;
+  box-shadow: 0 0 0 6px rgba(15, 118, 110, 0.14);
+}
+
+.cliente-pedido-timeline__item.is-current .cliente-pedido-timeline__dot {
+  background: #ffffff;
+  border-color: #ea580c;
+  box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.14);
+}
+
+.cliente-pedido-timeline__item.is-current .cliente-pedido-timeline__content strong {
+  color: #9a3412;
+}
+
+.cliente-pedido-total {
+  text-align: right;
+}
+
+.cliente-pedido-incident {
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(234, 88, 12, 0.16);
+  background: linear-gradient(180deg, rgba(255, 237, 213, 0.45), rgba(255, 255, 255, 0.96));
+}
+
+.cliente-pedido-incident__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.cliente-pedido-incident__eyebrow {
+  margin: 0 0 6px;
+  color: #9a3412;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cliente-pedido-incident__message {
+  margin: 0;
+  color: #431407;
+  font-weight: 600;
+}
+
+.cliente-pedido-incident__meta {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.cliente-pedido-incident__meta p {
+  margin: 0;
+  color: #7c2d12;
+}
+
+.cliente-pedido-tracking {
+  display: grid;
+  gap: 18px;
+}
+
+.cliente-pedido-tracking__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.cliente-pedido-tracking__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cliente-pedido-tracking__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.8fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.cliente-pedido-tracking__map {
+  min-height: 300px;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  background: linear-gradient(180deg, rgba(224, 242, 254, 0.85), rgba(248, 250, 252, 0.96));
+}
+
+.cliente-pedido-tracking__frame {
+  display: block;
+  width: 100%;
+  min-height: 300px;
+  border: 0;
+}
+
+.cliente-pedido-tracking__empty {
+  display: grid;
+  place-items: center;
+  min-height: 300px;
+  padding: 24px;
+  color: #475569;
+  text-align: center;
+}
+
+.cliente-pedido-tracking__meta {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+}
+
+.cliente-pedido-tracking__meta p {
+  margin: 0;
+}
+
+.cliente-pedido-tracking__message {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.cliente-pedido-tracking__badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 860px) {
+  .cliente-pedido-resumo {
+    grid-template-columns: 1fr;
+  }
+
+  .cliente-pedido-total {
+    text-align: left;
+  }
+
+  .cliente-pedido-incident__header,
+  .cliente-pedido-tracking__header,
+  .cliente-pedido-tracking__grid {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+}

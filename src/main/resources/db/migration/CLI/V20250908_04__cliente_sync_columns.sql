@@ -1,0 +1,115 @@
+﻿-- Sincroniza a tabela cliente com ClienteEntity (MySQL)
+
+-- 1) Cria a tabela se não existir (estrutura mínima)
+CREATE TABLE IF NOT EXISTS cliente (
+  id         BIGINT NOT NULL AUTO_INCREMENT,
+  nome       VARCHAR(120)  NOT NULL,
+  email      VARCHAR(150)  NOT NULL,
+  telefone   VARCHAR(20),
+  cpf        VARCHAR(14)   NOT NULL,
+  senha      VARCHAR(255)  NOT NULL,
+  created_at DATETIME NULL,
+  updated_at DATETIME NULL,
+  version    BIGINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+-- 2) Garante colunas (idempotente)  checando INFORMATION_SCHEMA
+
+-- nome
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND COLUMN_NAME = 'nome') = 0,
+  'ALTER TABLE cliente ADD COLUMN nome VARCHAR(120) NOT NULL',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;
+
+-- email
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND COLUMN_NAME = 'email') = 0,
+  'ALTER TABLE cliente ADD COLUMN email VARCHAR(150) NOT NULL',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;
+
+-- telefone
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND COLUMN_NAME = 'telefone') = 0,
+  'ALTER TABLE cliente ADD COLUMN telefone VARCHAR(20) NULL',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;
+
+-- cpf
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND COLUMN_NAME = 'cpf') = 0,
+  'ALTER TABLE cliente ADD COLUMN cpf VARCHAR(14) NOT NULL',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;
+
+-- senha
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND COLUMN_NAME = 'senha') = 0,
+  'ALTER TABLE cliente ADD COLUMN senha VARCHAR(255) NOT NULL',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;
+
+-- created_at
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND COLUMN_NAME = 'created_at') = 0,
+  'ALTER TABLE cliente ADD COLUMN created_at DATETIME NULL',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;
+
+-- updated_at
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND COLUMN_NAME = 'updated_at') = 0,
+  'ALTER TABLE cliente ADD COLUMN updated_at DATETIME NULL',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;
+
+-- version
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND COLUMN_NAME = 'version') = 0,
+  'ALTER TABLE cliente ADD COLUMN version BIGINT NOT NULL DEFAULT 0',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;
+
+-- 2.1) Ajusta tamanhos / nulabilidade para casar com a entidade (seguro rodar sempre)
+ALTER TABLE cliente MODIFY COLUMN nome     VARCHAR(120)  NOT NULL;
+ALTER TABLE cliente MODIFY COLUMN email    VARCHAR(150)  NOT NULL;
+ALTER TABLE cliente MODIFY COLUMN telefone VARCHAR(20)   NULL;
+ALTER TABLE cliente MODIFY COLUMN cpf      VARCHAR(14)   NOT NULL;
+ALTER TABLE cliente MODIFY COLUMN senha    VARCHAR(255)  NOT NULL;
+
+-- 3) Índices únicos para email e cpf (idempotente)
+-- email
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND INDEX_NAME = 'uk_cliente_email') = 0,
+  'CREATE UNIQUE INDEX uk_cliente_email ON cliente (email)',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;
+
+-- cpf
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cliente' AND INDEX_NAME = 'uk_cliente_cpf') = 0,
+  'CREATE UNIQUE INDEX uk_cliente_cpf ON cliente (cpf)',
+  'DO 0'
+);
+PREPARE x FROM @ddl; EXECUTE x; DEALLOCATE PREPARE x;

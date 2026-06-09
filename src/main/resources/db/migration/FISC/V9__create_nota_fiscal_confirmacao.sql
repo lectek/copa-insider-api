@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS nota_fiscal_confirmacao (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  created_at DATETIME(6) NOT NULL,
+  updated_at DATETIME(6) NULL,
+  version BIGINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

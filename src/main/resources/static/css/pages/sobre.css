@@ -1,0 +1,431 @@
+body.sobre-page {
+  background:
+    radial-gradient(920px 360px at 100% -4%, rgba(14, 165, 164, 0.12), transparent 60%),
+    radial-gradient(760px 320px at 0% 0%, rgba(31, 111, 235, 0.11), transparent 62%),
+    linear-gradient(180deg, #f7fafd 0%, #eef4fb 100%);
+}
+
+.sobre-main {
+  width: min(1180px, 100%);
+  margin-inline: auto;
+  padding: clamp(1rem, 3vw, 1.7rem) var(--page-pad) clamp(2.5rem, 5vw, 4rem);
+  display: grid;
+  gap: clamp(1rem, 2.6vw, 2rem);
+}
+
+.sobre-hero,
+.sobre-panel,
+.sobre-final-cta {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+}
+
+.sobre-hero {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.1rem, 4vw, 1.7rem);
+  background:
+    radial-gradient(260px 180px at 100% 0%, rgba(14, 165, 164, 0.17), transparent 72%),
+    radial-gradient(300px 200px at 0% 100%, rgba(31, 111, 235, 0.12), transparent 76%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(244, 248, 252, 0.96));
+}
+
+.sobre-hero__content,
+.sobre-hero__panel,
+.sobre-copy-stack,
+.sobre-principles,
+.sobre-commitment-stack,
+.sobre-final-cta__copy {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.sobre-hero__eyebrow,
+.sobre-section-head__eyebrow,
+.sobre-contact-card__label,
+.sobre-signal-card__label,
+.sobre-stat-card__kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sobre-hero__eyebrow,
+.sobre-section-head__eyebrow {
+  color: #2563eb;
+}
+
+.sobre-hero__title,
+.sobre-section-head h2,
+.sobre-final-cta h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 5.5vw, 3.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+}
+
+.sobre-section-head h2,
+.sobre-final-cta h2 {
+  font-size: clamp(1.45rem, 4vw, 2.45rem);
+  line-height: 1.08;
+}
+
+.sobre-hero__lead,
+.sobre-copy-stack p,
+.sobre-feature-card p,
+.sobre-flow-step p,
+.sobre-list-card li,
+.sobre-contact-card p,
+.sobre-final-cta p,
+.sobre-principle p,
+.sobre-signal-card span,
+.sobre-stat-card p,
+.sobre-commitment-stack p {
+  margin: 0;
+  color: #516076;
+  font-size: 1rem;
+}
+
+.sobre-hero__actions,
+.sobre-final-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.sobre-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.7rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  color: #0f1f3d;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sobre-link-button:hover,
+.sobre-link-button:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+  outline: none;
+}
+
+.sobre-hero__badges,
+.sobre-trust-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 82%);
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: thin;
+}
+
+.sobre-hero__badges span,
+.sobre-stat-card,
+.sobre-signal-card,
+.sobre-principle,
+.sobre-feature-card,
+.sobre-flow-step,
+.sobre-list-card,
+.sobre-contact-card {
+  scroll-snap-align: start;
+}
+
+.sobre-hero__badges span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  color: #24324b;
+  font-size: 0.88rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sobre-signal-card,
+.sobre-stat-card,
+.sobre-principle,
+.sobre-feature-card,
+.sobre-flow-step,
+.sobre-list-card,
+.sobre-contact-card {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.05);
+}
+
+.sobre-signal-card,
+.sobre-principle,
+.sobre-list-card,
+.sobre-contact-card {
+  padding: 1rem;
+}
+
+.sobre-signal-card {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sobre-signal-card--brand {
+  background:
+    linear-gradient(135deg, rgba(30, 64, 175, 0.08), rgba(14, 165, 164, 0.08)),
+    rgba(255, 255, 255, 0.96);
+}
+
+.sobre-signal-card__label,
+.sobre-stat-card__kicker,
+.sobre-contact-card__label {
+  color: #64748b;
+}
+
+.sobre-signal-card strong,
+.sobre-stat-card strong,
+.sobre-principle strong,
+.sobre-feature-card h3,
+.sobre-flow-step strong,
+.sobre-list-card strong,
+.sobre-contact-card strong {
+  color: #13213d;
+  line-height: 1.15;
+}
+
+.sobre-signal-card strong,
+.sobre-stat-card strong {
+  font-size: 1.1rem;
+}
+
+.sobre-trust-rail {
+  scroll-snap-type: x proximity;
+}
+
+.sobre-stat-card {
+  display: grid;
+  gap: 0.55rem;
+  min-height: 100%;
+  padding: 1rem;
+}
+
+.sobre-story-grid,
+.sobre-service-grid,
+.sobre-contact-grid,
+.sobre-pillar-grid,
+.sobre-dual-list,
+.sobre-flow-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.sobre-panel {
+  padding: clamp(1rem, 3vw, 1.45rem);
+}
+
+.sobre-panel--contrast {
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(23, 37, 84, 0.96));
+  color: #eff6ff;
+}
+
+.sobre-panel--contrast .sobre-section-head__eyebrow {
+  color: rgba(191, 219, 254, 0.88);
+}
+
+.sobre-panel--contrast .sobre-section-head h2,
+.sobre-panel--contrast .sobre-commitment-stack strong {
+  color: #ffffff;
+}
+
+.sobre-panel--contrast .sobre-commitment-stack article {
+  padding: 0.95rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.sobre-panel--contrast .sobre-commitment-stack article:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.sobre-panel--contrast .sobre-commitment-stack p {
+  color: rgba(226, 232, 240, 0.88);
+}
+
+.sobre-flow-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sobre-flow-step,
+.sobre-feature-card {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+}
+
+.sobre-flow-step__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1f6feb, #0ea5a4);
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.sobre-feature-card__icon {
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgba(31, 111, 235, 0.1);
+  color: #1f6feb;
+}
+
+.sobre-feature-card__icon svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: currentColor;
+}
+
+.sobre-dual-list,
+.sobre-contact-grid,
+.sobre-pillar-grid {
+  margin-top: 1rem;
+}
+
+.sobre-list-card ul {
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.sobre-list-card li {
+  position: relative;
+  padding-left: 1.1rem;
+}
+
+.sobre-list-card li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1f6feb, #0ea5a4);
+}
+
+.sobre-contact-card {
+  display: grid;
+  gap: 0.45rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sobre-contact-card:hover,
+.sobre-contact-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(31, 111, 235, 0.35);
+  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.08);
+  outline: none;
+}
+
+.sobre-final-cta {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+  background:
+    radial-gradient(280px 180px at 100% 0%, rgba(14, 165, 164, 0.18), transparent 72%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(237, 246, 255, 0.98));
+}
+
+@media (min-width: 720px) {
+  .sobre-pillar-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sobre-contact-grid,
+  .sobre-dual-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 980px) {
+  .sobre-hero {
+    grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.82fr);
+    align-items: stretch;
+  }
+
+  .sobre-trust-rail {
+    grid-auto-flow: initial;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .sobre-story-grid,
+  .sobre-service-grid {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  }
+
+  .sobre-flow-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sobre-pillar-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sobre-contact-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sobre-final-cta {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+@media (max-width: 719px) {
+  .sobre-main {
+    padding-top: 0.9rem;
+  }
+
+  .sobre-hero,
+  .sobre-panel,
+  .sobre-final-cta {
+    border-radius: 22px;
+  }
+
+  .sobre-hero__actions .btn,
+  .sobre-hero__actions .sobre-link-button,
+  .sobre-final-cta__actions .btn {
+    width: 100%;
+  }
+}

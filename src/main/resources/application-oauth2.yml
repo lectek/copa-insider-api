@@ -1,0 +1,30 @@
+spring:
+  config:
+    activate:
+      on-profile: oauth2
+
+  # zera qualquer exclude anterior (a chave correta é spring.autoconfigure.exclude)
+  autoconfigure:
+    exclude: []
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH_GOOGLE_CLIENT_ID}
+            client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+
+app:
+  security:
+    oauth2:
+      enabled: true
+      post-login-redirect: /

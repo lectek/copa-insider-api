@@ -1,0 +1,1 @@
+-- noop: legacy ajuste 23072023.08 (apenas para registrar no Flyway)

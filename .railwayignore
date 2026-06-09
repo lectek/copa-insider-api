@@ -1,0 +1,58 @@
+# VCS / IDE
+.git
+.gitignore
+.idea
+.vscode
+.vscode-ext
+.vscode-user
+*.iml
+
+# Build artifacts
+target
+out
+node_modules
+boot-app
+BOOT-INF
+META-INF
+
+# Local caches / temp bundles
+.m2tmp
+.deploy_bundle
+.deploy_fix_prod
+.deploy_fix_prod*/
+.publish_railway
+.railway_stage_*/
+.r2
+.r2+
+*.tar
+mobile
+tmp
+data
+storage
+/media
+mysql_data
+kafka_data
+app-logs
+logs
+docs
+infra
+*.tmp
+.tmp*
+*.log
+**/logs
+thread-dump.txt
+app-local.log
+
+# Local tooling leftovers
+*.class
+AppSettingsUpdateTool.java
+FlywayRepairTool.java
+cookie*.txt
+/login*.html
+queue_*_resp.txt
+admin_produtos_theme_ai.html
+mappings_raw.json
+
+# Local dataset / dumps
+produtos_data.sql
+backup_railway_produtos.sql

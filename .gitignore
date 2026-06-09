@@ -1,0 +1,160 @@
+# ========================
+# Maven / Java
+# ========================
+target/
+**/target/
+# Wrapper do Maven deve ser versionado:
+# (mantenha .mvn/ e os scripts mvnw/mvnw.cmd no repo)
+# .mvn/  <-- NÃO ignore
+# !.mvn/wrapper/maven-wrapper.jar
+
+.settings/
+.classpath
+.project
+bin/
+
+# Não versionar testes compilados
+src/test/**/target/
+
+# ========================
+# IDEs
+# ========================
+*.iml
+.idea/
+*.ipr
+*.iws
+.vscode/
+
+# ========================
+# SO / Arquivos temporários
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+*.log
+*.out
+*.pid
+*.gz
+*.tmp
+*.bak
+.tmp*
+
+# ========================
+# Artefatos de build locais
+# ========================
+app.jar
+app_latest.jar
+BOOT-INF/
+*.jar.original
+jacoco.exec
+/*.exec
+hs_err_pid*.log
+replay_pid*.log
+*.hprof
+
+# ========================
+# Arquivos sensíveis/locais
+# ========================
+.env
+*.env
+*.properties.local
+*.yml.local
+*.local
+.env.local
+
+# ========================
+# Dados e volumes locais (não versionar)
+# ========================
+app-logs/
+logs/
+storage/
+mysql_data/
+kafka_data/
+infra/firebird/data/
+
+# ========================
+# Mocks / WireMock / dados pesados
+# ========================
+infra/wiremock/__files/
+infra/wiremock/mappings/
+mocks/
+
+# ========================
+# Docker / Gerados locais
+# ========================
+docker-compose.generated.yml
+compose.raw.yml
+tmp/artifacts/
+
+# ========================
+# Workspace local / deploy
+# ========================
+.deploy_bundle/
+.deploy_fix_prod*/
+.publish_railway_min/
+.r2/
+.railway_stage_*/
+.vscode-ext/
+.vscode-user/
+META-INF/
+tmp/
+*.class
+*.tar
+
+# ========================
+# Dumps e utilitários locais na raiz
+# ========================
+/.compile_cp.txt
+/.m2tmp/
+/.test_cp.txt
+/thread-dump.txt
+/backup_railway_produtos.sql
+/produtos_data.sql
+/cookie*.txt
+/queue*_resp.txt
+/login*_resp.txt
+/admin_*_live.html
+/admin_*_theme*.html
+/checkout*_live*.html
+/login*_theme*.html
+/login[0-9]*.html
+/fix_readme*.js
+/temp_*.ps1
+/temp_*.py
+/mappings_raw.json
+/h1.txt
+/verify-repo.ps1
+/DEPLOY_MARKER.md
+/AppSettingsUpdateTool.java
+/CatalogoVendaSeedTool.java
+/FlywayRepairTool.java
+/PdfDump.java
+/PdfTableExtractor.java
+/AGENTS.md
+/painel-diagnostico.bat
+/rodar-e-diagnosticar.bat
+/scripts/test.txt
+/scripts/test2.txt
+
+# ========================
+# Mobile Android (somente fontes/config no Git)
+# ========================
+mobile/.gradle/
+mobile/.gradle-user/
+mobile/.gradle-user-fresh/
+mobile/.gradle-user-test/
+mobile/.gradle*.bak-*/
+mobile/_gradle/
+mobile/_gradle.bak-*/
+mobile/build/
+mobile/app/build/
+mobile/local.properties
+mobile/hs_err_pid*.log
+mobile/hs_err_pid*.log.bak-*
+mobile/replay_pid*.log
+mobile/replay_pid*.log.bak-*
+mobile/*.apk
+mobile/*.apk.bak-*
+mobile/*.aab
+mobile/gradle/wrapper/gradle-*.zip

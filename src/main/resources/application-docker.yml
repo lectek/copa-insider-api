@@ -1,0 +1,202 @@
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  main:
+    lazy-initialization: true
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.client.reactive.ReactiveOAuth2ClientAutoConfiguration
+
+  datasource:
+    url: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:redemaisfarma}?sslMode=PREFERRED&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${MYSQL_USER:app_user}
+    password: ${MYSQL_PASSWORD:Rede_Mais_Farma25@}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/migration-mysql
+    baseline-on-migrate: true
+    out-of-order: true
+    url: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:redemaisfarma}?sslMode=PREFERRED&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    user: ${MYSQL_USER:app_user}
+    password: ${MYSQL_PASSWORD:Rede_Mais_Farma25@}
+    validateMigrationNaming: false
+
+  mail:
+    host: ${SPRING_MAIL_HOST:mailpit}
+    port: ${SPRING_MAIL_PORT:1025}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+      mail.smtp.starttls.required: false
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
+      mail.mime.charset: UTF-8
+
+  thymeleaf:
+    cache: true
+
+  web:
+    resources:
+      add-mappings: true
+      cache:
+        period: 1m
+      chain:
+        enabled: true
+        strategy:
+          content:
+            enabled: true
+            paths: /css/**,/js/**,/images/**
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}}
+    listener:
+      ack-mode: RECORD
+      missing-topics-fatal: false
+    consumer:
+      group-id: pedidos-consumer
+      enable-auto-commit: false
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.json.use.type.headers: false
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: "br.com.redemaisfarma.*"
+        spring.json.value.default.type: "br.com.redemaisfarma.adapters.inbound.messaging.kafka.model.PedidoCreatedEventPayLoad"
+        request.timeout.ms: 15000
+        session.timeout.ms: 15000
+        reconnect.backoff.ms: 250
+        reconnect.backoff.max.ms: 1000
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 1
+      retries: 3
+
+# ===== PROPRIEDADES CUSTOM =====
+kafka:
+  enabled: true
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+  acks: 1
+  retries: 3
+  batch-size: 16384
+  linger-ms: 5
+  buffer-memory: 33554432
+  idempotence: false
+
+legacy:
+  datasource:
+    url: jdbc:firebirdsql://${FIREBIRD_HOST:firebird}:${FIREBIRD_PORT:3050}//firebird/data/${FIREBIRD_DATABASE:digifarma6.fdb}?encoding=WIN1252&sql_dialect=3
+    username: ${FIREBIRD_USER:SYSDBA}
+    password: ${ISC_PASSWORD:masterkey}
+    driver-class-name: org.firebirdsql.jdbc.FBDriver
+  produtos:
+    last-update-column: LASTUPDATE
+
+app:
+  mysql:
+    enabled: true
+  web:
+    base-url: ${APP_WEB_BASE_URL:http://localhost:18090}
+  media:
+    provider: ${APP_MEDIA_PROVIDER:local}
+    dir: ${APP_MEDIA_DIR:/opt/app/media/products}
+    public-base: ${APP_MEDIA_PUBLIC_BASE:/media/products}
+    user-dir: ${APP_MEDIA_USER_DIR:/opt/app/media/users}
+    user-public-base: ${APP_MEDIA_USER_PUBLIC_BASE:/media/users}
+  mail:
+    enabled: ${APP_MAIL_ENABLED:true}
+    from: ${APP_MAIL_FROM:no-reply@local.redemaisfarma}
+    css-url: ${APP_MAIL_CSS_URL:https://unpkg.com/milligram/dist/milligram.min.css}
+    bcc: ${APP_MAIL_BCC:}
+  company:
+    name: ${APP_COMPANY_NAME:Rede Mais Farma}
+    site: ${APP_COMPANY_SITE:https://redemaisfarma.local}
+    support-email: ${APP_COMPANY_SUPPORT_EMAIL:suporte@local.redemaisfarma}
+  security:
+    oauth2:
+      enabled: ${APP_SECURITY_OAUTH2_ENABLED:false}
+      post-login-redirect: /
+
+jwt:
+  enabled: ${JWT_ENABLED:true}
+  issuer: ${JWT_ISSUER:redemaisfarma-api}
+  prefix: ${JWT_PREFIX:Bearer}
+  audience: ${JWT_AUDIENCE:}
+  access-token-expiration-minutes: ${JWT_ACCESS_TOKEN_TTL_MINUTES:60}
+  refresh-token-expiration-minutes: ${JWT_REFRESH_TOKEN_TTL_MINUTES:43200}
+  blacklist:
+    strategy: ${JWT_BLACKLIST_STRATEGY:noop}
+
+security:
+  jwt:
+    enabled: ${JWT_ENABLED:false}
+    issuer: ${JWT_ISSUER:redemaisfarma-api}
+    secret: ${JWT_SECRET:change-me-super-secret-32b}
+    access-token:
+      ttl-seconds: ${JWT_ACCESS_TOKEN_TTL_SECONDS:3600}
+    refresh-token:
+      ttl-seconds: ${JWT_REFRESH_TOKEN_TTL_SECONDS:2592000}
+
+integrations:
+  cliente:
+    base-url: ${INTEGRATIONS_CLIENTE_BASE_URL:${INTEGRATIONS_CLIENTE_BASEURL:http://cliente-mock:8080}}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,configprops,loggers,mappings
+  endpoint:
+    mappings:
+      enabled: true
+  server:
+    # Mantém o Actuator na mesma porta do app e respeita PORT/SERVER_PORT
+    port: ${MANAGEMENT_SERVER_PORT:${PORT:${SERVER_PORT:8080}}}
+
+server:
+  port: ${PORT:${SERVER_PORT:8080}}
+  servlet:
+    context-path: /
+  forward-headers-strategy: framework
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: always
+
+logging:
+  exception-conversion-word: "%wEx"
+  level:
+    root: INFO
+    br.com.redemaisfarma: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+    org.springframework.mail: INFO
+    org.apache.kafka: INFO
+    org.springframework.kafka: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"

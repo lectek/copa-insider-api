@@ -1,0 +1,82 @@
+/* confirms.css - patch DS */
+:root{
+  --confirm-bg: var(--layout-bg);
+  --confirm-primary: var(--color-secondary);
+  --confirm-primary-dark: color-mix(in oklab, var(--color-secondary) 80%, black);
+  --confirm-text: var(--layout-dark);
+  --confirm-muted: var(--color-neutral-5);
+  --confirm-border: var(--layout-border);
+  --confirm-shadow: var(--shadow-1);
+  --confirm-radius: var(--radius-lg);
+  --confirm-font: var(--font-sans);
+  --confirm-sm:.875rem; --confirm-md:1rem; --confirm-lg:1.25rem; --confirm-xl:1.75rem;
+  --confirm-gap:1.5rem; --confirm-transition:.25s ease;
+}
+
+body{ font-family:var(--confirm-font); background:var(--confirm-bg); color:var(--confirm-text); }
+
+.confirm-container{
+  max-width:800px; margin:3rem auto; padding:2rem;
+  background:var(--layout-card); border-radius:var(--confirm-radius);
+  box-shadow:var(--confirm-shadow); animation: fadeIn .6s ease;
+  min-width: 0;
+  overflow: hidden;
+}
+.confirm-container h1{ font-size:var(--confirm-xl); color:var(--color-primary); margin-bottom:1rem; font-weight:800; }
+.confirm-container p{ font-size:var(--confirm-md); margin-bottom:1rem; overflow-wrap:anywhere; }
+
+.nota-fiscal-form{ margin-top:2rem; }
+.nota-fiscal-form h2{ font-size:var(--confirm-lg); margin-bottom:1rem; }
+.nota-fiscal-form label{ display:block; margin-bottom:.75rem; font-size:var(--confirm-md); cursor:pointer; overflow-wrap:anywhere; }
+.nota-fiscal-form input[type="radio"]{ margin-right:.5rem; accent-color:var(--confirm-primary); }
+.nota-fiscal-form input[type="email"]{
+  width:100%;
+  min-height:44px;
+  border-radius:10px;
+  border:1px solid var(--confirm-border);
+  padding:0 .9rem;
+  background:#fff;
+  color:var(--confirm-text);
+}
+
+#emailInputGroup{
+  display:grid;
+  gap:.5rem;
+  margin-top:.75rem;
+}
+
+.btn-confirmar{
+  margin-top:1rem; background:var(--confirm-primary); color:#fff;
+  padding:.75rem 1.5rem; font-size:var(--confirm-md); border:0; border-radius:8px; cursor:pointer; font-weight:700;
+  transition: background var(--confirm-transition), transform .15s;
+  max-width:100%;
+}
+.btn-confirmar:hover{ background:var(--confirm-primary-dark); transform: translateY(-1px); }
+.btn-confirmar:focus-visible{ outline:0; box-shadow:var(--focus-ring); }
+
+.mensagem-confirmacao{
+  margin-top:1.5rem; padding:1rem; background:#f0f9ff; border-left:4px solid var(--confirm-primary);
+  border-radius:var(--confirm-radius); font-size:var(--confirm-md); font-weight:600;
+}
+
+/* A11y */
+*:focus{ outline:0; box-shadow:var(--focus-ring); }
+
+/* Anim */
+@keyframes fadeIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+@media (max-width: 48rem){
+  .confirm-container{
+    margin:1.25rem auto;
+    padding:1.25rem;
+    border-radius:1rem;
+  }
+
+  .confirm-container h1{
+    font-size:1.5rem;
+  }
+
+  .btn-confirmar{
+    width:100%;
+  }
+}

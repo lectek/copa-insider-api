@@ -1,0 +1,67 @@
+/* ===============================
+   Layout Profissional do Painel – RedeMaisFarma
+   (header sticky, nav mobile, cards, helpers)
+   =============================== */
+
+html,body{width:100%;overflow-x:hidden}
+body.admin-page{background:var(--layout-bg);color:var(--layout-dark);line-height:1.6;font-family:var(--font-sans)}
+@media (prefers-color-scheme: dark){ body.admin-page{color:#e5e7eb} }
+.no-scroll{overflow:hidden}
+.admin-page .container-fluid{max-width:var(--container-w);margin-inline:auto;padding-inline:var(--page-pad)}
+
+/* Header sticky */
+.admin-page .site-header,.admin-page .navbar{
+  position:sticky;top:0;z-index:var(--z-header);height:var(--header-h);
+  display:flex;align-items:center;gap:1rem;padding-inline:var(--safe-pad);
+  background:var(--layout-dark);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08);
+  backdrop-filter:saturate(120%) blur(6px);
+  border-bottom-left-radius:16px;border-bottom-right-radius:16px;
+}
+.admin-page .site-header.scrolled,.admin-page .navbar.scrolled{box-shadow:0 10px 30px rgba(0,0,0,.08)}
+.admin-page .header-inner{width:100%;display:flex;align-items:center;gap:12px}
+.admin-page .logo{height:48px;display:inline-flex;align-items:center}
+.admin-page .logo img{max-height:40px;display:block}
+
+/* Nav mobile off-canvas */
+.admin-page .primary-nav{
+  position:fixed;inset:var(--header-h) 0 0 0;background:var(--layout-card);
+  z-index:var(--z-nav);padding:16px var(--safe-pad) 24px;max-height:calc(100dvh - var(--header-h));
+  overflow:auto;border-top:1px solid var(--layout-border);
+  opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .18s,transform .18s;
+}
+html.nav-open .admin-page .primary-nav, .admin-page .primary-nav.open{opacity:1;transform:none;pointer-events:auto}
+.admin-page .primary-nav .nav-list{display:flex;flex-direction:column;gap:14px}
+.admin-page .primary-nav .nav-list a{display:block;padding:10px 8px;border-radius:10px;color:#111827;text-decoration:none}
+.admin-page .primary-nav .nav-list a:hover{background:#f3f4f6}
+
+/* Conteúdo */
+main{padding-block:2rem}
+.admin-page main .container,.admin-page main.container{max-width:var(--container-w);margin-inline:auto;padding-inline:var(--page-pad)}
+.admin-page .painel-header{text-align:center;margin-bottom:2rem}
+.admin-page .painel-header h1{font-size:clamp(1.6rem,2.4vw,2.2rem);margin-bottom:.25rem;color:var(--layout-dark)}
+
+/* Grid de cards */
+.admin-page .painel-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:clamp(16px,2vw,24px);
+}
+.admin-page .card{
+  background:var(--layout-card);border:1px solid var(--layout-border);border-radius:var(--layout-radius);
+  padding:clamp(16px,2vw,28px);box-shadow:var(--layout-shadow);
+  display:flex;flex-direction:column;justify-content:space-between;
+  transition:transform .2s, box-shadow .2s, border-color .2s;
+}
+@media (hover:hover){ .admin-page .card:hover{ transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,.10); } }
+.admin-page .card h2{font-size:1.25rem;color:#111827;margin-bottom:.5rem;font-weight:700}
+.admin-page .card p {color:#4b5563;flex-grow:1;font-size:.95rem;margin-bottom:1rem}
+
+/* Footer sticky minimal opcional */
+.admin-page .footer--sticky{
+  position:sticky;bottom:0;background:var(--layout-dark);color:#fff;text-align:center;
+  padding:1rem;box-shadow:0 -4px 12px rgba(0,0,0,.08);z-index:10;
+}
+
+/* Responsivo */
+@media (max-width:768px){
+  :root{--header-h:56px}
+}
