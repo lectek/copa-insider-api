@@ -1,0 +1,132 @@
+:root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #181818;
+    --border: #252525;
+    --gold: #e8b930;
+    --gold-dim: rgba(232, 185, 48, 0.12);
+    --text: #f0f0f0;
+    --muted: #888;
+    --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; }
+a { text-decoration: none; color: inherit; }
+
+/* ── Navbar ─────────────────────────────────────────── */
+.navbar {
+    display: flex; align-items: center; gap: 2rem;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(8px); z-index: 100;
+}
+.brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.05rem; }
+.brand-badge { background: var(--gold); color: #000; padding: 2px 7px; border-radius: 5px; font-weight: 800; font-size: .8rem; }
+.nav-links { display: flex; gap: 1.5rem; margin-left: auto; }
+.nav-links a { color: var(--muted); font-size: .9rem; transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.cta-btn { background: var(--gold); color: #000; padding: .45rem 1.1rem; border-radius: 6px; font-weight: 700; font-size: .85rem; }
+.cta-btn:hover { opacity: .85; }
+
+/* ── Hero ────────────────────────────────────────────── */
+main { max-width: 900px; margin: 0 auto; padding: 0 1rem 4rem; }
+.hero { text-align: center; padding: 3rem 2rem 2rem; }
+.hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: .5rem; }
+.hero p { color: var(--muted); }
+.hl { color: var(--gold); }
+
+/* ── Grid de rivalidades ─────────────────────────────── */
+.rivalidades-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 1.5rem; }
+
+.rivalidade-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: border-color .2s;
+}
+.rivalidade-card:hover { border-color: rgba(232,185,48,.3); }
+
+/* Confronto */
+.confronto {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+.lado {
+    display: flex; flex-direction: column; align-items: center; gap: .35rem;
+}
+.lado-right { align-items: center; }
+.big-flag { font-size: 3rem; line-height: 1; }
+.sel-nome { font-size: .82rem; font-weight: 600; text-align: center; }
+.vitorias {
+    font-size: 1.6rem; font-weight: 800;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+}
+.meio {
+    display: flex; flex-direction: column; align-items: center; gap: .3rem;
+}
+.vs-label {
+    font-size: .8rem; font-weight: 800;
+    color: var(--muted);
+    background: var(--bg3);
+    padding: .3rem .6rem;
+    border-radius: 4px;
+}
+.empates-label {
+    display: flex; flex-direction: column; align-items: center;
+    font-size: .65rem; color: var(--muted);
+}
+.empates-num { font-size: 1rem; font-weight: 700; color: var(--text); }
+
+/* Barra de domínio */
+.barra-container {
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+.barra-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width .4s ease;
+}
+
+/* Jogo famoso */
+.jogo-famoso {
+    display: flex; align-items: center; gap: .5rem;
+    margin-bottom: .6rem;
+}
+.jogo-label {
+    font-size: .65rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em;
+    background: var(--bg3); padding: 2px 7px;
+    border-radius: 3px; white-space: nowrap;
+}
+.jogo-famoso span:last-child { font-size: .8rem; font-weight: 600; color: var(--text); }
+
+.descricao { font-size: .82rem; color: var(--muted); line-height: 1.55; margin-bottom: 1rem; }
+
+.guia-link {
+    display: inline-block;
+    font-size: .78rem; color: var(--gold); font-weight: 600;
+    transition: opacity .2s;
+}
+.guia-link:hover { opacity: .75; }
+
+/* ── Footer ─────────────────────────────────────────── */
+.footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .8rem; }
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 640px) {
+    .nav-links { display: none; }
+    .rivalidades-grid { grid-template-columns: 1fr; }
+}

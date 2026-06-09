@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${partida.selecaoCasa()} + ' vs ' + ${partida.selecaoVisitante()} + ' — Copa Insider'">Partida — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/partida.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}" class="active">Calendário</a>
+        <a th:href="@{/selecoes}">Seleções</a>
+        <a th:href="@{/rivalidades}">Rivalidades</a>
+        <a th:href="@{/ranking}">Ranking</a>
+    </div>
+    <a href="/" class="cta-btn">Ver guias</a>
+</nav>
+
+<main>
+
+    <a th:href="@{/calendario}" class="back-link">← Voltar ao calendário</a>
+
+    <!-- Cabeçalho da partida -->
+    <section class="match-header">
+        <div class="match-meta-top">
+            <span class="fase-badge" th:text="${partida.fase()}"></span>
+            <span th:if="${partida.grupo() != null}" class="grupo-badge" th:text="'Grupo ' + ${partida.grupo()}"></span>
+            <span class="status-badge"
+                  th:classappend="${partida.aoVivo()} ? ' live' : (${partida.encerrada()} ? ' done' : ' upcoming')"
+                  th:text="${partida.aoVivo()} ? 'AO VIVO' : (${partida.encerrada()} ? 'ENCERRADO' : 'AGENDADO')"></span>
+        </div>
+
+        <div class="match-scoreboard">
+            <!-- Casa -->
+            <div class="match-team">
+                <span class="match-flag" th:text="${partida.bandeiraCasa()}"></span>
+                <a th:href="@{/selecoes/{slug}(slug=${partida.slugCasa()})}"
+                   class="match-team-name" th:text="${partida.selecaoCasa()}"></a>
+            </div>
+
+            <!-- Placar / horário -->
+            <div class="match-center">
+                <div th:if="${partida.temResultado()}" class="placar-live">
+                    <span th:text="${partida.golsCasa()}"></span>
+                    <span class="placar-sep">:</span>
+                    <span th:text="${partida.golsVisitante()}"></span>
+                </div>
+                <div th:if="${!partida.temResultado()}" class="horario-block">
+                    <span class="horario-hora" th:text="${#temporals.format(partida.dataHora(), 'HH:mm')}"></span>
+                    <span class="horario-data" th:text="${#temporals.format(partida.dataHora(), 'dd MMM yyyy')}"></span>
+                </div>
+            </div>
+
+            <!-- Visitante -->
+            <div class="match-team match-team-right">
+                <span class="match-flag" th:text="${partida.bandeiraVisitante()}"></span>
+                <a th:href="@{/selecoes/{slug}(slug=${partida.slugVisitante()})}"
+                   class="match-team-name" th:text="${partida.selecaoVisitante()}"></a>
+            </div>
+        </div>
+
+        <div class="match-venue">
+            <span th:text="${partida.estadio()}"></span>
+            <span class="venue-sep">·</span>
+            <span th:text="${partida.cidade()}"></span>
+        </div>
+    </section>
+
+    <!-- Seleções envolvidas -->
+    <section class="selecoes-info" th:if="${selecaoCasa != null or selecaoVisitante != null}">
+        <div class="sel-card" th:if="${selecaoCasa != null}">
+            <div class="sel-card-top">
+                <span th:text="${selecaoCasa.bandeira()}"></span>
+                <div>
+                    <span class="sel-card-nome" th:text="${selecaoCasa.nome()}"></span>
+                    <span class="sel-card-conf" th:text="${selecaoCasa.confederacao()}"></span>
+                </div>
+            </div>
+            <div class="sel-chips">
+                <span class="chip"><span class="chip-l">Participações</span><span class="chip-v" th:text="${selecaoCasa.participacoes()}"></span></span>
+                <span class="chip"><span class="chip-l">Melhor</span><span class="chip-v" th:text="${selecaoCasa.melhorResultado()}"></span></span>
+            </div>
+            <a th:href="@{/selecoes/{slug}(slug=${selecaoCasa.slug()})}" class="sel-link">Ver seleção →</a>
+        </div>
+
+        <div class="vs-divider">VS</div>
+
+        <div class="sel-card" th:if="${selecaoVisitante != null}">
+            <div class="sel-card-top">
+                <span th:text="${selecaoVisitante.bandeira()}"></span>
+                <div>
+                    <span class="sel-card-nome" th:text="${selecaoVisitante.nome()}"></span>
+                    <span class="sel-card-conf" th:text="${selecaoVisitante.confederacao()}"></span>
+                </div>
+            </div>
+            <div class="sel-chips">
+                <span class="chip"><span class="chip-l">Participações</span><span class="chip-v" th:text="${selecaoVisitante.participacoes()}"></span></span>
+                <span class="chip"><span class="chip-l">Melhor</span><span class="chip-v" th:text="${selecaoVisitante.melhorResultado()}"></span></span>
+            </div>
+            <a th:href="@{/selecoes/{slug}(slug=${selecaoVisitante.slug()})}" class="sel-link">Ver seleção →</a>
+        </div>
+    </section>
+
+    <!-- CTA guia -->
+    <section class="cta-section">
+        <div class="cta-card">
+            <p>Análise completa deste jogo por <strong>€1,00</strong></p>
+            <span>Escalações prováveis, histórico de confrontos, estatísticas e muito mais</span>
+            <a href="/" class="cta-btn-big">Obter guia pré-jogo</a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>© 2026 Copa Insider · Conteúdo a partir de <strong>€1</strong></p>
+</footer>
+
+</body>
+</html>

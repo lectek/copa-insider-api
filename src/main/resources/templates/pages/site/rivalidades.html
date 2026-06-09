@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Rivalidades — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/rivalidades.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}">Calendário</a>
+        <a th:href="@{/selecoes}">Seleções</a>
+        <a th:href="@{/rivalidades}" class="active">Rivalidades</a>
+        <a th:href="@{/ranking}">Ranking</a>
+    </div>
+    <a href="/" class="cta-btn">Ver guias</a>
+</nav>
+
+<main>
+
+    <section class="hero">
+        <h1>Rivalidades <span class="hl">Históricas</span></h1>
+        <p>Os duelos que definiram gerações. Quem vai vencer em 2026?</p>
+    </section>
+
+    <section class="rivalidades-grid">
+        <div class="rivalidade-card" th:each="r : ${rivalidades}">
+            <div class="confronto">
+                <div class="lado">
+                    <span class="big-flag" th:text="${r.bandeira1()}"></span>
+                    <span class="sel-nome" th:text="${r.selecao1()}"></span>
+                    <span class="vitorias" th:text="${r.vitorias1()}"></span>
+                </div>
+                <div class="meio">
+                    <span class="vs-label">VS</span>
+                    <span class="empates-label">
+                        <span class="empates-num" th:text="${r.empates()}"></span>
+                        <span>empates</span>
+                    </span>
+                </div>
+                <div class="lado lado-right">
+                    <span class="big-flag" th:text="${r.bandeira2()}"></span>
+                    <span class="sel-nome" th:text="${r.selecao2()}"></span>
+                    <span class="vitorias" th:text="${r.vitorias2()}"></span>
+                </div>
+            </div>
+
+            <!-- Barra de domínio -->
+            <div class="barra-container">
+                <div class="barra-fill"
+                     th:style="'width:' + ${r.vitorias1() * 100 / (r.vitorias1() + r.empates() + r.vitorias2())} + '%'"></div>
+            </div>
+
+            <div class="jogo-famoso">
+                <span class="jogo-label">Jogo icônico</span>
+                <span th:text="${r.jogoFamoso()}"></span>
+            </div>
+            <p class="descricao" th:text="${r.descricao()}"></p>
+
+            <a href="/" class="guia-link">Ver guia desta rivalidade →</a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>© 2026 Copa Insider · Conteúdo a partir de <strong>€1</strong></p>
+</footer>
+
+</body>
+</html>

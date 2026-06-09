@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Ranking de Jogadores — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/ranking.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}">Calendário</a>
+        <a th:href="@{/selecoes}">Seleções</a>
+        <a th:href="@{/rivalidades}">Rivalidades</a>
+        <a th:href="@{/ranking}" class="active">Ranking</a>
+    </div>
+    <a href="/" class="cta-btn">Ver guias</a>
+</nav>
+
+<main>
+
+    <section class="hero">
+        <h1>Ranking de <span class="hl">Jogadores</span></h1>
+        <p>Melhores da Copa com base em estatísticas</p>
+    </section>
+
+    <!-- Filtro -->
+    <div class="filter-bar">
+        <a th:href="@{/ranking(por='gols')}"
+           th:classappend="${por == 'gols'} ? ' active' : ''"
+           class="filter-btn">Artilheiros</a>
+        <a th:href="@{/ranking(por='assistencias')}"
+           th:classappend="${por == 'assistencias'} ? ' active' : ''"
+           class="filter-btn">Assistências</a>
+    </div>
+
+    <!-- Pódio top 3 -->
+    <div class="podio">
+        <div class="podio-card" th:each="j, i : ${jogadores}" th:if="${i.index < 3}">
+            <span class="podio-pos" th:text="${i.index + 1}"></span>
+            <span class="podio-flag" th:text="${j.bandeira()}"></span>
+            <div class="podio-info">
+                <span class="podio-nome" th:text="${j.nome()}"></span>
+                <span class="podio-selecao" th:text="${j.selecao()}"></span>
+                <span class="podio-clube" th:text="${j.clube()}"></span>
+            </div>
+            <div class="podio-stat">
+                <span class="podio-num"
+                      th:text="${por == 'assistencias'} ? ${j.assistencias()} : ${j.gols()}"></span>
+                <span class="podio-label" th:text="${por == 'assistencias'} ? 'assist.' : 'gols'"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela completa -->
+    <table class="ranking-table">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Jogador</th>
+            <th>Seleção</th>
+            <th>Clube</th>
+            <th>Idade</th>
+            <th th:text="${por == 'assistencias'} ? 'Assist.' : 'Gols'">Gols</th>
+            <th>Jogos</th>
+            <th>Nota</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="j, i : ${jogadores}">
+            <td class="pos-cell">
+                <span class="pos-badge"
+                      th:classappend="${i.index == 0} ? ' gold' : (${i.index == 1} ? ' silver' : (${i.index == 2} ? ' bronze' : ''))"
+                      th:text="${i.index + 1}"></span>
+            </td>
+            <td class="jogador-cell">
+                <span class="j-flag" th:text="${j.bandeira()}"></span>
+                <div class="j-info">
+                    <span class="j-nome" th:text="${j.nome()}"></span>
+                    <span class="j-pos" th:text="${j.posicao()}"></span>
+                </div>
+            </td>
+            <td th:text="${j.selecao()}"></td>
+            <td class="muted" th:text="${j.clube()}"></td>
+            <td class="muted" th:text="${j.idade()}"></td>
+            <td class="stat-highlight"
+                th:text="${por == 'assistencias'} ? ${j.assistencias()} : ${j.gols()}"></td>
+            <td class="muted" th:text="${j.jogos()}"></td>
+            <td>
+                <span class="nota" th:text="${j.nota()}"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</main>
+
+<footer class="footer">
+    <p>© 2026 Copa Insider · Conteúdo a partir de <strong>€1</strong></p>
+</footer>
+
+</body>
+</html>

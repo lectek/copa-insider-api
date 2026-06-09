@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Calendário Copa 2026 — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/calendario.css}"/>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}" class="active">Calendário</a>
+        <a th:href="@{/selecoes}">Seleções</a>
+        <a th:href="@{/rivalidades}">Rivalidades</a>
+        <a th:href="@{/ranking}">Ranking</a>
+    </div>
+    <a href="/" class="cta-btn">Ver guias</a>
+</nav>
+
+<main>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Calendário <span class="hl">Copa 2026</span></h1>
+        <p>48 seleções, 104 jogos. Nunca perde um.</p>
+    </section>
+
+    <!-- Ao vivo -->
+    <section class="live-section" th:if="${not #lists.isEmpty(aoVivo)}">
+        <div class="section-header live-header">
+            <span class="live-dot"></span>
+            <h2>AO VIVO AGORA</h2>
+        </div>
+        <div class="live-cards">
+            <div class="live-card" th:each="p : ${aoVivo}">
+                <div class="match-teams">
+                    <div class="team">
+                        <span class="flag" th:text="${p.bandeiraCasa()}"></span>
+                        <span class="team-name" th:text="${p.selecaoCasa()}"></span>
+                    </div>
+                    <div class="live-score">
+                        <span class="score" th:text="${p.placar()}"></span>
+                        <span class="live-badge">AO VIVO</span>
+                    </div>
+                    <div class="team team-right">
+                        <span class="flag" th:text="${p.bandeiraVisitante()}"></span>
+                        <span class="team-name" th:text="${p.selecaoVisitante()}"></span>
+                    </div>
+                </div>
+                <div class="match-meta">
+                    <span th:text="${p.estadio() + ', ' + p.cidade()}"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Próximas partidas -->
+    <section class="proximas-section" th:if="${not #lists.isEmpty(proximas)}">
+        <div class="section-header">
+            <h2>Próximas Partidas</h2>
+            <span class="subtitle">Em breve</span>
+        </div>
+        <div class="proximas-grid">
+            <div class="proxima-card" th:each="p : ${proximas}">
+                <div class="proxima-date"
+                     th:text="${#temporals.format(p.dataHora(), 'dd MMM')}"></div>
+                <div class="proxima-time"
+                     th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></div>
+                <div class="proxima-teams">
+                    <span th:text="${p.bandeiraCasa() + ' ' + p.selecaoCasa()}"></span>
+                    <span class="vs">vs</span>
+                    <span th:text="${p.bandeiraVisitante() + ' ' + p.selecaoVisitante()}"></span>
+                </div>
+                <span class="grupo-tag" th:text="'Grupo ' + ${p.grupo()}" th:if="${p.grupo() != null}"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filtro por grupo -->
+    <section class="filter-section">
+        <div class="section-header">
+            <h2>Fase de Grupos</h2>
+        </div>
+        <div class="grupo-filters">
+            <a th:href="@{/calendario}"
+               th:classappend="${grupoSelecionado == null} ? ' active' : ''"
+               class="filter-btn">Todos</a>
+            <a th:each="g : ${grupos}"
+               th:href="@{/calendario(grupo=${g})}"
+               th:text="'Grupo ' + ${g}"
+               th:classappend="${grupoSelecionado == g} ? ' active' : ''"
+               class="filter-btn"></a>
+        </div>
+    </section>
+
+    <!-- Lista de partidas por grupo -->
+    <section class="partidas-section">
+        <div th:if="${grupoSelecionado != null}">
+            <!-- Vista filtrada: uma lista plana -->
+            <div class="grupo-block">
+                <div class="grupo-title">
+                    <span>Grupo</span>
+                    <span class="grupo-letter" th:text="${grupoSelecionado}"></span>
+                </div>
+                <div class="partidas-list">
+                    <div class="partida-row" th:each="p : ${partidasFiltradas}">
+                        <div class="partida-date">
+                            <span th:text="${#temporals.format(p.dataHora(), 'dd/MM')}"></span>
+                            <span th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></span>
+                        </div>
+                        <div class="partida-teams">
+                            <span class="team-cell">
+                                <span class="flag" th:text="${p.bandeiraCasa()}"></span>
+                                <span th:text="${p.selecaoCasa()}"></span>
+                            </span>
+                            <span class="placar-cell">
+                                <span th:if="${p.temResultado()}" th:text="${p.placar()}"></span>
+                                <span th:if="${!p.temResultado()}" class="dash">—</span>
+                            </span>
+                            <span class="team-cell team-right">
+                                <span th:text="${p.selecaoVisitante()}"></span>
+                                <span class="flag" th:text="${p.bandeiraVisitante()}"></span>
+                            </span>
+                        </div>
+                        <div class="partida-info">
+                            <span class="status-badge"
+                                  th:classappend="${p.aoVivo()} ? ' live' : (${p.encerrada()} ? ' done' : ' upcoming')"
+                                  th:text="${p.aoVivo()} ? 'AO VIVO' : (${p.encerrada()} ? 'ENCERRADO' : 'AGENDADO')"></span>
+                            <span class="estadio" th:text="${p.cidade()}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${grupoSelecionado == null}">
+            <!-- Vista completa: agrupada por grupo -->
+            <div class="grupo-block" th:each="entry : ${partidasPorGrupo}">
+                <div class="grupo-title">
+                    <span>Grupo</span>
+                    <span class="grupo-letter" th:text="${entry.key}"></span>
+                    <span class="grupo-selecoes">
+                        <span th:each="s, i : ${selecoesPorGrupo.get(entry.key)}">
+                            <span th:text="${s.bandeira() + ' ' + s.nome()}"></span><span th:if="${!i.last}"> · </span>
+                        </span>
+                    </span>
+                </div>
+                <div class="partidas-list">
+                    <div class="partida-row" th:each="p : ${entry.value}">
+                        <div class="partida-date">
+                            <span th:text="${#temporals.format(p.dataHora(), 'dd/MM')}"></span>
+                            <span th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></span>
+                        </div>
+                        <div class="partida-teams">
+                            <span class="team-cell">
+                                <span class="flag" th:text="${p.bandeiraCasa()}"></span>
+                                <span th:text="${p.selecaoCasa()}"></span>
+                            </span>
+                            <span class="placar-cell">
+                                <span th:if="${p.temResultado()}" th:text="${p.placar()}"></span>
+                                <span th:if="${!p.temResultado()}" class="dash">—</span>
+                            </span>
+                            <span class="team-cell team-right">
+                                <span th:text="${p.selecaoVisitante()}"></span>
+                                <span class="flag" th:text="${p.bandeiraVisitante()}"></span>
+                            </span>
+                        </div>
+                        <div class="partida-info">
+                            <span class="status-badge"
+                                  th:classappend="${p.aoVivo()} ? ' live' : (${p.encerrada()} ? ' done' : ' upcoming')"
+                                  th:text="${p.aoVivo()} ? 'AO VIVO' : (${p.encerrada()} ? 'ENCERRADO' : 'AGENDADO')"></span>
+                            <span class="estadio" th:text="${p.cidade()}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>© 2026 Copa Insider · Conteúdo a partir de <strong>€1</strong></p>
+</footer>
+
+</body>
+</html>

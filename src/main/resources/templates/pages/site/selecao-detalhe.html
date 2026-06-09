@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${selecao.nome()} + ' — Copa Insider'">Seleção — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/selecoes.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}">Calendário</a>
+        <a th:href="@{/selecoes}" class="active">Seleções</a>
+        <a th:href="@{/rivalidades}">Rivalidades</a>
+        <a th:href="@{/ranking}">Ranking</a>
+    </div>
+    <a href="/" class="cta-btn">Ver guias</a>
+</nav>
+
+<main>
+
+    <!-- Hero da seleção -->
+    <section class="selecao-hero">
+        <a th:href="@{/selecoes}" class="back-link">← Todas as seleções</a>
+        <div class="selecao-hero-inner">
+            <span class="selecao-big-flag" th:text="${selecao.bandeira()}"></span>
+            <div class="selecao-hero-info">
+                <span class="conf-tag" th:text="${selecao.confederacao()}"></span>
+                <h1 th:text="${selecao.nome()}"></h1>
+                <div class="selecao-stats-row">
+                    <div class="stat-chip">
+                        <span class="stat-label">Grupo</span>
+                        <span class="stat-value" th:text="${selecao.grupo()}"></span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-label">Participações</span>
+                        <span class="stat-value" th:text="${selecao.participacoes()}"></span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-label">Melhor resultado</span>
+                        <span class="stat-value" th:text="${selecao.melhorResultado()}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Jogos da seleção -->
+    <section class="detalhe-section">
+        <h2 class="section-title">Jogos na Copa 2026</h2>
+        <div class="partidas-list" th:if="${not #lists.isEmpty(partidas)}">
+            <div class="partida-row" th:each="p : ${partidas}">
+                <div class="partida-date">
+                    <span th:text="${#temporals.format(p.dataHora(), 'dd/MM')}"></span>
+                    <span th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></span>
+                </div>
+                <div class="partida-teams">
+                    <span class="team-cell" th:classappend="${p.slugCasa() == selecao.slug()} ? ' highlight' : ''">
+                        <span class="flag" th:text="${p.bandeiraCasa()}"></span>
+                        <span th:text="${p.selecaoCasa()}"></span>
+                    </span>
+                    <span class="placar-cell">
+                        <span th:if="${p.temResultado()}" th:text="${p.placar()}"></span>
+                        <span th:if="${!p.temResultado()}" class="dash">—</span>
+                    </span>
+                    <span class="team-cell team-right" th:classappend="${p.slugVisitante() == selecao.slug()} ? ' highlight' : ''">
+                        <span th:text="${p.selecaoVisitante()}"></span>
+                        <span class="flag" th:text="${p.bandeiraVisitante()}"></span>
+                    </span>
+                </div>
+                <div class="partida-info">
+                    <span class="status-badge"
+                          th:classappend="${p.aoVivo()} ? ' live' : (${p.encerrada()} ? ' done' : ' upcoming')"
+                          th:text="${p.aoVivo()} ? 'AO VIVO' : (${p.encerrada()} ? 'ENCERRADO' : 'AGENDADO')"></span>
+                    <span class="estadio" th:text="${p.cidade()}"></span>
+                </div>
+            </div>
+        </div>
+        <p class="empty" th:if="${#lists.isEmpty(partidas)}">Nenhum jogo encontrado.</p>
+    </section>
+
+    <!-- Outras seleções do grupo -->
+    <section class="detalhe-section">
+        <h2 class="section-title">Grupo <span th:text="${selecao.grupo()}"></span></h2>
+        <div class="grupo-selecoes-list">
+            <a th:each="s : ${grupoSelecoes}"
+               th:href="@{/selecoes/{slug}(slug=${s.slug()})}"
+               th:classappend="${s.slug() == selecao.slug()} ? ' current' : ''"
+               class="grupo-selecao-item">
+                <span th:text="${s.bandeira()}"></span>
+                <span th:text="${s.nome()}"></span>
+            </a>
+        </div>
+    </section>
+
+    <!-- CTA guia -->
+    <section class="cta-section">
+        <div class="cta-card">
+            <p>Quer saber tudo sobre <strong th:text="${selecao.nome()}"></strong>?</p>
+            <span>Histórico completo, escalações e análises por <strong>€2,49</strong></span>
+            <a href="/" class="cta-btn-big">Ver guia desta seleção</a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>© 2026 Copa Insider · Conteúdo a partir de <strong>€1</strong></p>
+</footer>
+
+</body>
+</html>

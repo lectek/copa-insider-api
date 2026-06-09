@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Seleções Copa 2026 — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/selecoes.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}">Calendário</a>
+        <a th:href="@{/selecoes}" class="active">Seleções</a>
+        <a th:href="@{/rivalidades}">Rivalidades</a>
+        <a th:href="@{/ranking}">Ranking</a>
+    </div>
+    <a href="/" class="cta-btn">Ver guias</a>
+</nav>
+
+<main>
+
+    <section class="hero">
+        <h1><span class="hl" th:text="${total}">48</span> Seleções</h1>
+        <p>Grupos A–L · Copa do Mundo 2026 · EUA, Canadá &amp; México</p>
+    </section>
+
+    <section class="grupos">
+        <div class="grupo-card" th:each="entry : ${porGrupo}">
+            <div class="grupo-header">
+                <span class="grupo-badge" th:text="${entry.key}"></span>
+                <span class="grupo-label">Grupo</span>
+            </div>
+            <div class="selecoes-grid">
+                <a th:each="s : ${entry.value}"
+                   th:href="@{/selecoes/{slug}(slug=${s.slug()})}"
+                   class="selecao-card">
+                    <span class="selecao-flag" th:text="${s.bandeira()}"></span>
+                    <div class="selecao-info">
+                        <span class="selecao-nome" th:text="${s.nome()}"></span>
+                        <span class="selecao-conf" th:text="${s.confederacao()}"></span>
+                    </div>
+                    <div class="selecao-meta">
+                        <span class="participacoes" th:text="${s.participacoes()} + '×'"></span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>© 2026 Copa Insider · Conteúdo a partir de <strong>€1</strong></p>
+</footer>
+
+</body>
+</html>
