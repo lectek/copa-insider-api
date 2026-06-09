@@ -4,14 +4,9 @@
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 WORKDIR /workspace
 
-# Cache das dependências separado do código — rebuild só quando pom.xml mudar
 COPY pom.xml ./
-RUN --mount=type=cache,id=maven-cache,target=/root/.m2 \
-    mvn -B -ntp dependency:go-offline
-
 COPY src src
-RUN --mount=type=cache,id=maven-cache,target=/root/.m2 \
-    mvn -B -ntp -DskipTests -DskipITs package
+RUN mvn -B -ntp -DskipTests -DskipITs package
 
 # ── Runtime ───────────────────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine
