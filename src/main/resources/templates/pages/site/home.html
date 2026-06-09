@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Início', ~{})}"></head>
+<body class="ci-body">
+
+<div th:replace="~{fragments/navbar :: public-navbar}"></div>
+
+<!-- Hero -->
+<section class="ci-hero">
+    <div class="ci-hero__inner">
+        <h1 class="ci-hero__title">O seu jogo de palpites da Copa</h1>
+        <p class="ci-hero__sub">
+            Dispute com amigos, suba no ranking e mostre que você entende de futebol.
+        </p>
+        <div class="ci-hero__actions">
+            <a th:href="@{/cadastro}" class="ci-btn ci-btn--primary ci-btn--lg">Entrar no jogo</a>
+            <a th:href="@{/partidas}" class="ci-btn ci-btn--outline ci-btn--lg">Ver partidas</a>
+        </div>
+    </div>
+</section>
+
+<!-- Próximas partidas -->
+<section class="ci-section">
+    <div class="ci-section__inner">
+        <h2 class="ci-section__title">Próximas partidas</h2>
+        <div class="ci-matches-grid" th:if="${proximasPartidas != null and !proximasPartidas.empty}">
+            <div class="ci-match-card" th:each="partida : ${proximasPartidas}">
+                <div class="ci-match-card__times">
+                    <span class="ci-match-card__time" th:text="${partida.timeCasa}">Brasil</span>
+                    <span class="ci-match-card__vs">×</span>
+                    <span class="ci-match-card__time" th:text="${partida.timeVisitante}">Argentina</span>
+                </div>
+                <div class="ci-match-card__meta">
+                    <span class="ci-match-card__fase" th:text="${partida.fase}">Grupo A</span>
+                    <span class="ci-match-card__data"
+                          th:text="${#temporals.format(partida.dataHora, 'dd/MM HH:mm')}">18/06 15:00</span>
+                </div>
+                <a th:href="@{/palpites/partida/{id}(id=${partida.id})}"
+                   class="ci-btn ci-btn--primary ci-btn--sm ci-btn--full">Dar palpite</a>
+            </div>
+        </div>
+        <p th:if="${proximasPartidas == null or proximasPartidas.empty}" class="ci-empty">
+            Nenhuma partida programada por enquanto.
+        </p>
+    </div>
+</section>
+
+<!-- Ranking rápido -->
+<section class="ci-section ci-section--alt">
+    <div class="ci-section__inner">
+        <h2 class="ci-section__title">Líderes do ranking</h2>
+        <ol class="ci-ranking-preview" th:if="${topRanking != null and !topRanking.empty}">
+            <li class="ci-ranking-preview__item" th:each="entry,i : ${topRanking}">
+                <span class="ci-ranking-preview__pos" th:text="${i.index + 1}">1</span>
+                <span class="ci-ranking-preview__nome" th:text="${entry.nomeUsuario}">João</span>
+                <span class="ci-ranking-preview__pts" th:text="${entry.pontos} + ' pts'">120 pts</span>
+            </li>
+        </ol>
+        <a th:href="@{/ranking}" class="ci-btn ci-btn--outline ci-btn--sm">Ver ranking completo</a>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

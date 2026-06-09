@@ -12,7 +12,7 @@ spring:
       - org.springframework.boot.autoconfigure.security.oauth2.client.reactive.ReactiveOAuth2ClientAutoConfiguration
 
   datasource:
-    url: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:redemaisfarma}?sslMode=PREFERRED&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:copainsider}?sslMode=PREFERRED&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: ${MYSQL_USER:app_user}
     password: ${MYSQL_PASSWORD:Rede_Mais_Farma25@}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -31,7 +31,7 @@ spring:
     locations: classpath:db/migration,classpath:db/migration-mysql
     baseline-on-migrate: true
     out-of-order: true
-    url: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:redemaisfarma}?sslMode=PREFERRED&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:copainsider}?sslMode=PREFERRED&allowPublicKeyRetrieval=true&serverTimezone=UTC
     user: ${MYSQL_USER:app_user}
     password: ${MYSQL_PASSWORD:Rede_Mais_Farma25@}
     validateMigrationNaming: false
@@ -84,8 +84,8 @@ spring:
       properties:
         spring.json.use.type.headers: false
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.trusted.packages: "br.com.redemaisfarma.*"
-        spring.json.value.default.type: "br.com.redemaisfarma.adapters.inbound.messaging.kafka.model.PedidoCreatedEventPayLoad"
+        spring.json.trusted.packages: "br.com.lectek.copainsider.*"
+        spring.json.value.default.type: "br.com.lectek.copainsider.adapters.inbound.messaging.kafka.model.PedidoCreatedEventPayLoad"
         request.timeout.ms: 15000
         session.timeout.ms: 15000
         reconnect.backoff.ms: 250
@@ -129,13 +129,13 @@ app:
     user-public-base: ${APP_MEDIA_USER_PUBLIC_BASE:/media/users}
   mail:
     enabled: ${APP_MAIL_ENABLED:true}
-    from: ${APP_MAIL_FROM:no-reply@local.redemaisfarma}
+    from: ${APP_MAIL_FROM:no-reply@local.copainsider}
     css-url: ${APP_MAIL_CSS_URL:https://unpkg.com/milligram/dist/milligram.min.css}
     bcc: ${APP_MAIL_BCC:}
   company:
     name: ${APP_COMPANY_NAME:Rede Mais Farma}
-    site: ${APP_COMPANY_SITE:https://redemaisfarma.local}
-    support-email: ${APP_COMPANY_SUPPORT_EMAIL:suporte@local.redemaisfarma}
+    site: ${APP_COMPANY_SITE:https://copainsider.local}
+    support-email: ${APP_COMPANY_SUPPORT_EMAIL:suporte@local.copainsider}
   security:
     oauth2:
       enabled: ${APP_SECURITY_OAUTH2_ENABLED:false}
@@ -143,7 +143,7 @@ app:
 
 jwt:
   enabled: ${JWT_ENABLED:true}
-  issuer: ${JWT_ISSUER:redemaisfarma-api}
+  issuer: ${JWT_ISSUER:copainsider-api}
   prefix: ${JWT_PREFIX:Bearer}
   audience: ${JWT_AUDIENCE:}
   access-token-expiration-minutes: ${JWT_ACCESS_TOKEN_TTL_MINUTES:60}
@@ -154,7 +154,7 @@ jwt:
 security:
   jwt:
     enabled: ${JWT_ENABLED:false}
-    issuer: ${JWT_ISSUER:redemaisfarma-api}
+    issuer: ${JWT_ISSUER:copainsider-api}
     secret: ${JWT_SECRET:change-me-super-secret-32b}
     access-token:
       ttl-seconds: ${JWT_ACCESS_TOKEN_TTL_SECONDS:3600}
@@ -191,7 +191,7 @@ logging:
   exception-conversion-word: "%wEx"
   level:
     root: INFO
-    br.com.redemaisfarma: INFO
+    br.com.lectek.copainsider: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: INFO

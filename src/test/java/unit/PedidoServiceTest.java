@@ -1,7 +1,7 @@
 package unit;
 
-import br.com.redemaisfarma.application.service.PedidoService;
-import br.com.redemaisfarma.domain.Pedido;
+import br.com.lectek.copainsider.application.service.PedidoService;
+import br.com.lectek.copainsider.domain.Pedido;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;

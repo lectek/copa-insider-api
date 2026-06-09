@@ -5,7 +5,7 @@ spring:
 
   # ===== MySQL local (porta 3306) =====
   datasource:
-    url: ${DEV_DATASOURCE_URL:jdbc:mysql://localhost:3306/redemaisfarma?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${DEV_DATASOURCE_URL:jdbc:mysql://localhost:3306/copainsider?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${DEV_DATASOURCE_USERNAME:root}
     password: ${DEV_DATASOURCE_PASSWORD:root}
     hikari:
@@ -129,7 +129,7 @@ logging:
 
 jwt:
   enabled: false
-  issuer: ${JWT_ISSUER:redemaisfarma-api}
+  issuer: ${JWT_ISSUER:copainsider-api}
   secret: ${JWT_SECRET:dev-secret-change-me}
   accessTokenExpirationMinutes: ${JWT_ACCESS_TOKEN_EXPIRATION_MINUTES:60}
   refreshTokenExpirationMinutes: ${JWT_REFRESH_TOKEN_EXPIRATION_MINUTES:43200}
@@ -146,14 +146,14 @@ app:
     base-url: ${APP_WEB_BASE_URL:http://localhost:8080}
   mail:
     enabled: ${APP_MAIL_ENABLED:true}     # envia para o Mailpit em dev
-    from: ${APP_MAIL_FROM:RedeMaisFarma <no-reply@local.redemaisfarma>}
+    from: ${APP_MAIL_FROM:CopaInsider <no-reply@local.copainsider>}
 
 # ===== Kafka (propriedades custom do app) =====
 kafka:
   enabled: false
   # enabled: true
   # bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-  # client-id: redemaisfarma-dev
+  # client-id: copainsider-dev
 
 # ===== Integrações externas =====
 integrations:

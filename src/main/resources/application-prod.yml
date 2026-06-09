@@ -132,7 +132,7 @@ logging:
 security:
   jwt:
     enabled: ${JWT_ENABLED:true}
-    issuer: ${JWT_ISSUER:redemaisfarma-api}
+    issuer: ${JWT_ISSUER:copainsider-api}
     secret: ${JWT_SECRET}
     access-token:
       ttl-seconds: ${JWT_ACCESS_TOKEN_TTL_SECONDS:3600}
@@ -141,7 +141,7 @@ security:
 
 jwt:
   enabled: ${JWT_ENABLED:true}
-  issuer: ${JWT_ISSUER:redemaisfarma-api}
+  issuer: ${JWT_ISSUER:copainsider-api}
   secret: ${JWT_SECRET}
   accessTokenExpirationMinutes: ${JWT_ACCESS_TOKEN_EXPIRATION_MINUTES:60}
   refreshTokenExpirationMinutes: ${JWT_REFRESH_TOKEN_EXPIRATION_MINUTES:43200}
@@ -153,9 +153,9 @@ app:
       allowed-origins: ${APP_WEB_CORS_ALLOWED_ORIGENS:}
   media:
     provider: ${APP_MEDIA_PROVIDER:local}
-    dir: ${APP_MEDIA_DIR:${java.io.tmpdir:/tmp}/redemaisfarma/media/products}
+    dir: ${APP_MEDIA_DIR:${java.io.tmpdir:/tmp}/copainsider/media/products}
     public-base: ${APP_MEDIA_PUBLIC_BASE:/media/products}
-    user-dir: ${APP_MEDIA_USER_DIR:${java.io.tmpdir:/tmp}/redemaisfarma/media/users}
+    user-dir: ${APP_MEDIA_USER_DIR:${java.io.tmpdir:/tmp}/copainsider/media/users}
     user-public-base: ${APP_MEDIA_USER_PUBLIC_BASE:/media/users}
     s3:
       bucket: ${APP_MEDIA_S3_BUCKET:}
@@ -168,7 +168,7 @@ app:
       user-prefix: ${APP_MEDIA_S3_USER_PREFIX:users}
   mail:
     enabled: ${APP_MAIL_ENABLED:true}
-    from: ${APP_MAIL_FROM:no-reply@local.redemaisfarma}
+    from: ${APP_MAIL_FROM:no-reply@local.copainsider}
     bcc: ${APP_MAIL_BCC:}
     css-url: ${APP_MAIL_CSS_URL:}
     send-timeout-ms: ${APP_MAIL_SEND_TIMEOUT_MS:10000}
@@ -195,7 +195,7 @@ app:
       reasoning-effort: ${APP_AI_OPENAI_REASONING_EFFORT:low}
       timeout-ms: ${APP_AI_OPENAI_TIMEOUT_MS:30000}
       store-responses: ${APP_AI_OPENAI_STORE_RESPONSES:true}
-      system-prompt: ${APP_AI_OPENAI_SYSTEM_PROMPT:Voce e Alysson, o assistente virtual da RedeMaisFarma. Responda em portugues claro, natural, objetivo e cordial. Mantenha o contexto da conversa e nao se reapresente a cada mensagem. Quando perguntarem seu nome, responda que seu nome e Alysson. Para frete, prazo ou entrega, aceite CEP ou endereco completo com rua, numero, bairro e cidade. Se o cliente enviar apenas o CEP, reconheca o CEP recebido e continue a conversa sem reiniciar o atendimento. Faca perguntas objetivas, de uma em uma. Nao invente estoque, preco ou promessas operacionais. Se o cliente pedir diagnostico, prescricao ou orientacao medica, deixe claro que nao substitui um profissional de saude.}
+      system-prompt: ${APP_AI_OPENAI_SYSTEM_PROMPT:Voce e Alysson, o assistente virtual da CopaInsider. Responda em portugues claro, natural, objetivo e cordial. Mantenha o contexto da conversa e nao se reapresente a cada mensagem. Quando perguntarem seu nome, responda que seu nome e Alysson. Para frete, prazo ou entrega, aceite CEP ou endereco completo com rua, numero, bairro e cidade. Se o cliente enviar apenas o CEP, reconheca o CEP recebido e continue a conversa sem reiniciar o atendimento. Faca perguntas objetivas, de uma em uma. Nao invente estoque, preco ou promessas operacionais. Se o cliente pedir diagnostico, prescricao ou orientacao medica, deixe claro que nao substitui um profissional de saude.}
       product-vision-prompt: ${APP_AI_OPENAI_PRODUCT_VISION_PROMPT:Analise profundamente a imagem enviada e pesquise o produto com base nos identificadores disponiveis antes de escrever o prompt final. Confirme marca, nome do produto, variante, concentracao, volume, sabor, quantidade, formato da embalagem, cores, tipografia e selos oficiais. Escreva somente um prompt curto para gerar um packshot fiel do produto em fundo branco puro com sombreamento basico suave de estudio para ecommerce.}
       image-quality: ${APP_AI_OPENAI_IMAGE_QUALITY:medium}
       image-size: ${APP_AI_OPENAI_IMAGE_SIZE:1024x1024}
@@ -214,7 +214,7 @@ app:
     engine: ${APP_ROUTE_ENGINE:auto}
     nominatim:
       base-url: ${APP_ROUTE_NOMINATIM_BASE_URL:https://nominatim.openstreetmap.org/search}
-      user-agent: ${APP_ROUTE_NOMINATIM_USER_AGENT:RedeMaisFarma/1.0}
+      user-agent: ${APP_ROUTE_NOMINATIM_USER_AGENT:CopaInsider/1.0}
       timeout-ms: ${APP_ROUTE_NOMINATIM_TIMEOUT_MS:6000}
     osrm:
       base-url: ${APP_ROUTE_OSRM_BASE_URL:http://localhost:5000}

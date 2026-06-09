@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<body>
+
+<nav th:fragment="public-navbar" class="ci-navbar">
+    <div class="ci-navbar__inner">
+        <a th:href="@{/}" class="ci-navbar__brand">
+            <img th:src="@{/img/logo.svg}" alt="Copa Insider" class="ci-navbar__logo"/>
+        </a>
+        <ul class="ci-navbar__links">
+            <li><a th:href="@{/palpites}" class="ci-navbar__link">Palpites</a></li>
+            <li><a th:href="@{/ranking}" class="ci-navbar__link">Ranking</a></li>
+            <li><a th:href="@{/partidas}" class="ci-navbar__link">Partidas</a></li>
+            <li><a th:href="@{/grupos}" class="ci-navbar__link">Grupos</a></li>
+        </ul>
+        <div class="ci-navbar__actions">
+            <a th:if="${#authorization.expression('isAnonymous()')}" th:href="@{/login}" class="ci-btn ci-btn--outline ci-btn--sm">Entrar</a>
+            <a th:if="${#authorization.expression('isAnonymous()')}" th:href="@{/cadastro}" class="ci-btn ci-btn--primary ci-btn--sm">Criar conta</a>
+            <div th:if="${#authorization.expression('isAuthenticated()')}" class="ci-navbar__user">
+                <span th:text="${#authentication.name}" class="ci-navbar__username"></span>
+                <a th:href="@{/minha-conta}" class="ci-btn ci-btn--ghost ci-btn--sm">Minha conta</a>
+                <form th:action="@{/logout}" method="post" style="display:inline">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="ci-btn ci-btn--ghost ci-btn--sm">Sair</button>
+                </form>
+            </div>
+        </div>
+        <button class="ci-navbar__toggle" aria-label="Menu">&#9776;</button>
+    </div>
+</nav>
+
+</body>
+</html>

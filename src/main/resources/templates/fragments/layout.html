@@ -1,154 +1,44 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" data-theme="light">
-<head th:fragment="commonHead">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#0ea5e9" />
-
-  <!-- SEO -->
-  <title th:text="${title} ?: 'Embalando Soluções em Enbalagens e Bomboniere • Embalagens e Bomboniere'">
-    Embalando Soluções em Enbalagens e Bomboniere
-  </title>
-  <meta name="description"
-        content="Embalando Soluções em Enbalagens e Bomboniere: embalagens, descartaveis e bomboniere com entrega local e segura." />
-
-  <!-- Canonical: usando link expression, sem #request -->
-  <link rel="canonical" th:href="@{/}" />
-
-  <!-- Favicons -->
-  <link rel="icon" type="image/png" th:href="${brandingFaviconUrl}" />
-  <link rel="apple-touch-icon" th:href="@{/images/favicon-apple.png}" />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="pt_BR" />
-  <meta property="og:site_name" content="Embalando Soluções em Enbalagens e Bomboniere" />
-  <meta property="og:title" content="Embalando Soluções em Enbalagens e Bomboniere • Embalagens e Bomboniere" />
-  <meta property="og:description"
-        content="Compre com segurança e receba em casa. Atendimento rápido, preços justos e ofertas!" />
-  <meta property="og:image" th:content="@{/images/og-cover.png}" />
-  <!-- og:url também sem #request -->
-  <meta property="og:url" th:content="@{/}" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Embalando Soluções em Enbalagens e Bomboniere • Embalagens e Bomboniere" />
-  <meta name="twitter:description" content="Embalagens, descartaveis e bomboniere com entrega local." />
-  <meta name="twitter:image" th:content="@{/images/og-cover.png}" />
-
-  <!-- CSS (cache-busting simples) -->
-  <link rel="stylesheet"
-        th:href="@{/css/main.css(v=${#dates.createNow().time})}" />
-
-  <th:block th:if="${headExtras != null}" th:replace="${headExtras}"></th:block>
-  <th:block th:if="${headExtras == null}" th:replace="~{fragments/layout :: emptyHeadExtras}"></th:block>
-  <th:block th:fragment="emptyHeadExtras"></th:block>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:fragment="head(title, extraCss)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' — Copa Insider'">Copa Insider</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <th:block th:replace="${extraCss}"/>
 </head>
-
-<body class="body-flex" data-page="layout">
-  <a href="#main-content" class="skip-link">Pular para o conteúdo</a>
-
-  <!-- Header -->
-  <header th:replace="~{fragments/header :: header}" role="banner"></header>
-
-  <!-- Espaço para sticky header -->
-  <div class="main-offset" aria-hidden="true"></div>
-
-  <!-- Conteúdo -->
-  <main id="main-content"
-        role="main"
-        tabindex="-1"
-        th:fragment="conteudo"
-        aria-label="Conteúdo principal da página">
-    <!-- As páginas inserem seu conteúdo aqui via th:insert/replace -->
-  </main>
-
-  <!-- Footer -->
-  <footer th:fragment="footer" role="contentinfo" class="site-footer">
-    <a href="#main-content" class="skip-link">Voltar ao topo</a>
-
-    <div class="container footer-grid">
-      <div class="footer-column">
-        <h4 th:text="${uiFooterAboutTitle} ?: 'Sobre a loja'">Sobre a loja</h4>
-        <ul>
-          <li><a th:href="@{/sobre}">Sobre nós</a></li>
-          <li><a th:href="@{/servicos}">Serviços</a></li>
-          <li><a th:href="@{/contato}">Contato</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-column">
-        <h4>Ajuda</h4>
-        <ul>
-          <li><a th:href="@{/faq}">Perguntas frequentes</a></li>
-          <li><a th:href="@{/entrega}">Entrega e prazos</a></li>
-          <li><a th:href="@{/politica}">Política de Privacidade</a></li>
-          <li><a th:href="@{/termos}">Termos de Uso</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-column">
-        <h4>Mapa do site</h4>
-        <ul>
-          <li><a th:href="@{/}">Início</a></li>
-          <li><a th:href="@{/produtos}" th:text="${uiNavCatalogLabel} ?: 'Catalogo'">Catalogo</a></li>
-          <li><a th:href="@{/ofertas}">Ofertas</a></li>
-          <li><a th:href="@{/checkout}">Finalizar compra</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-column">
-        <h4>Receba novidades</h4>
-        <form id="newsletter-form"
-              th:action="@{/newsletter}"
-              method="post"
-              class="newsletter-form">
-          <label class="sr-only" for="newsletter-email">Seu e-mail</label>
-          <input id="newsletter-email"
-                 name="email"
-                 type="email"
-                 placeholder="Seu e-mail"
-                 required />
-          <button type="submit" class="btn">Assinar</button>
-          <div class="error-message" role="alert" aria-live="assertive"></div>
-        </form>
-        <output id="newsletter-status" class="newsletter-status" aria-live="polite"></output>
-      </div>
-
-      <div class="footer-column credits">
-        <small>©
-          <span th:text="${#temporals.format(#temporals.createNow(),'yyyy')}">
-            2025
-          </span>
-          Embalando Soluções em Enbalagens e Bomboniere. Todos os direitos reservados.
-        </small>
-        <small>
-          Desenvolvido por
-          <a href="https://instagram.com/lektec.tech"
-             target="_blank"
-             rel="noopener">@lektec.tech</a>
-        </small>
-      </div>
-    </div>
-
-    <!-- Organization JSON-LD -->
-    <script type="application/ld+json" th:inline="javascript">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Embalando Soluções em Enbalagens e Bomboniere",
-      "url": "https://embalandosolucoes.local",
-      "logo": [[${brandingLogoUrl}]],
-      "sameAs": []
-    }
-    </script>
-
-    <script defer th:src="@{/js/footer.js}"></script>
-  </footer>
-
-  <!-- Scripts globais -->
-  <script defer th:src="@{/js/layout.js}"></script>
+<body>
 </body>
+</html>
 
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<!-- Layout público (site/cliente) -->
+<div th:fragment="public-layout(title, content, extraCss)">
+    <head th:replace="~{fragments/layout :: head(${title}, ${extraCss})}"></head>
+    <body class="ci-body">
+        <div th:replace="~{fragments/navbar :: public-navbar}"></div>
+        <div th:replace="~{fragments/flash :: flash}"></div>
+        <main th:replace="${content}"></main>
+        <div th:replace="~{fragments/footer :: footer}"></div>
+        <script th:src="@{/js/main.js}"></script>
+    </body>
+</div>
+
+<!-- Layout admin -->
+<div th:fragment="admin-layout(title, content, extraCss)">
+    <head th:replace="~{fragments/layout :: head(${title}, ${extraCss})}"></head>
+    <body class="ci-body ci-admin">
+        <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+        <div class="ci-admin-main">
+            <div th:replace="~{fragments/admin-header :: header(${title})}"></div>
+            <div th:replace="~{fragments/flash :: flash}"></div>
+            <main class="ci-admin-content" th:replace="${content}"></main>
+        </div>
+        <script th:src="@{/js/main.js}"></script>
+        <script th:src="@{/js/admin.js}"></script>
+    </body>
+</div>
 </html>

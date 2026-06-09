@@ -5,7 +5,7 @@ spring:
 
   datasource:
     # MySQL efêmero via Testcontainers (mesmo DataSource para Flyway e JPA)
-    url: jdbc:tc:mysql:8.0.43:///redemaisfarma_test?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:tc:mysql:8.0.43:///copainsider_test?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: test
     password: test
     # driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver  # ← opcional; pode omitir
@@ -63,7 +63,7 @@ security:
 
 jwt:
   enabled: false
-  issuer: RedeMaisFarma-Test
+  issuer: CopaInsider-Test
   secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
   accessTokenExpirationMinutes: 5
   refreshTokenExpirationMinutes: 60

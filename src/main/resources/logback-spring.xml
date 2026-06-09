@@ -63,7 +63,7 @@
     <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
     <logger name="com.zaxxer.hikari" level="INFO"/>
     <logger name="org.springframework.kafka" level="INFO"/>
-    <logger name="br.com.redemaisfarma" level="DEBUG"/>
+    <logger name="br.com.lectek.copainsider" level="DEBUG"/>
 
     <!-- ROOT no dev: console colorido + arquivo síncrono -->
     <root level="DEBUG">
@@ -72,15 +72,15 @@
     </root>
 
     <!-- Access/Auditoria no dev: console + arquivo síncrono -->
-    <logger name="br.com.redemaisfarma.adapters.inbound.web.filter.RequestLoggingFilter" level="INFO" additivity="false">
+    <logger name="br.com.lectek.copainsider.adapters.inbound.web.filter.RequestLoggingFilter" level="INFO" additivity="false">
       <appender-ref ref="STDOUT_COLORED"/>
       <appender-ref ref="ACCESS_FILE"/>
     </logger>
-    <logger name="br.com.redemaisfarma.infra.logging.HttpAuditFilter" level="INFO" additivity="false">
+    <logger name="br.com.lectek.copainsider.infra.logging.HttpAuditFilter" level="INFO" additivity="false">
       <appender-ref ref="STDOUT_COLORED"/>
       <appender-ref ref="ACCESS_FILE"/>
     </logger>
-    <logger name="br.com.redemaisfarma.infra.logging.AuthEventsLogger" level="INFO" additivity="false">
+    <logger name="br.com.lectek.copainsider.infra.logging.AuthEventsLogger" level="INFO" additivity="false">
       <appender-ref ref="STDOUT_COLORED"/>
       <appender-ref ref="ACCESS_FILE"/>
     </logger>
@@ -98,7 +98,7 @@
     <logger name="org.hibernate.SQL" level="INFO"/>
     <logger name="com.zaxxer.hikari" level="INFO"/>
     <logger name="org.springframework.kafka" level="INFO"/>
-    <logger name="br.com.redemaisfarma" level="${LOG_LEVEL_APP:-INFO}"/>
+    <logger name="br.com.lectek.copainsider" level="${LOG_LEVEL_APP:-INFO}"/>
 
     <!-- Async wrappers (definidos SOMENTE neste perfil) -->
     <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
@@ -126,15 +126,15 @@
     </root>
 
     <!-- Access/Auditoria (assíncrono) -->
-    <logger name="br.com.redemaisfarma.adapters.inbound.web.filter.RequestLoggingFilter" level="INFO" additivity="false">
+    <logger name="br.com.lectek.copainsider.adapters.inbound.web.filter.RequestLoggingFilter" level="INFO" additivity="false">
       <appender-ref ref="STDOUT_COLORED"/>
       <appender-ref ref="ASYNC_ACCESS_FILE"/>
     </logger>
-    <logger name="br.com.redemaisfarma.infra.logging.HttpAuditFilter" level="INFO" additivity="false">
+    <logger name="br.com.lectek.copainsider.infra.logging.HttpAuditFilter" level="INFO" additivity="false">
       <appender-ref ref="STDOUT_COLORED"/>
       <appender-ref ref="ASYNC_ACCESS_FILE"/>
     </logger>
-    <logger name="br.com.redemaisfarma.infra.logging.AuthEventsLogger" level="INFO" additivity="false">
+    <logger name="br.com.lectek.copainsider.infra.logging.AuthEventsLogger" level="INFO" additivity="false">
       <appender-ref ref="STDOUT_COLORED"/>
       <appender-ref ref="ASYNC_ACCESS_FILE"/>
     </logger>
@@ -152,7 +152,7 @@
     <logger name="org.hibernate.orm.jdbc.bind" level="OFF"/>
     <logger name="com.zaxxer.hikari" level="INFO"/>
     <logger name="org.springframework.kafka" level="INFO"/>
-    <logger name="br.com.redemaisfarma" level="INFO"/>
+    <logger name="br.com.lectek.copainsider" level="INFO"/>
 
     <!-- Async wrappers (definidos SOMENTE neste perfil) -->
     <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
@@ -180,15 +180,15 @@
     </root>
 
     <!-- Access/Auditoria (assíncrono) -->
-    <logger name="br.com.redemaisfarma.adapters.inbound.web.filter.RequestLoggingFilter" level="INFO" additivity="false">
+    <logger name="br.com.lectek.copainsider.adapters.inbound.web.filter.RequestLoggingFilter" level="INFO" additivity="false">
       <appender-ref ref="STDOUT"/>
       <appender-ref ref="ASYNC_ACCESS_FILE"/>
     </logger>
-    <logger name="br.com.redemaisfarma.infra.logging.HttpAuditFilter" level="INFO" additivity="false">
+    <logger name="br.com.lectek.copainsider.infra.logging.HttpAuditFilter" level="INFO" additivity="false">
       <appender-ref ref="STDOUT"/>
       <appender-ref ref="ASYNC_ACCESS_FILE"/>
     </logger>
-    <logger name="br.com.redemaisfarma.infra.logging.AuthEventsLogger" level="INFO" additivity="false">
+    <logger name="br.com.lectek.copainsider.infra.logging.AuthEventsLogger" level="INFO" additivity="false">
       <appender-ref ref="STDOUT"/>
       <appender-ref ref="ASYNC_ACCESS_FILE"/>
     </logger>
@@ -206,7 +206,7 @@
     <logger name="org.hibernate.tool.schema" level="DEBUG"/>
     <logger name="org.flywaydb.core" level="INFO"/>
     <logger name="org.testcontainers" level="INFO"/>
-    <logger name="br.com.redemaisfarma" level="INFO"/>
+    <logger name="br.com.lectek.copainsider" level="INFO"/>
 
     <root level="INFO">
       <appender-ref ref="STDOUT"/>
@@ -218,6 +218,6 @@
   <!-- ============================== LEGACY ============================= -->
   <!-- =================================================================== -->
   <springProfile name="legacy">
-    <logger name="br.com.redemaisfarma.legacy" level="INFO"/>
+    <logger name="br.com.lectek.copainsider.legacy" level="INFO"/>
   </springProfile>
 </configuration>

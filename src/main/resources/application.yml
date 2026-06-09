@@ -40,7 +40,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.trusted.packages: br.com.redemaisfarma.*
+        spring.json.trusted.packages: br.com.lectek.copainsider.*
         spring.json.use.type.headers: true
     listener:
       missing-topics-fatal: false
@@ -116,7 +116,7 @@ management:
 security:
   jwt:
     enabled: ${JWT_ENABLED:false}
-    issuer: ${JWT_ISSUER:redemaisfarma-api}
+    issuer: ${JWT_ISSUER:copainsider-api}
     secret: ${JWT_SECRET:dev-secret}
     access-token:
       ttl-seconds: ${JWT_ACCESS_TOKEN_TTL_SECONDS:3600}
@@ -125,7 +125,7 @@ security:
 
 jwt:
   enabled: ${JWT_ENABLED:false}
-  issuer: ${JWT_ISSUER:redemaisfarma-api}
+  issuer: ${JWT_ISSUER:copainsider-api}
   secret: ${JWT_SECRET:dev-secret}
   accessTokenExpirationMinutes: ${JWT_ACCESS_TOKEN_EXPIRATION_MINUTES:60}
   refreshTokenExpirationMinutes: ${JWT_REFRESH_TOKEN_EXPIRATION_MINUTES:43200}
@@ -157,7 +157,7 @@ app:
       user-prefix: ${APP_MEDIA_S3_USER_PREFIX:users}
   mail:
     enabled: ${APP_MAIL_ENABLED:false}
-    from: ${APP_MAIL_FROM:no-reply@local.redemaisfarma}
+    from: ${APP_MAIL_FROM:no-reply@local.copainsider}
   sms:
     enabled: ${APP_SMS_ENABLED:false}
     provider: ${APP_SMS_PROVIDER:twilio}
@@ -180,7 +180,7 @@ app:
       reasoning-effort: ${APP_AI_OPENAI_REASONING_EFFORT:low}
       timeout-ms: ${APP_AI_OPENAI_TIMEOUT_MS:30000}
       store-responses: ${APP_AI_OPENAI_STORE_RESPONSES:true}
-      system-prompt: ${APP_AI_OPENAI_SYSTEM_PROMPT:Voce e Alysson, o assistente virtual da RedeMaisFarma. Responda em portugues natural, acolhedor e profissional. Soe humano, simpatico e confiante, sem parecer robotico. Use frases curtas, fluidas e conversacionais. Reconheca o que o cliente acabou de dizer antes de orientar o proximo passo. Demonstre leve entusiasmo quando fizer sentido, mas sem exagero. Mantenha o contexto da conversa e nao se reapresente a cada mensagem. Quando perguntarem seu nome, responda que seu nome e Alysson. Para frete, prazo ou entrega, aceite CEP ou endereco completo com rua, numero, bairro e cidade. Se o cliente enviar apenas o CEP, reconheca o CEP recebido e continue a conversa sem reiniciar o atendimento. Faca uma pergunta objetiva por vez. Nao invente estoque, preco, prazo, diagnostico ou promessas operacionais. Se o cliente pedir diagnostico, prescricao ou orientacao medica, deixe claro que nao substitui um profissional de saude.}
+      system-prompt: ${APP_AI_OPENAI_SYSTEM_PROMPT:Voce e Alysson, o assistente virtual da CopaInsider. Responda em portugues natural, acolhedor e profissional. Soe humano, simpatico e confiante, sem parecer robotico. Use frases curtas, fluidas e conversacionais. Reconheca o que o cliente acabou de dizer antes de orientar o proximo passo. Demonstre leve entusiasmo quando fizer sentido, mas sem exagero. Mantenha o contexto da conversa e nao se reapresente a cada mensagem. Quando perguntarem seu nome, responda que seu nome e Alysson. Para frete, prazo ou entrega, aceite CEP ou endereco completo com rua, numero, bairro e cidade. Se o cliente enviar apenas o CEP, reconheca o CEP recebido e continue a conversa sem reiniciar o atendimento. Faca uma pergunta objetiva por vez. Nao invente estoque, preco, prazo, diagnostico ou promessas operacionais. Se o cliente pedir diagnostico, prescricao ou orientacao medica, deixe claro que nao substitui um profissional de saude.}
       product-vision-prompt: ${APP_AI_OPENAI_PRODUCT_VISION_PROMPT:Analise profundamente a imagem enviada e pesquise o produto com base nos identificadores disponiveis antes de escrever o prompt final. Confirme marca, nome do produto, variante, concentracao, volume, sabor, quantidade, formato da embalagem, cores, tipografia e selos oficiais. Escreva somente um prompt curto para gerar um packshot fiel do produto em fundo branco puro com sombreamento basico suave de estudio para ecommerce.}
       image-quality: ${APP_AI_OPENAI_IMAGE_QUALITY:medium}
       image-size: ${APP_AI_OPENAI_IMAGE_SIZE:1024x1024}
@@ -199,7 +199,7 @@ app:
     engine: ${APP_ROUTE_ENGINE:auto}
     nominatim:
       base-url: ${APP_ROUTE_NOMINATIM_BASE_URL:https://nominatim.openstreetmap.org/search}
-      user-agent: ${APP_ROUTE_NOMINATIM_USER_AGENT:RedeMaisFarma/1.0}
+      user-agent: ${APP_ROUTE_NOMINATIM_USER_AGENT:CopaInsider/1.0}
       timeout-ms: ${APP_ROUTE_NOMINATIM_TIMEOUT_MS:6000}
     osrm:
       base-url: ${APP_ROUTE_OSRM_BASE_URL:http://localhost:5000}
@@ -228,7 +228,7 @@ spring:
 
   kafka:
     # Usa o broker do Compose (porta 9094 exposta pelo Bitnami com KRaft)
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:redemaisfarma-kafka-dev:9094}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:copainsider-kafka-dev:9094}
     listener:
       # Se quiser garantir startup mesmo sem Kafka, deixe true; ajuste depois conforme necessidade
       missing-topics-fatal: false
@@ -236,7 +236,7 @@ spring:
       # auto-startup: false
 
   mail:
-    host: ${SPRING_MAIL_HOST:redemaisfarma-mailpit-dev}
+    host: ${SPRING_MAIL_HOST:copainsider-mailpit-dev}
     port: ${SPRING_MAIL_PORT:8025}
 
 management:

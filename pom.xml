@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>br.com.redemaisfarma</groupId>
-  <artifactId>redemaisfarma-api</artifactId>
+  <groupId>br.com.lectek.copainsider</groupId>
+  <artifactId>copa-insider-api</artifactId>
   <version>0.0.2-SNAPSHOT</version>
-  <name>RedeMaisFarma API</name>
+  <name>Copa Insider API</name>
   <description>API Spring Boot</description>
   <packaging>jar</packaging>
 
