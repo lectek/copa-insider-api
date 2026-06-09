@@ -25,7 +25,7 @@
     <jacoco.version>0.8.12</jacoco.version>
     <aws.sdk.version>2.25.62</aws.sdk.version>
     <resilience4j.version>2.2.0</resilience4j.version>
-    <testcontainers.version>1.20.2</testcontainers.version>''
+    <testcontainers.version>1.20.2</testcontainers.version>
 
     <!-- Plugins -->
     <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
@@ -45,7 +45,7 @@
     <!-- Local MySQL snapshot used by Flyway & developer tooling -->
     <mysql.host>localhost</mysql.host>
     <mysql.port>3310</mysql.port>
-    <mysql.database>redemaisfarma</mysql.database>
+    <mysql.database>copainsider</mysql.database>
     <mysql.user>app_user</mysql.user>
     <mysql.password>Rede_Mais_Farma25@</mysql.password>
   </properties>
