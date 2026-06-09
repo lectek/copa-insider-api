@@ -75,7 +75,7 @@ public class HomeController {
         this.appProps = appProps;
     }
 
-    @GetMapping({"/", "/cliente", "/cliente/index"})
+    @GetMapping({"/cliente", "/cliente/index"})
     public String exibirPaginaInicial(
             @RequestParam(value = "onboarding", required = false) final String onboarding,
             final Model model,
