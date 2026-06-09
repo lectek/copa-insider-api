@@ -6,11 +6,11 @@ WORKDIR /workspace
 
 # Cache das dependências separado do código — rebuild só quando pom.xml mudar
 COPY pom.xml ./
-RUN --mount=type=cache,target=/root/.m2 \
+RUN --mount=type=cache,id=maven-cache,target=/root/.m2 \
     mvn -B -ntp dependency:go-offline
 
 COPY src src
-RUN --mount=type=cache,target=/root/.m2 \
+RUN --mount=type=cache,id=maven-cache,target=/root/.m2 \
     mvn -B -ntp -DskipTests -DskipITs package
 
 # ── Runtime ───────────────────────────────────────────────────────────────────
