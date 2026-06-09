@@ -531,7 +531,7 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>${spring-boot.version}</version>
           <configuration>
-            <mainClass>br.com.redemaisfarma.RedeMaisFarmaApiApplication</mainClass>
+            <mainClass>br.com.lectek.copainsider.CopaInsiderApplication</mainClass>
             <layers>
               <enabled>true</enabled>
             </layers>
