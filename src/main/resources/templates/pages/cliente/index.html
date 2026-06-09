@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Início')}"></head>
+<body class="ci-body">
+<div th:replace="~{fragments/navbar :: public-navbar}"></div>
+<div th:replace="~{fragments/flash :: flash}"></div>
+<main class="ci-main">
+
+    <div th:if="${vm == null}" class="ci-empty-catalog">
+        <div class="ci-container">
+            <h2 class="ci-empty-catalog__title">Catalogo em atualizacao</h2>
+            <p class="ci-empty-catalog__msg">Ainda nao ha produtos publicados para esta loja.</p>
+            <a th:href="@{/}" class="ci-btn ci-btn--outline">Atualizar pagina</a>
+        </div>
+    </div>
+
+    <div th:if="${vm != null}">
+        <section class="ci-hero">
+            <div class="ci-hero__inner">
+                <h1 class="ci-hero__title">Copa Insider</h1>
+                <p class="ci-hero__sub">Seus palpites, seu ranking.</p>
+                <a th:href="@{/cadastro}" class="ci-btn ci-btn--primary ci-btn--lg">Entrar no jogo</a>
+            </div>
+        </section>
+        <section class="ci-home-sections">
+            <div th:each="section : ${homeSections}">
+                <h2 th:text="${section.title}"></h2>
+                <div class="ci-product-grid">
+                    <div th:each="item : ${section.items}" class="ci-product-card">
+                        <a th:href="@{'/produto/' + ${item.id}}">
+                            <img th:src="${item.imagem}" th:alt="${item.nome}"/>
+                            <h3 th:text="${item.nome}"></h3>
+                            <p th:text="'R$ ' + ${item.preco}"></p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="ci-whatsapp-cta">
+        <a th:href="${@appProps.whatsappLink}" class="ci-btn ci-btn--whatsapp" target="_blank">Abrir Alysson</a>
+    </div>
+
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

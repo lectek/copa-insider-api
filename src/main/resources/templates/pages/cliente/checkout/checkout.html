@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Checkout')}"></head>
+<body class="ci-body">
+<div th:replace="~{fragments/navbar :: public-navbar}"></div>
+<div th:replace="~{fragments/flash :: flash}"></div>
+<main class="ci-main">
+    <div class="ci-container">
+        <h1 class="ci-page-title">Finalizar pedido</h1>
+
+        <form th:action="@{/checkout/confirmar}" method="post" class="ci-checkout-form">
+            <input type="hidden" name="tenantId" th:value="${checkoutTenantId}"/>
+
+            <section class="ci-checkout-section">
+                <h2>Forma de Pagamento</h2>
+                <div th:each="method : ${paymentMethods}" class="ci-payment-option">
+                    <label>
+                        <input type="radio" name="formaPagamento" th:value="${method.key}"/>
+                        <span th:text="${method.label}">Pagamento</span>
+                    </label>
+                </div>
+                <p th:if="${paymentMethodsEmpty}" class="ci-empty">Nenhuma forma de pagamento disponivel.</p>
+            </section>
+
+            <section class="ci-checkout-section ci-delivery-section">
+                <h2>Entrega</h2>
+                <div class="ci-delivery-option">
+                    <label>
+                        <input type="radio" name="tipoEntrega" value="standard"/>
+                        Frete padrao
+                    </label>
+                </div>
+                <div class="ci-delivery-option">
+                    <label>
+                        <input type="radio" name="tipoEntrega" value="priority"/>
+                        Frete prioritario
+                    </label>
+                </div>
+            </section>
+
+            <section th:if="${checkoutPickupEnabled}" class="ci-checkout-section ci-pickup-section">
+                <h2>Endereco para retirada</h2>
+                <p class="ci-pickup-store" th:text="${checkoutPickupStoreName}">Loja</p>
+                <p class="ci-pickup-address" th:text="${checkoutPickupAddress}">Endereco</p>
+                <p th:if="${!#strings.isEmpty(checkoutPickupSchedule)}" th:text="${checkoutPickupSchedule}"></p>
+                <p th:if="${!#strings.isEmpty(checkoutPickupInstructions)}" th:text="${checkoutPickupInstructions}"></p>
+            </section>
+
+            <section class="ci-checkout-section ci-summary-section">
+                <h2>Resumo do pedido</h2>
+                <p>Subtotal: <span th:text="'R$ ' + ${checkoutSubtotalValue}">R$ 0,00</span></p>
+                <p>Frete: <span th:text="'R$ ' + ${checkoutShippingValue}">R$ 0,00</span></p>
+                <p><strong>Total: <span th:text="'R$ ' + ${checkoutTotalValue}">R$ 0,00</span></strong></p>
+            </section>
+
+            <button type="submit" class="ci-btn ci-btn--primary ci-btn--lg">Confirmar pedido</button>
+        </form>
+    </div>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

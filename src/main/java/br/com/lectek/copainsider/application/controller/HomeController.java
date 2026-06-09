@@ -122,10 +122,19 @@ public class HomeController {
 
     @GetMapping("/checkout")
     public String exibirCheckout(
+            @org.springframework.web.bind.annotation.RequestParam(
+                    value = "tenantId", required = false) final String tenantIdParam,
             final Model model,
             final HttpSession session,
             final Authentication authentication
     ) {
+        if (tenantIdParam != null && !tenantIdParam.isBlank()) {
+            session.setAttribute("tenantContextId", tenantIdParam);
+        }
+        final Object sessionTenant = session.getAttribute("tenantContextId");
+        if (sessionTenant != null) {
+            model.addAttribute("tenantContextId", sessionTenant.toString());
+        }
         model.addAttribute("page", "checkout");
         final List<PaymentMethodVM> methods = paymentMethodService.listActiveMethods();
         model.addAttribute("paymentMethods", methods);

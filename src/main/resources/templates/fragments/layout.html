@@ -1,44 +1,33 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
-<head th:fragment="head(title, extraCss)">
+<body>
+
+<head th:fragment="head(title)">
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title th:text="${title} + ' — Copa Insider'">Copa Insider</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}"/>
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
-    <th:block th:replace="${extraCss}"/>
 </head>
-<body>
-</body>
-</html>
 
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<div th:fragment="public-layout(title, content)">
+    <div th:replace="~{fragments/navbar :: public-navbar}"></div>
+    <div th:replace="~{fragments/flash :: flash}"></div>
+    <main th:replace="${content}"></main>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/main.js}"></script>
+</div>
 
-<!-- Layout público (site/cliente) -->
-<div th:fragment="public-layout(title, content, extraCss)">
-    <head th:replace="~{fragments/layout :: head(${title}, ${extraCss})}"></head>
-    <body class="ci-body">
-        <div th:replace="~{fragments/navbar :: public-navbar}"></div>
+<div th:fragment="admin-layout(title, content)">
+    <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+    <div class="ci-admin-main">
+        <div th:replace="~{fragments/admin-header :: header(${title})}"></div>
         <div th:replace="~{fragments/flash :: flash}"></div>
-        <main th:replace="${content}"></main>
-        <div th:replace="~{fragments/footer :: footer}"></div>
-        <script th:src="@{/js/main.js}"></script>
-    </body>
+        <main class="ci-admin-content" th:replace="${content}"></main>
+    </div>
+    <script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/js/admin.js}"></script>
 </div>
 
-<!-- Layout admin -->
-<div th:fragment="admin-layout(title, content, extraCss)">
-    <head th:replace="~{fragments/layout :: head(${title}, ${extraCss})}"></head>
-    <body class="ci-body ci-admin">
-        <div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
-        <div class="ci-admin-main">
-            <div th:replace="~{fragments/admin-header :: header(${title})}"></div>
-            <div th:replace="~{fragments/flash :: flash}"></div>
-            <main class="ci-admin-content" th:replace="${content}"></main>
-        </div>
-        <script th:src="@{/js/main.js}"></script>
-        <script th:src="@{/js/admin.js}"></script>
-    </body>
-</div>
+</body>
 </html>

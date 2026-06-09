@@ -28,7 +28,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -56,8 +55,7 @@ public class MySqlDataSourceConfig {
     private static final Pattern INVISIBLE_CHAR_PATTERN = Pattern.compile("[\\uFEFF\\u00A0\\u200B\\u200C\\u200D\\u202F\\u2060]");
     private static final Pattern COMBINING_MARKS_PATTERN = Pattern.compile("\\p{M}+");
     private static final String EXPECTED_FORMAT_MESSAGE = "Formato esperado: mysql://usuario:senha@host:porta/dbname (uma linha, sem espacos e terminando com /dbname).";
-    private static final List<String> FALLBACK_URL_ENVS = List.of("RAILWAY_MYSQL_URL", "DATABASE_URL", "MYSQL_PRIVATE_URL");
-    private static final Map<String, String> DATABASE_NAME_OVERRIDES = Map.of("ferrovia", "railway");
+    private static final Map<String, String> DATABASE_NAME_OVERRIDES = Map.of();
 
     public MySqlDataSourceConfig(@Autowired(required = false) GitProperties gitProperties,
                                  Environment environment) {
@@ -171,40 +169,18 @@ public class MySqlDataSourceConfig {
     }
 
     private ResolvedDatabaseUrl resolveDatabaseUrl() {
-        boolean prodProfile = isProdProfileActive();
-        ResolvedDatabaseUrl railwayUrl = resolveRailwayUrl();
-        if (railwayUrl != null) {
-            return railwayUrl;
-        }
-
         String springDatasourceUrl = trimEnv("SPRING_DATASOURCE_URL");
         if (!isBlank(springDatasourceUrl)) {
-            if (prodProfile) {
-                LOGGER.warn("Usando SPRING_DATASOURCE_URL em profile prod por ausencia de RAILWAY_MYSQL_URL/DATABASE_URL/MYSQL_PRIVATE_URL.");
-            }
             return new ResolvedDatabaseUrl("SPRING_DATASOURCE_URL", springDatasourceUrl);
         }
 
         String mysqlUrl = trimEnv("MYSQL_URL");
         if (!isBlank(mysqlUrl)) {
-            if (prodProfile) {
-                LOGGER.warn("Usando MYSQL_URL em profile prod por ausencia de RAILWAY_MYSQL_URL/DATABASE_URL/MYSQL_PRIVATE_URL.");
-            }
             return new ResolvedDatabaseUrl("MYSQL_URL", mysqlUrl);
         }
 
-        throw new IllegalStateException("Nenhuma URL de banco foi definida. Em producao use RAILWAY_MYSQL_URL, DATABASE_URL"
-                + " ou MYSQL_PRIVATE_URL; em dev use SPRING_DATASOURCE_URL ou MYSQL_URL.");
-    }
-
-    private ResolvedDatabaseUrl resolveRailwayUrl() {
-        for (String envKey : FALLBACK_URL_ENVS) {
-            String candidate = trimEnv(envKey);
-            if (!isBlank(candidate)) {
-                return new ResolvedDatabaseUrl(envKey, candidate);
-            }
-        }
-        return null;
+        throw new IllegalStateException(
+                "Nenhuma URL de banco foi definida. Defina SPRING_DATASOURCE_URL com a string de conexao MySQL.");
     }
 
     private boolean isProdProfileActive() {
@@ -392,14 +368,10 @@ public class MySqlDataSourceConfig {
     }
 
     private void logStartupDiagnostics() {
-        boolean prodProfile = isProdProfileActive();
-        LOGGER.info("Env presence prodProfile={}, SPRING_DATASOURCE_URL={}, MYSQL_URL={}, RAILWAY_MYSQL_URL={}, DATABASE_URL={}, MYSQL_PRIVATE_URL={}",
-                prodProfile,
+        LOGGER.info("Env presence prodProfile={}, SPRING_DATASOURCE_URL={}, MYSQL_URL={}",
+                isProdProfileActive(),
                 hasEnvValue("SPRING_DATASOURCE_URL"),
-                hasEnvValue("MYSQL_URL"),
-                hasEnvValue("RAILWAY_MYSQL_URL"),
-                hasEnvValue("DATABASE_URL"),
-                hasEnvValue("MYSQL_PRIVATE_URL"));
+                hasEnvValue("MYSQL_URL"));
         String commit = null;
         if (gitProperties != null) {
             commit = gitProperties.getShortCommitId();

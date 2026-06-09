@@ -159,8 +159,11 @@ public class ProdutoEntity {
         if (this.status == null) {
             this.status = ProdutoStatus.IMPORTADO;
         }
+        TarjaMedicacao tarja = this.tarjaMedicacao;
         this.tarjaMedicacao = null;
-        this.exigeReceita = Boolean.FALSE;
+        if (tarja != TarjaMedicacao.TARJA_AMARELA || !Boolean.TRUE.equals(this.exigeReceita)) {
+            this.exigeReceita = Boolean.FALSE;
+        }
         if (this.metodoLeituraCodigoBarras == null) {
             this.metodoLeituraCodigoBarras = MetodoLeituraCodigoBarras.DESCONHECIDO;
         }
@@ -580,6 +583,9 @@ public class ProdutoEntity {
     }
 
     public Boolean getExigeReceita() {
+        if (TarjaMedicacao.TARJA_VERMELHA == this.tarjaMedicacao) {
+            return Boolean.TRUE;
+        }
         return this.exigeReceita;
     }
 

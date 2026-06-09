@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Níveis de Estoque')}"></head>
+<body class="ci-body ci-admin">
+<div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+<div class="ci-admin-main">
+    <div th:replace="~{fragments/admin-header :: header('Níveis de Estoque')}"></div>
+    <div th:replace="~{fragments/flash :: flash}"></div>
+    <main class="ci-admin-content">
+        <table class="ci-table" th:if="${items != null and !items.empty}">
+            <thead>
+                <tr><th>Produto</th><th>Estoque</th><th>Mínimo</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${items}">
+                    <td th:text="${item.nome}">Produto</td>
+                    <td th:text="${item.estoque}">0</td>
+                    <td th:text="${item.minimo}">5</td>
+                    <td th:text="${item.critico} ? 'Crítico' : 'OK'">OK</td>
+                </tr>
+            </tbody>
+        </table>
+        <p th:if="${items == null or items.empty}" class="ci-empty">Nenhum item encontrado.</p>
+    </main>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

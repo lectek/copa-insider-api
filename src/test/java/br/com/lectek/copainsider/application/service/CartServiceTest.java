@@ -134,6 +134,7 @@ class CartServiceTest {
         produto.setDisponivel(true);
         produto.setEstoque(100);
         produto.setStatus(ProdutoStatus.PUBLICADO);
+        produto.setCodigoBarras(String.format("789%010d", id));
         produto.setMetodoLeituraCodigoBarras(
                 MetodoLeituraCodigoBarras.MANUAL
         );

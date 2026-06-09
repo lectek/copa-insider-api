@@ -124,6 +124,7 @@ class MercadoPagoCheckoutServiceTest {
     @Test
     void syncPaymentForPedidoMarksPedidoAsPaidWhenApproved() {
         PedidoEntity pedido = pedido();
+        pedido.setTipoPagamento(TipoPagamento.PIX);
         pedido.setStatus(StatusPedido.AGUARDANDO_PAGAMENTO);
         pedido.setGatewayOwnerReference("loja-centro");
         when(checkoutClient.fetchPayment("access-token", "pay-123"))
@@ -293,7 +294,7 @@ class MercadoPagoCheckoutServiceTest {
         pedido.setId(10L);
         pedido.setCliente(cliente);
         pedido.setStatus(StatusPedido.AGUARDANDO_PAGAMENTO);
-        pedido.setTipoPagamento(TipoPagamento.PIX);
+        pedido.setTipoPagamento(TipoPagamento.CARTAO_CREDITO);
         pedido.setTotal(new BigDecimal("39.90"));
         return pedido;
     }

@@ -4,6 +4,7 @@ import br.com.lectek.copainsider.adapters.outbound.persistence.entity.ProdutoEnt
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.ProdutoJpaRepository;
 import br.com.lectek.copainsider.application.core.media.ImageStorageService;
 import br.com.lectek.copainsider.application.core.settings.AppSettingService;
+import br.com.lectek.copainsider.application.service.ProductCategoryBindingService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -40,6 +41,9 @@ class ProdutoAdminRestFiscalFieldsTest {
 
     @MockitoBean
     private AppSettingService appSettingService;
+
+    @MockitoBean
+    private ProductCategoryBindingService categoryBindingService;
 
     private ProdutoEntity entity;
 

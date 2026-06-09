@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -69,7 +70,7 @@ class AdminEstoqueNiveisControllerTest {
                 .thenReturn(new MappingJackson2JsonView());
         when(appSettingService.getInt("app.estoque.alerta.limite", 2))
                 .thenReturn(8);
-        when(produtoRepository.findComEstoqueBaixo(8)).thenReturn(List.of());
+        when(produtoRepository.findComEstoqueBaixoScoped(isNull(), eq(8))).thenReturn(List.of());
     }
 
     @AfterEach
@@ -85,7 +86,7 @@ class AdminEstoqueNiveisControllerTest {
         produto.setEstoque(5);
         produto.setAlertaEstoqueLimite(null);
 
-        when(produtoRepository.findPaginaNiveisEstoque(eq(8), any(PageRequest.class)))
+        when(produtoRepository.findPaginaNiveisEstoqueScoped(isNull(), eq(8), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(produto), PageRequest.of(0, 100), 1));
 
         final MvcResult result = mockMvc.perform(get("/admin/estoque/niveis"))
@@ -116,7 +117,7 @@ class AdminEstoqueNiveisControllerTest {
         produto.setNome("Estoque zerado");
         produto.setEstoque(0);
 
-        when(produtoRepository.findPaginaNiveisEstoque(eq(8), any(PageRequest.class)))
+        when(produtoRepository.findPaginaNiveisEstoqueScoped(isNull(), eq(8), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(produto), PageRequest.of(0, 100), 1));
 
         final MvcResult result = mockMvc.perform(get("/admin/estoque/niveis"))

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Produtos')}"></head>
+<body class="ci-body">
+<div th:replace="~{fragments/navbar :: public-navbar}"></div>
+<div th:replace="~{fragments/flash :: flash}"></div>
+<main class="ci-main">
+    <div class="ci-container">
+        <h1 class="ci-page-title">Produtos</h1>
+
+        <div th:if="${showCategorySections and !#lists.isEmpty(categorySections)}" class="ci-catalog-sections">
+            <h2 class="ci-catalog__mode-label">Grade por categoria</h2>
+            <div th:each="sec : ${categorySections}" class="ci-category-section">
+                <h3 th:text="${sec.titulo}" class="ci-category-section__title">Categoria</h3>
+                <div class="ci-product-grid">
+                    <div th:each="card : ${sec.produtos}" class="ci-product-card">
+                        <a th:href="@{'/produto/' + ${card.id}}" class="ci-product-card__link">
+                            <img th:src="${card.imagem}" th:alt="${card.nome}" class="ci-product-card__img"/>
+                            <h4 th:text="${card.nome}" class="ci-product-card__name">Produto</h4>
+                            <p th:text="'R$ ' + ${card.preco}" class="ci-product-card__price">R$ 0,00</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${!showCategorySections or #lists.isEmpty(categorySections)}" class="ci-product-grid">
+            <div th:each="card : ${cards}" class="ci-product-card">
+                <a th:href="@{'/produto/' + ${card.id}}" class="ci-product-card__link">
+                    <img th:src="${card.imagem}" th:alt="${card.nome}" class="ci-product-card__img"/>
+                    <h3 th:text="${card.nome}" class="ci-product-card__name">Produto</h3>
+                    <p th:text="'R$ ' + ${card.preco}" class="ci-product-card__price">R$ 0,00</p>
+                </a>
+            </div>
+        </div>
+
+        <p th:if="${!temProdutos}" class="ci-empty">Nenhum produto encontrado.</p>
+    </div>
+
+    <div class="ci-whatsapp-cta">
+        <a th:href="${@appProps.whatsappLink}" class="ci-btn ci-btn--whatsapp" target="_blank">Abrir Alysson</a>
+    </div>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
