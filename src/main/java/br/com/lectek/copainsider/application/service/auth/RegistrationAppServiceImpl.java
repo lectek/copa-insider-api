@@ -69,10 +69,17 @@ public class RegistrationAppServiceImpl implements RegistrationAppService {
         String encodedPassword = encoder.encode(raw);
         u.setSenha(encodedPassword);
 
+        u.setEmailVerificado(false);
         u.addRole(resolveCustomerRole());
         usuarioRepo.save(u);
 
         syncClienteCadastro(request, email, cpf, nome, telefone, encodedPassword);
+    }
+
+    @Override
+    @Transactional
+    public void ativarEmailVerificado(String email) {
+        usuarioRepo.ativarEmailVerificado(normalizeEmail(email));
     }
 
     private static String safe(String v) {

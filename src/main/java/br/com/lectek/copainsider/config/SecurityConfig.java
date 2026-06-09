@@ -6,9 +6,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
@@ -76,15 +78,18 @@ public class SecurityConfig {
                     "/buscar"
                 ).permitAll()
 
-                // 🔹 Telas de login/cadastro (GET e POST)
-                // Liberadas para o usuário poder entrar ou criar conta
+                // 🔹 Telas de login/cadastro/verificação (GET e POST)
                 .requestMatchers(HttpMethod.GET,
                     "/auth/login",
-                    "/auth/cliente/cadastro"
+                    "/auth/cliente/cadastro",
+                    "/cadastro",
+                    "/verificar-email"
                 ).permitAll()
                 .requestMatchers(HttpMethod.POST,
                     "/auth/login",
-                    "/auth/cliente/cadastro"
+                    "/auth/cliente/cadastro",
+                    "/cadastro",
+                    "/verificar-email"
                 ).permitAll()
 
                 // 🔹 APIs públicas e health (para monitoramento, docs, etc.)
@@ -108,10 +113,10 @@ public class SecurityConfig {
 
             // 🔐 Configuração do login via formulário
             .formLogin(f -> f
-                .loginPage("/auth/login")          // GET: tela de login
-                .loginProcessingUrl("/auth/login") // POST: envio do formulário
-                .successHandler(successHandler)    // redireciona para URL original ou "/"
-                .failureUrl("/auth/login?error")
+                .loginPage("/auth/login")
+                .loginProcessingUrl("/auth/login")
+                .successHandler(successHandler)
+                .failureHandler(loginFailureHandler())
                 .permitAll()
             )
 
@@ -125,6 +130,13 @@ public class SecurityConfig {
             );
 
         return http.build();
+    }
+
+    private AuthenticationFailureHandler loginFailureHandler() {
+        return (request, response, exception) -> {
+            String suffix = (exception instanceof DisabledException) ? "?disabled" : "?error";
+            response.sendRedirect("/auth/login" + suffix);
+        };
     }
 
     private String resolvePostLoginTarget(

@@ -4,4 +4,5 @@ import br.com.lectek.copainsider.application.dto.request.CadastroClienteRequestD
 
 public interface RegistrationAppService {
     void cadastrarNovoCliente(CadastroClienteRequestDTO request);
+    void ativarEmailVerificado(String email);
 }

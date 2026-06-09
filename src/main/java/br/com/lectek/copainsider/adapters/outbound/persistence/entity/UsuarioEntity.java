@@ -93,6 +93,9 @@ public class UsuarioEntity implements Serializable {
     @Column(name = "tentativas_falhas", nullable = false)
     private Integer tentativasFalhas = 0;
 
+    @Column(name = "email_verificado", nullable = false)
+    private boolean emailVerificado = true;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
@@ -202,6 +205,9 @@ public class UsuarioEntity implements Serializable {
 
     public Integer getTentativasFalhas() { return tentativasFalhas; }
     public void setTentativasFalhas(Integer tentativasFalhas) { this.tentativasFalhas = tentativasFalhas; }
+
+    public boolean isEmailVerificado() { return emailVerificado; }
+    public void setEmailVerificado(boolean emailVerificado) { this.emailVerificado = emailVerificado; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

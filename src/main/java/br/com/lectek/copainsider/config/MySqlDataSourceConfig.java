@@ -155,6 +155,7 @@ public class MySqlDataSourceConfig {
                 .baselineOnMigrate(true)
                 .outOfOrder(outOfOrder)
                 .load();
+        flyway.repair();
         flyway.migrate();
         return flyway;
     }

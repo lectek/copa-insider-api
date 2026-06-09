@@ -1,27 +1,126 @@
 package br.com.lectek.copainsider.application.copa;
 
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+
 import static br.com.lectek.copainsider.application.copa.PartidaVM.StatusPartida.*;
 
 @Service
 public class Copa2026DataService {
 
-    private final List<SelecaoVM> selecoes;
-    private final List<PartidaVM> partidas;
-    private final List<JogadorVM> jogadores;
-    private final List<RivalidadeVM> rivalidades;
+    private static final Logger log = LoggerFactory.getLogger(Copa2026DataService.class);
 
-    public Copa2026DataService() {
-        this.selecoes = buildSelecoes();
-        this.partidas = buildPartidas();
-        this.jogadores = buildJogadores();
+    // ── Metadados estáticos das seleções (nome inglês → dados em português) ──
+
+    private record TeamMeta(
+            String nome, String slug, String bandeira,
+            String confederacao, String melhorResultado, int participacoes) {}
+
+    private static final Map<String, TeamMeta> TEAMS = Map.ofEntries(
+        // Grupo A
+        Map.entry("Mexico",               new TeamMeta("México",          "mexico",          "🇲🇽", "CONCACAF", "3º lugar (1970, 1986)", 17)),
+        Map.entry("South Africa",         new TeamMeta("África do Sul",   "africa-do-sul",   "🇿🇦", "CAF",      "Quartos (2010)", 4)),
+        Map.entry("South Korea",          new TeamMeta("Coreia do Sul",   "coreia-do-sul",   "🇰🇷", "AFC",      "4º lugar (2002)", 11)),
+        Map.entry("Czech Republic",       new TeamMeta("Rep. Checa",      "rep-checa",       "🇨🇿", "UEFA",     "Vice-campeã (1962)", 10)),
+        // Grupo B
+        Map.entry("Canada",               new TeamMeta("Canadá",          "canada",          "🇨🇦", "CONCACAF", "Fase de grupos (2022)", 3)),
+        Map.entry("Bosnia & Herzegovina", new TeamMeta("Bósnia-Herz.",    "bosnia",          "🇧🇦", "UEFA",     "Fase de grupos (2014)", 2)),
+        Map.entry("Qatar",                new TeamMeta("Qatar",           "qatar",           "🇶🇦", "AFC",      "Fase de grupos (2022)", 2)),
+        Map.entry("Switzerland",          new TeamMeta("Suíça",           "suica",           "🇨🇭", "UEFA",     "Quartos (1954)", 12)),
+        // Grupo C
+        Map.entry("Brazil",               new TeamMeta("Brasil",          "brasil",          "🇧🇷", "CONMEBOL", "Campeão (1958,62,70,94,02)", 22)),
+        Map.entry("Morocco",              new TeamMeta("Marrocos",        "marrocos",        "🇲🇦", "CAF",      "4º lugar (2022)", 10)),
+        Map.entry("Haiti",                new TeamMeta("Haiti",           "haiti",           "🇭🇹", "CONCACAF", "Fase de grupos", 2)),
+        Map.entry("Scotland",             new TeamMeta("Escócia",         "escocia",         "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "UEFA", "Fase de grupos", 8)),
+        // Grupo D
+        Map.entry("USA",                  new TeamMeta("EUA",             "eua",             "🇺🇸", "CONCACAF", "3º lugar (1930)", 11)),
+        Map.entry("Paraguay",             new TeamMeta("Paraguai",        "paraguai",        "🇵🇾", "CONMEBOL", "Quartos (2010)", 9)),
+        Map.entry("Australia",            new TeamMeta("Austrália",       "australia",       "🇦🇺", "AFC",      "4º lugar (2006)", 6)),
+        Map.entry("Turkey",               new TeamMeta("Turquia",         "turquia",         "🇹🇷", "UEFA",     "3º lugar (2002)", 3)),
+        // Grupo E
+        Map.entry("Germany",              new TeamMeta("Alemanha",        "alemanha",        "🇩🇪", "UEFA",     "Campeã (1954,74,90,2014)", 20)),
+        Map.entry("Curaçao",              new TeamMeta("Curaçao",         "curacao",         "🇨🇼", "CONCACAF", "Estreia", 0)),
+        Map.entry("Ivory Coast",          new TeamMeta("Costa do Marfim", "costa-do-marfim", "🇨🇮", "CAF",      "Fase de grupos", 3)),
+        Map.entry("Ecuador",              new TeamMeta("Equador",         "equador",         "🇪🇨", "CONMEBOL", "Quartos (2006)", 4)),
+        // Grupo F
+        Map.entry("Netherlands",          new TeamMeta("Países Baixos",   "paises-baixos",   "🇳🇱", "UEFA",     "Vice (1974,78,2010)", 11)),
+        Map.entry("Japan",                new TeamMeta("Japão",           "japao",           "🇯🇵", "AFC",      "Oitavos (2022)", 7)),
+        Map.entry("Sweden",               new TeamMeta("Suécia",          "suecia",          "🇸🇪", "UEFA",     "3º lugar (1950,1994)", 12)),
+        Map.entry("Tunisia",              new TeamMeta("Tunísia",         "tunisia",         "🇹🇳", "CAF",      "Fase de grupos", 6)),
+        // Grupo G
+        Map.entry("Belgium",              new TeamMeta("Bélgica",         "belgica",         "🇧🇪", "UEFA",     "3º lugar (2018)", 14)),
+        Map.entry("Egypt",                new TeamMeta("Egito",           "egito",           "🇪🇬", "CAF",      "Fase de grupos", 3)),
+        Map.entry("Iran",                 new TeamMeta("Irão",            "irao",            "🇮🇷", "AFC",      "Fase de grupos", 6)),
+        Map.entry("New Zealand",          new TeamMeta("Nova Zelândia",   "nova-zelandia",   "🇳🇿", "OFC",      "Fase de grupos", 3)),
+        // Grupo H
+        Map.entry("Spain",                new TeamMeta("Espanha",         "espanha",         "🇪🇸", "UEFA",     "Campeã (2010)", 16)),
+        Map.entry("Cape Verde",           new TeamMeta("Cabo Verde",      "cabo-verde",      "🇨🇻", "CAF",      "Estreia", 0)),
+        Map.entry("Saudi Arabia",         new TeamMeta("Arábia Saudita",  "arabia-saudita",  "🇸🇦", "AFC",      "Fase de grupos", 6)),
+        Map.entry("Uruguay",              new TeamMeta("Uruguai",         "uruguai",         "🇺🇾", "CONMEBOL", "Campeão (1930,1950)", 14)),
+        // Grupo I
+        Map.entry("France",               new TeamMeta("França",          "franca",          "🇫🇷", "UEFA",     "Campeã (1998,2018)", 16)),
+        Map.entry("Senegal",              new TeamMeta("Senegal",         "senegal",         "🇸🇳", "CAF",      "Quartos (2002)", 4)),
+        Map.entry("Iraq",                 new TeamMeta("Iraque",          "iraque",          "🇮🇶", "AFC",      "Fase de grupos", 2)),
+        Map.entry("Norway",               new TeamMeta("Noruega",         "noruega",         "🇳🇴", "UEFA",     "Quartos (1938,1994)", 4)),
+        // Grupo J
+        Map.entry("Argentina",            new TeamMeta("Argentina",       "argentina",       "🇦🇷", "CONMEBOL", "Campeão (1978,86,2022)", 18)),
+        Map.entry("Algeria",              new TeamMeta("Argélia",         "argelia",         "🇩🇿", "CAF",      "Oitavos (2014)", 4)),
+        Map.entry("Austria",              new TeamMeta("Áustria",         "austria",         "🇦🇹", "UEFA",     "3º lugar (1954)", 7)),
+        Map.entry("Jordan",               new TeamMeta("Jordânia",        "jordania",        "🇯🇴", "AFC",      "Estreia", 0)),
+        // Grupo K
+        Map.entry("Portugal",             new TeamMeta("Portugal",        "portugal",        "🇵🇹", "UEFA",     "3º lugar (1966,2006)", 9)),
+        Map.entry("DR Congo",             new TeamMeta("RD Congo",        "rd-congo",        "🇨🇩", "CAF",      "Fase de grupos (1974)", 2)),
+        Map.entry("Uzbekistan",           new TeamMeta("Uzbequistão",     "uzbequistao",     "🇺🇿", "AFC",      "Estreia", 0)),
+        Map.entry("Colombia",             new TeamMeta("Colômbia",        "colombia",        "🇨🇴", "CONMEBOL", "Quartos (2014)", 7)),
+        // Grupo L
+        Map.entry("England",              new TeamMeta("Inglaterra",      "inglaterra",      "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "UEFA", "Campeã (1966)", 17)),
+        Map.entry("Croatia",              new TeamMeta("Croácia",         "croacia",         "🇭🇷", "UEFA",     "Vice-campeã (2018)", 8)),
+        Map.entry("Ghana",                new TeamMeta("Gana",            "gana",            "🇬🇭", "CAF",      "Quartos (2010)", 4)),
+        Map.entry("Panama",               new TeamMeta("Panamá",          "panama",          "🇵🇦", "CONCACAF", "Fase de grupos", 2))
+    );
+
+    // ── Estado dinâmico ──────────────────────────────────────────────────────
+
+    private final OpenFootballClient client;
+    private volatile List<PartidaVM>  partidas  = List.of();
+    private volatile List<SelecaoVM>  selecoes  = List.of();
+    private final    List<JogadorVM>  jogadores;
+    private final    List<RivalidadeVM> rivalidades;
+
+    public Copa2026DataService(OpenFootballClient client) {
+        this.client = client;
+        this.jogadores   = buildJogadores();
         this.rivalidades = buildRivalidades();
     }
 
-    // ── Seleções ────────────────────────────────────────────────────────────
+    @PostConstruct
+    public void init() { refresh(); }
+
+    @Scheduled(fixedDelay = 1_800_000) // 30 min
+    public void refresh() {
+        try {
+            List<OpenFootballClient.OFMatch> matches = client.fetchMatches();
+            if (!matches.isEmpty()) {
+                partidas = buildPartidas(matches);
+                selecoes = buildSelecoes(matches);
+                log.info("Copa 2026: {} partidas carregadas", partidas.size());
+            }
+        } catch (Exception e) {
+            log.error("Erro ao atualizar dados Copa 2026: {}", e.getMessage());
+        }
+    }
+
+    // ── API pública ──────────────────────────────────────────────────────────
 
     public List<SelecaoVM> listSelecoes() { return selecoes; }
 
@@ -30,11 +129,9 @@ public class Copa2026DataService {
     }
 
     public Map<String, List<SelecaoVM>> selecoesPorGrupo() {
-        return selecoes.stream().collect(Collectors.groupingBy(
-                SelecaoVM::grupo, TreeMap::new, Collectors.toList()));
+        return selecoes.stream().collect(
+                Collectors.groupingBy(SelecaoVM::grupo, TreeMap::new, Collectors.toList()));
     }
-
-    // ── Partidas ─────────────────────────────────────────────────────────────
 
     public List<PartidaVM> listPartidas() { return partidas; }
 
@@ -67,8 +164,6 @@ public class Copa2026DataService {
                 .toList();
     }
 
-    // ── Jogadores ────────────────────────────────────────────────────────────
-
     public List<JogadorVM> listJogadores() { return jogadores; }
 
     public List<JogadorVM> topGoleadores(int limite) {
@@ -89,236 +184,137 @@ public class Copa2026DataService {
                 .limit(limite).toList();
     }
 
-    // ── Rivalidades ──────────────────────────────────────────────────────────
-
     public List<RivalidadeVM> listRivalidades() { return rivalidades; }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // DATA
-    // ─────────────────────────────────────────────────────────────────────────
+    // ── Construção a partir dos dados da API ─────────────────────────────────
 
-    private List<SelecaoVM> buildSelecoes() {
-        return List.of(
-            // Grupo A
-            s("México",        "mexico",        "🇲🇽", "A", "CONCACAF", "3º lugar (1970, 1986)", 17),
-            s("Jamaica",       "jamaica",       "🇯🇲", "A", "CONCACAF", "Fase de grupos", 1),
-            s("Venezuela",     "venezuela",     "🇻🇪", "A", "CONMEBOL", "Estreia", 0),
-            s("Equador",       "equador",       "🇪🇨", "A", "CONMEBOL", "Quartos (2006)", 4),
-            // Grupo B
-            s("EUA",           "eua",           "🇺🇸", "B", "CONCACAF", "3º lugar (1930)", 11),
-            s("Canadá",        "canada",        "🇨🇦", "B", "CONCACAF", "Fase de grupos", 2),
-            s("Panamá",        "panama",        "🇵🇦", "B", "CONCACAF", "Fase de grupos", 2),
-            s("Bolívia",       "bolivia",       "🇧🇴", "B", "CONMEBOL", "Fase de grupos", 3),
-            // Grupo C
-            s("Uruguai",       "uruguai",       "🇺🇾", "C", "CONMEBOL", "Campeão (1930, 1950)", 14),
-            s("Paraguai",      "paraguai",      "🇵🇾", "C", "CONMEBOL", "Quartos (2010)", 9),
-            s("Peru",          "peru",          "🇵🇪", "C", "CONMEBOL", "3º lugar (1975)", 5),
-            s("Rep. Centro-Africana", "rep-centro-africana", "🇨🇫", "C", "CAF", "Estreia", 0),
-            // Grupo D
-            s("Brasil",        "brasil",        "🇧🇷", "D", "CONMEBOL", "Campeão (1958,62,70,94,02)", 22),
-            s("Chile",         "chile",         "🇨🇱", "D", "CONMEBOL", "3º lugar (1962)", 10),
-            s("Marrocos",      "marrocos",      "🇲🇦", "D", "CAF",      "4º lugar (2022)", 10),
-            s("Croácia",       "croacia",       "🇭🇷", "D", "UEFA",     "Vice-campeão (2018)", 8),
-            // Grupo E
-            s("Argentina",     "argentina",     "🇦🇷", "E", "CONMEBOL", "Campeão (1978,86,2022)", 18),
-            s("Colômbia",      "colombia",      "🇨🇴", "E", "CONMEBOL", "Quartos (2014)", 7),
-            s("Costa Rica",    "costa-rica",    "🇨🇷", "E", "CONCACAF", "Quartos (2014)", 7),
-            s("Guatemala",     "guatemala",     "🇬🇹", "E", "CONCACAF", "Fase de grupos", 1),
-            // Grupo F
-            s("Portugal",      "portugal",      "🇵🇹", "F", "UEFA",     "3º lugar (1966, 2006)", 9),
-            s("Espanha",       "espanha",       "🇪🇸", "F", "UEFA",     "Campeã (2010)", 16),
-            s("Suíça",         "suica",         "🇨🇭", "F", "UEFA",     "Quartos (1934, 1938, 1954)", 12),
-            s("Camarões",      "camaroes",      "🇨🇲", "F", "CAF",      "Fase de grupos", 8),
-            // Grupo G
-            s("França",        "franca",        "🇫🇷", "G", "UEFA",     "Campeã (1998, 2018)", 16),
-            s("Polónia",       "polonia",       "🇵🇱", "G", "UEFA",     "3º lugar (1974, 1982)", 9),
-            s("Senegal",       "senegal",       "🇸🇳", "G", "CAF",      "Quartos (2002)", 4),
-            s("Arábia Saudita","arabia-saudita","🇸🇦", "G", "AFC",      "Fase de grupos", 6),
-            // Grupo H
-            s("Alemanha",      "alemanha",      "🇩🇪", "H", "UEFA",     "Campeã (1954,74,90,2014)", 20),
-            s("Japão",         "japao",         "🇯🇵", "H", "AFC",      "Oitavos (2022)", 7),
-            s("Austrália",     "australia",     "🇦🇺", "H", "AFC",      "4º lugar (1974, 2006)", 6),
-            s("Argélia",       "argelia",       "🇩🇿", "H", "CAF",      "Oitavos (2014)", 4),
-            // Grupo I
-            s("Países Baixos", "paises-baixos", "🇳🇱", "I", "UEFA",     "Vice (1974, 1978, 2010)", 11),
-            s("Turquia",       "turquia",       "🇹🇷", "I", "UEFA",     "3º lugar (2002)", 3),
-            s("Costa do Marfim","costa-do-marfim","🇨🇮","I","CAF",     "Fase de grupos", 3),
-            s("Coreia do Sul", "coreia-do-sul", "🇰🇷", "I", "AFC",      "4º lugar (2002)", 11),
-            // Grupo J
-            s("Inglaterra",    "inglaterra",    "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "J", "UEFA", "Campeã (1966)", 17),
-            s("Irão",          "ira",           "🇮🇷", "J", "AFC",      "Fase de grupos", 6),
-            s("Nigéria",       "nigeria",       "🇳🇬", "J", "CAF",      "Oitavos (1994, 1998, 2014)", 6),
-            s("Honduras",      "honduras",      "🇭🇳", "J", "CONCACAF", "Fase de grupos", 3),
-            // Grupo K
-            s("Bélgica",       "belgica",       "🇧🇪", "K", "UEFA",     "3º lugar (2018)", 14),
-            s("Escócia",       "escocia",       "🏴󠁧󠁢󠁳󠁣󠁴󠁿","K","UEFA","Fase de grupos", 8),
-            s("Marfim",        "ghana",         "🇬🇭", "K", "CAF",      "Quartos (2010)", 4),
-            s("Nova Zelândia", "nova-zelandia", "🇳🇿", "K", "OFC",      "Fase de grupos", 3),
-            // Grupo L
-            s("Portugal B",    "egito",         "🇪🇬", "L", "CAF",      "Fase de grupos", 3),
-            s("México B",      "arabia-saudita-2","🇿🇦","L","CAF",    "Fase de grupos", 3),
-            s("Qatar",         "qatar",         "🇶🇦", "L", "AFC",      "Fase de grupos (2022)", 1),
-            s("Iraque",        "iraque",        "🇮🇶", "L", "AFC",      "Fase de grupos", 1)
-        );
+    private List<PartidaVM> buildPartidas(List<OpenFootballClient.OFMatch> matches) {
+        AtomicLong idGen = new AtomicLong(1);
+        return matches.stream()
+                .filter(m -> m.team1() != null && m.team2() != null)
+                .map(m -> {
+                    TeamMeta casa      = resolve(m.team1());
+                    TeamMeta visitante = resolve(m.team2());
+                    String grupo    = extractGroup(m.group());
+                    String fase     = extractFase(m.round());
+                    LocalDateTime dt = parseDateTime(m.date(), m.time());
+                    PartidaVM.StatusPartida status = m.hasScore() ? ENCERRADA : AGENDADA;
+                    String[] ground = splitGround(m.ground());
+                    return new PartidaVM(
+                            idGen.getAndIncrement(),
+                            casa.nome(), casa.slug(), casa.bandeira(),
+                            visitante.nome(), visitante.slug(), visitante.bandeira(),
+                            dt, fase, grupo,
+                            m.scoreHome(), m.scoreAway(),
+                            status, ground[0], ground[1]);
+                })
+                .toList();
     }
 
-    private SelecaoVM s(String nome, String slug, String bandeira, String grupo,
-                        String conf, String melhorResultado, int participacoes) {
-        return new SelecaoVM(nome, slug, bandeira, grupo, conf, melhorResultado, participacoes);
+    private List<SelecaoVM> buildSelecoes(List<OpenFootballClient.OFMatch> matches) {
+        // Extrai pares (nome inglês → grupo) sem repetições
+        Map<String, String> teamToGroup = new LinkedHashMap<>();
+        for (var m : matches) {
+            String grupo = extractGroup(m.group());
+            if (grupo == null) continue;
+            if (m.team1() != null) teamToGroup.putIfAbsent(m.team1(), grupo);
+            if (m.team2() != null) teamToGroup.putIfAbsent(m.team2(), grupo);
+        }
+        return teamToGroup.entrySet().stream()
+                .map(e -> {
+                    TeamMeta meta = resolve(e.getKey());
+                    return new SelecaoVM(meta.nome(), meta.slug(), meta.bandeira(),
+                            e.getValue(), meta.confederacao(), meta.melhorResultado(),
+                            meta.participacoes());
+                })
+                .sorted(Comparator.comparing(SelecaoVM::grupo).thenComparing(SelecaoVM::nome))
+                .toList();
     }
 
-    private List<PartidaVM> buildPartidas() {
-        List<PartidaVM> list = new ArrayList<>();
-        long id = 1;
+    // ── Helpers ──────────────────────────────────────────────────────────────
 
-        // Grupo A
-        list.add(p(id++, "México","mexico","🇲🇽","Jamaica","jamaica","🇯🇲",
-                ldt(2026,6,11,16,0),"Fase de grupos","A",2,0,ENCERRADA,"Estadio Azteca","Cidade do México"));
-        list.add(p(id++, "Venezuela","venezuela","🇻🇪","Equador","equador","🇪🇨",
-                ldt(2026,6,11,19,0),"Fase de grupos","A",1,1,ENCERRADA,"AT&T Stadium","Dallas"));
-        list.add(p(id++, "México","mexico","🇲🇽","Venezuela","venezuela","🇻🇪",
-                ldt(2026,6,15,16,0),"Fase de grupos","A",null,null,AGENDADA,"Estadio Azteca","Cidade do México"));
-        list.add(p(id++, "Equador","equador","🇪🇨","Jamaica","jamaica","🇯🇲",
-                ldt(2026,6,15,19,0),"Fase de grupos","A",null,null,AGENDADA,"NRG Stadium","Houston"));
-        list.add(p(id++, "Equador","equador","🇪🇨","México","mexico","🇲🇽",
-                ldt(2026,6,19,20,0),"Fase de grupos","A",null,null,AGENDADA,"AT&T Stadium","Dallas"));
-        list.add(p(id++, "Jamaica","jamaica","🇯🇲","Venezuela","venezuela","🇻🇪",
-                ldt(2026,6,19,20,0),"Fase de grupos","A",null,null,AGENDADA,"Estadio Azteca","Cidade do México"));
-
-        // Grupo B
-        list.add(p(id++, "EUA","eua","🇺🇸","Canadá","canada","🇨🇦",
-                ldt(2026,6,12,17,0),"Fase de grupos","B",null,null,AGENDADA,"MetLife Stadium","Nova Iorque"));
-        list.add(p(id++, "Panamá","panama","🇵🇦","Bolívia","bolivia","🇧🇴",
-                ldt(2026,6,12,20,0),"Fase de grupos","B",null,null,AGENDADA,"SoFi Stadium","Los Angeles"));
-        list.add(p(id++, "EUA","eua","🇺🇸","Panamá","panama","🇵🇦",
-                ldt(2026,6,16,17,0),"Fase de grupos","B",null,null,AGENDADA,"Levi's Stadium","São Francisco"));
-        list.add(p(id++, "Canadá","canada","🇨🇦","Bolívia","bolivia","🇧🇴",
-                ldt(2026,6,16,20,0),"Fase de grupos","B",null,null,AGENDADA,"BC Place","Vancouver"));
-        list.add(p(id++, "Canadá","canada","🇨🇦","Panamá","panama","🇵🇦",
-                ldt(2026,6,20,20,0),"Fase de grupos","B",null,null,AGENDADA,"BMO Field","Toronto"));
-        list.add(p(id++, "Bolívia","bolivia","🇧🇴","EUA","eua","🇺🇸",
-                ldt(2026,6,20,20,0),"Fase de grupos","B",null,null,AGENDADA,"MetLife Stadium","Nova Iorque"));
-
-        // Grupo D — Brasil
-        list.add(p(id++, "Brasil","brasil","🇧🇷","Chile","chile","🇨🇱",
-                ldt(2026,6,13,20,0),"Fase de grupos","D",null,null,AGENDADA,"SoFi Stadium","Los Angeles"));
-        list.add(p(id++, "Marrocos","marrocos","🇲🇦","Croácia","croacia","🇭🇷",
-                ldt(2026,6,13,17,0),"Fase de grupos","D",null,null,AGENDADA,"MetLife Stadium","Nova Iorque"));
-        list.add(p(id++, "Brasil","brasil","🇧🇷","Marrocos","marrocos","🇲🇦",
-                ldt(2026,6,17,20,0),"Fase de grupos","D",null,null,AGENDADA,"AT&T Stadium","Dallas"));
-        list.add(p(id++, "Croácia","croacia","🇭🇷","Chile","chile","🇨🇱",
-                ldt(2026,6,17,17,0),"Fase de grupos","D",null,null,AGENDADA,"Levi's Stadium","São Francisco"));
-        list.add(p(id++, "Brasil","brasil","🇧🇷","Croácia","croacia","🇭🇷",
-                ldt(2026,6,21,20,0),"Fase de grupos","D",null,null,AGENDADA,"Hard Rock Stadium","Miami"));
-        list.add(p(id++, "Chile","chile","🇨🇱","Marrocos","marrocos","🇲🇦",
-                ldt(2026,6,21,20,0),"Fase de grupos","D",null,null,AGENDADA,"NRG Stadium","Houston"));
-
-        // Grupo E — Argentina
-        list.add(p(id++, "Argentina","argentina","🇦🇷","Colômbia","colombia","🇨🇴",
-                ldt(2026,6,14,20,0),"Fase de grupos","E",null,null,AGENDADA,"MetLife Stadium","Nova Iorque"));
-        list.add(p(id++, "Costa Rica","costa-rica","🇨🇷","Guatemala","guatemala","🇬🇹",
-                ldt(2026,6,14,17,0),"Fase de grupos","E",null,null,AGENDADA,"Estadio Azteca","Cidade do México"));
-        list.add(p(id++, "Argentina","argentina","🇦🇷","Costa Rica","costa-rica","🇨🇷",
-                ldt(2026,6,18,20,0),"Fase de grupos","E",null,null,AGENDADA,"Hard Rock Stadium","Miami"));
-        list.add(p(id++, "Colômbia","colombia","🇨🇴","Guatemala","guatemala","🇬🇹",
-                ldt(2026,6,18,17,0),"Fase de grupos","E",null,null,AGENDADA,"SoFi Stadium","Los Angeles"));
-        list.add(p(id++, "Argentina","argentina","🇦🇷","Guatemala","guatemala","🇬🇹",
-                ldt(2026,6,22,20,0),"Fase de grupos","E",null,null,AGENDADA,"AT&T Stadium","Dallas"));
-        list.add(p(id++, "Colômbia","colombia","🇨🇴","Costa Rica","costa-rica","🇨🇷",
-                ldt(2026,6,22,20,0),"Fase de grupos","E",null,null,AGENDADA,"NRG Stadium","Houston"));
-
-        // Grupo F — Portugal + Espanha
-        list.add(p(id++, "Portugal","portugal","🇵🇹","Camarões","camaroes","🇨🇲",
-                ldt(2026,6,14,14,0),"Fase de grupos","F",null,null,AGENDADA,"Levi's Stadium","São Francisco"));
-        list.add(p(id++, "Espanha","espanha","🇪🇸","Suíça","suica","🇨🇭",
-                ldt(2026,6,14,11,0),"Fase de grupos","F",null,null,AGENDADA,"SoFi Stadium","Los Angeles"));
-        list.add(p(id++, "Portugal","portugal","🇵🇹","Suíça","suica","🇨🇭",
-                ldt(2026,6,18,14,0),"Fase de grupos","F",null,null,AGENDADA,"MetLife Stadium","Nova Iorque"));
-        list.add(p(id++, "Espanha","espanha","🇪🇸","Camarões","camaroes","🇨🇲",
-                ldt(2026,6,18,11,0),"Fase de grupos","F",null,null,AGENDADA,"Hard Rock Stadium","Miami"));
-        list.add(p(id++, "Espanha","espanha","🇪🇸","Portugal","portugal","🇵🇹",
-                ldt(2026,6,22,14,0),"Fase de grupos","F",null,null,AGENDADA,"MetLife Stadium","Nova Iorque"));
-        list.add(p(id++, "Suíça","suica","🇨🇭","Camarões","camaroes","🇨🇲",
-                ldt(2026,6,22,11,0),"Fase de grupos","F",null,null,AGENDADA,"AT&T Stadium","Dallas"));
-
-        // Grupo G — França
-        list.add(p(id++, "França","franca","🇫🇷","Polónia","polonia","🇵🇱",
-                ldt(2026,6,15,17,0),"Fase de grupos","G",null,null,AGENDADA,"MetLife Stadium","Nova Iorque"));
-        list.add(p(id++, "Senegal","senegal","🇸🇳","Arábia Saudita","arabia-saudita","🇸🇦",
-                ldt(2026,6,15,20,0),"Fase de grupos","G",null,null,AGENDADA,"BC Place","Vancouver"));
-        list.add(p(id++, "França","franca","🇫🇷","Senegal","senegal","🇸🇳",
-                ldt(2026,6,19,17,0),"Fase de grupos","G",null,null,AGENDADA,"SoFi Stadium","Los Angeles"));
-        list.add(p(id++, "Polónia","polonia","🇵🇱","Arábia Saudita","arabia-saudita","🇸🇦",
-                ldt(2026,6,19,14,0),"Fase de grupos","G",null,null,AGENDADA,"Levi's Stadium","São Francisco"));
-        list.add(p(id++, "França","franca","🇫🇷","Arábia Saudita","arabia-saudita","🇸🇦",
-                ldt(2026,6,23,17,0),"Fase de grupos","G",null,null,AGENDADA,"Hard Rock Stadium","Miami"));
-        list.add(p(id++, "Polónia","polonia","🇵🇱","Senegal","senegal","🇸🇳",
-                ldt(2026,6,23,14,0),"Fase de grupos","G",null,null,AGENDADA,"AT&T Stadium","Dallas"));
-
-        // Grupo H — Alemanha
-        list.add(p(id++, "Alemanha","alemanha","🇩🇪","Japão","japao","🇯🇵",
-                ldt(2026,6,15,14,0),"Fase de grupos","H",null,null,AGENDADA,"Levi's Stadium","São Francisco"));
-        list.add(p(id++, "Austrália","australia","🇦🇺","Argélia","argelia","🇩🇿",
-                ldt(2026,6,15,11,0),"Fase de grupos","H",null,null,AGENDADA,"BC Place","Vancouver"));
-        list.add(p(id++, "Alemanha","alemanha","🇩🇪","Austrália","australia","🇦🇺",
-                ldt(2026,6,19,14,0),"Fase de grupos","H",null,null,AGENDADA,"AT&T Stadium","Dallas"));
-        list.add(p(id++, "Japão","japao","🇯🇵","Argélia","argelia","🇩🇿",
-                ldt(2026,6,19,11,0),"Fase de grupos","H",null,null,AGENDADA,"SoFi Stadium","Los Angeles"));
-        list.add(p(id++, "Alemanha","alemanha","🇩🇪","Argélia","argelia","🇩🇿",
-                ldt(2026,6,23,14,0),"Fase de grupos","H",null,null,AGENDADA,"MetLife Stadium","Nova Iorque"));
-        list.add(p(id++, "Japão","japao","🇯🇵","Austrália","australia","🇦🇺",
-                ldt(2026,6,23,11,0),"Fase de grupos","H",null,null,AGENDADA,"NRG Stadium","Houston"));
-
-        return Collections.unmodifiableList(list);
+    private TeamMeta resolve(String englishName) {
+        return TEAMS.getOrDefault(englishName,
+                new TeamMeta(englishName,
+                        englishName.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-"),
+                        "🏳", "—", "—", 0));
     }
 
-    private PartidaVM p(long id, String nomeCasa, String slugCasa, String bandeiraCasa,
-                        String nomeVisitante, String slugVisitante, String bandeiraVisitante,
-                        LocalDateTime dataHora, String fase, String grupo,
-                        Integer gC, Integer gV, PartidaVM.StatusPartida status,
-                        String estadio, String cidade) {
-        return new PartidaVM(id, nomeCasa, slugCasa, bandeiraCasa,
-                nomeVisitante, slugVisitante, bandeiraVisitante,
-                dataHora, fase, grupo, gC, gV, status, estadio, cidade);
+    private String extractGroup(String group) {
+        if (group == null) return null;
+        if (group.startsWith("Group ")) return group.substring(6).trim();
+        return null;
     }
 
-    private LocalDateTime ldt(int y, int m, int d, int h, int min) {
-        return LocalDateTime.of(y, m, d, h, min);
+    private String extractFase(String round) {
+        if (round == null) return "Fase de grupos";
+        if (round.startsWith("Matchday")) return "Fase de grupos";
+        return switch (round) {
+            case "Round of 32"       -> "32 avos";
+            case "Round of 16"       -> "Oitavas";
+            case "Quarter-finals"    -> "Quartas";
+            case "Semi-finals"       -> "Semifinais";
+            case "Third place match" -> "3º Lugar";
+            case "Final"             -> "Final";
+            default                  -> round;
+        };
     }
+
+    private LocalDateTime parseDateTime(String date, String time) {
+        try {
+            LocalDate d = LocalDate.parse(date);
+            String timeStr = (time != null) ? time.split(" ")[0] : "00:00";
+            LocalTime t = LocalTime.parse(timeStr);
+            return LocalDateTime.of(d, t);
+        } catch (Exception e) {
+            return LocalDateTime.of(2026, 6, 11, 0, 0);
+        }
+    }
+
+    private String[] splitGround(String ground) {
+        if (ground == null) return new String[]{"", ""};
+        // "Estadio Azteca, Mexico City" → ["Estadio Azteca", "Mexico City"]
+        // "Mexico City" → ["", "Mexico City"]
+        int comma = ground.lastIndexOf(',');
+        if (comma > 0) {
+            return new String[]{ground.substring(0, comma).trim(), ground.substring(comma + 1).trim()};
+        }
+        return new String[]{"", ground.trim()};
+    }
+
+    // ── Dados estáticos complementares ───────────────────────────────────────
 
     private List<JogadorVM> buildJogadores() {
         return List.of(
-            new JogadorVM(1L,"Vinicius Jr.","Brasil","brasil","🇧🇷","Avançado","Real Madrid",24,4,3,4,9.1,""),
-            new JogadorVM(2L,"Kylian Mbappé","França","franca","🇫🇷","Avançado","Real Madrid",27,3,2,3,8.8,""),
-            new JogadorVM(3L,"Erling Haaland","Noruega","noruega","🇳🇴","Avançado","Man City",25,5,1,3,9.0,""),
-            new JogadorVM(4L,"Lionel Messi","Argentina","argentina","🇦🇷","Médio","Inter Miami",38,2,4,4,8.7,""),
-            new JogadorVM(5L,"Cristiano Ronaldo","Portugal","portugal","🇵🇹","Avançado","Al Nassr",41,2,1,4,7.9,""),
-            new JogadorVM(6L,"Jude Bellingham","Inglaterra","inglaterra","🏴󠁧󠁢󠁥󠁮󠁧󠁿","Médio","Real Madrid",22,2,3,4,8.6,""),
-            new JogadorVM(7L,"Rodri","Espanha","espanha","🇪🇸","Médio","Man City",29,1,4,4,8.9,""),
-            new JogadorVM(8L,"Lamine Yamal","Espanha","espanha","🇪🇸","Avançado","Barcelona",18,3,3,4,8.7,""),
-            new JogadorVM(9L,"Pedri","Espanha","espanha","🇪🇸","Médio","Barcelona",23,1,3,3,8.4,""),
-            new JogadorVM(10L,"Raphinha","Brasil","brasil","🇧🇷","Avançado","Barcelona",28,2,2,4,8.3,"")
+            new JogadorVM(1L,  "Vinicius Jr.",    "Brasil",    "brasil",    "🇧🇷", "Avançado", "Real Madrid",  24, 4, 3, 4, 9.1, ""),
+            new JogadorVM(2L,  "Kylian Mbappé",   "França",    "franca",    "🇫🇷", "Avançado", "Real Madrid",  27, 3, 2, 3, 8.8, ""),
+            new JogadorVM(3L,  "Erling Haaland",  "Noruega",   "noruega",   "🇳🇴", "Avançado", "Man City",     25, 5, 1, 3, 9.0, ""),
+            new JogadorVM(4L,  "Lionel Messi",    "Argentina", "argentina", "🇦🇷", "Médio",    "Inter Miami",  38, 2, 4, 4, 8.7, ""),
+            new JogadorVM(5L,  "Cristiano Ronaldo","Portugal", "portugal",  "🇵🇹", "Avançado", "Al Nassr",     41, 2, 1, 4, 7.9, ""),
+            new JogadorVM(6L,  "Jude Bellingham", "Inglaterra","inglaterra","🏴󠁧󠁢󠁥󠁮󠁧󠁿","Médio","Real Madrid", 22, 2, 3, 4, 8.6, ""),
+            new JogadorVM(7L,  "Rodri",           "Espanha",   "espanha",   "🇪🇸", "Médio",    "Man City",     29, 1, 4, 4, 8.9, ""),
+            new JogadorVM(8L,  "Lamine Yamal",    "Espanha",   "espanha",   "🇪🇸", "Avançado", "Barcelona",    18, 3, 3, 4, 8.7, ""),
+            new JogadorVM(9L,  "Pedri",           "Espanha",   "espanha",   "🇪🇸", "Médio",    "Barcelona",    23, 1, 3, 3, 8.4, ""),
+            new JogadorVM(10L, "Raphinha",        "Brasil",    "brasil",    "🇧🇷", "Avançado", "Barcelona",    28, 2, 2, 4, 8.3, "")
         );
     }
 
     private List<RivalidadeVM> buildRivalidades() {
         return List.of(
-            new RivalidadeVM("brasil-argentina","Brasil","brasil","🇧🇷","Argentina","argentina","🇦🇷",
-                    40,25,35,"Copa 1990 — Argentina 1-0 Brasil","O clássico sul-americano mais intenso do mundo."),
-            new RivalidadeVM("franca-argentina","França","franca","🇫🇷","Argentina","argentina","🇦🇷",
-                    7,3,10,"Final 2022 — Argentina 3(4)-3(2) França","A final de Qatar 2022 foi considerada a melhor de todos os tempos."),
-            new RivalidadeVM("brasil-franca","Brasil","brasil","🇧🇷","França","franca","🇫🇷",
-                    10,6,12,"Semi 2006 — França 1-0 Brasil","Dois dos países mais vitoriosos da Copa do Mundo."),
-            new RivalidadeVM("alemanha-brasil","Alemanha","alemanha","🇩🇪","Brasil","brasil","🇧🇷",
-                    14,4,7,"Semi 2014 — Alemanha 7-1 Brasil","O Mineirazo. A maior goleada em semi-finais da história."),
-            new RivalidadeVM("espanha-portugal","Espanha","espanha","🇪🇸","Portugal","portugal","🇵🇹",
-                    16,4,5,"Grupo 2018 — Espanha 3-3 Portugal","Os vizinhos ibéricos que raramente se encontram nas Copas."),
-            new RivalidadeVM("argentina-franca","Argentina","argentina","🇦🇷","França","franca","🇫🇷",
-                    10,3,7,"Final 2022","Rematch da final de Qatar. Mbappé contra o mundo."),
-            new RivalidadeVM("brasil-alemanha2","Brasil","brasil","🇧🇷","Alemanha","alemanha","🇩🇪",
-                    7,4,14,"Semi 2014 — 7-1","A cicatriz que ainda dói. Brasil vs Alemanha tem história."),
-            new RivalidadeVM("inglaterra-alemanha","Inglaterra","inglaterra","🏴󠁧󠁢󠁥󠁮󠁧󠁿","Alemanha","alemanha","🇩🇪",
-                    12,5,8,"Final 1966 — Inglaterra 4-2 Alemanha","A única Copa da Inglaterra. Um clássico europeu histórico.")
+            new RivalidadeVM("brasil-argentina", "Brasil", "brasil", "🇧🇷", "Argentina", "argentina", "🇦🇷",
+                    40, 25, 35, "Copa 1990 — Argentina 1-0 Brasil", "O clássico sul-americano mais intenso do mundo."),
+            new RivalidadeVM("franca-argentina", "França", "franca", "🇫🇷", "Argentina", "argentina", "🇦🇷",
+                    7, 3, 10, "Final 2022 — Argentina 3(4)-3(2) França", "A final de Qatar 2022 foi considerada a melhor de todos os tempos."),
+            new RivalidadeVM("brasil-franca", "Brasil", "brasil", "🇧🇷", "França", "franca", "🇫🇷",
+                    10, 6, 12, "Semi 2006 — França 1-0 Brasil", "Dois dos países mais vitoriosos da Copa do Mundo."),
+            new RivalidadeVM("alemanha-brasil", "Alemanha", "alemanha", "🇩🇪", "Brasil", "brasil", "🇧🇷",
+                    14, 4, 7, "Semi 2014 — Alemanha 7-1 Brasil", "O Mineirazo. A maior goleada em semi-finais da história."),
+            new RivalidadeVM("espanha-portugal", "Espanha", "espanha", "🇪🇸", "Portugal", "portugal", "🇵🇹",
+                    16, 4, 5, "Grupo 2018 — Espanha 3-3 Portugal", "Os vizinhos ibéricos que raramente se encontram nas Copas."),
+            new RivalidadeVM("brasil-alemanha2", "Brasil", "brasil", "🇧🇷", "Alemanha", "alemanha", "🇩🇪",
+                    7, 4, 14, "Semi 2014 — 7-1", "A cicatriz que ainda dói. Brasil vs Alemanha tem história."),
+            new RivalidadeVM("inglaterra-alemanha", "Inglaterra", "inglaterra", "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Alemanha", "alemanha", "🇩🇪",
+                    12, 5, 8, "Final 1966 — Inglaterra 4-2 Alemanha", "A única Copa da Inglaterra. Um clássico europeu histórico.")
         );
     }
 }

@@ -60,11 +60,13 @@ public class DbUserDetailsService implements UserDetailsService {
         }
 
         boolean locked = user.getTentativasFalhas() != null && user.getTentativasFalhas() >= 5;
+        boolean disabled = !user.isEmailVerificado();
 
         return User.withUsername(user.getEmail())
                 .password(user.getSenha())
                 .authorities(authorities)
                 .accountLocked(locked)
+                .disabled(disabled)
                 .build();
     }
 

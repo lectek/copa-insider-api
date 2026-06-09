@@ -1,0 +1,62 @@
+package br.com.lectek.copainsider.application.copa;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+
+@Component
+public class OpenFootballClient {
+
+    private static final Logger log = LoggerFactory.getLogger(OpenFootballClient.class);
+    private static final String URL =
+            "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json";
+
+    private final RestTemplate rest;
+
+    public OpenFootballClient(RestTemplateBuilder builder) {
+        this.rest = builder.build();
+    }
+
+    public List<OFMatch> fetchMatches() {
+        try {
+            OFResponse resp = rest.getForObject(URL, OFResponse.class);
+            return (resp != null && resp.matches() != null) ? resp.matches() : List.of();
+        } catch (Exception e) {
+            log.warn("Falha ao buscar dados openfootball: {}", e.getMessage());
+            return List.of();
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record OFResponse(String name, List<OFMatch> matches) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record OFMatch(
+            String round,
+            String date,
+            String time,
+            String team1,
+            String team2,
+            OFScore score,
+            String group,
+            String ground
+    ) {
+        public boolean hasScore() {
+            return score != null && score.ft() != null && score.ft().size() == 2;
+        }
+        public Integer scoreHome() { return hasScore() ? score.ft().get(0) : null; }
+        public Integer scoreAway() { return hasScore() ? score.ft().get(1) : null; }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record OFScore(
+            @JsonProperty("ft") List<Integer> ft,
+            @JsonProperty("ht") List<Integer> ht
+    ) {}
+}

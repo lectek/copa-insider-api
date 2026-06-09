@@ -45,4 +45,8 @@ extends JpaRepository<UsuarioEntity, Long> {
     List<UsuarioEntity> findByClienteVipTrue();
 
     public boolean existsByEmail(String var1);
+
+    @Modifying
+    @Query(value="update UsuarioEntity u set u.emailVerificado = true where lower(u.email) = lower(:email)")
+    int ativarEmailVerificado(@Param("email") String email);
 }

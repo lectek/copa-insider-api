@@ -17,9 +17,14 @@
         <div th:if="${param.error}" class="ci-flash ci-flash--error">
             E-mail ou senha incorretos.
         </div>
+        <div th:if="${param.disabled}" class="ci-flash ci-flash--info">
+            Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.
+        </div>
         <div th:if="${param.logout}" class="ci-flash ci-flash--info">
             Você saiu com sucesso.
         </div>
+
+        <div th:replace="~{fragments/flash :: flash}"></div>
 
         <form th:action="@{/auth/login}" method="post" class="ci-form">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
