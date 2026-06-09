@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Configuracoes de email</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('configuracoes')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Email</h1>
+        <p class="page-lead">Defina o servidor SMTP e os remetentes usados pelo sistema.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary" type="submit" form="email-form">Salvar</button>
+      </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+    <nav th:replace="~{fragments/admin-config-nav :: adminConfigNav('email')}"></nav>
+
+    <form id="email-form" class="card form-grid" th:action="@{/admin/configuracoes/email}" method="post" th:object="${cfg}">
+      <fieldset class="fieldset">
+        <legend>Status</legend>
+        <div class="form-row">
+          <label class="checkbox"><input type="checkbox" th:field="*{enabled}"/> Email ativo</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Servidor SMTP</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="smtpHost">Host</label>
+            <input id="smtpHost" class="input" th:field="*{smtpHost}" placeholder="smtp.seudominio.com"/>
+          </div>
+          <div class="form-group">
+            <label for="smtpPort">Porta</label>
+            <input id="smtpPort" class="input" type="number" th:field="*{smtpPort}" placeholder="587"/>
+          </div>
+          <div class="form-group">
+            <label for="smtpUser">Usuario</label>
+            <input id="smtpUser" class="input" th:field="*{smtpUser}" placeholder="contato@seudominio.com"/>
+          </div>
+          <div class="form-group">
+            <label for="smtpPass">Senha</label>
+            <input id="smtpPass" class="input" type="password" th:field="*{smtpPass}" autocomplete="new-password"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="checkbox"><input type="checkbox" th:field="*{smtpTls}"/> TLS</label>
+          <label class="checkbox"><input type="checkbox" th:field="*{smtpSsl}"/> SSL</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Remetente</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fromEmail">Email</label>
+            <input id="fromEmail" class="input" type="email" th:field="*{fromEmail}" placeholder="nao-responda@seudominio.com"/>
+          </div>
+          <div class="form-group">
+            <label for="fromName">Nome exibido</label>
+            <input id="fromName" class="input" th:field="*{fromName}" placeholder="RedeMais Farma"/>
+          </div>
+          <div class="form-group">
+            <label for="replyTo">Reply-to</label>
+            <input id="replyTo" class="input" type="email" th:field="*{replyTo}" placeholder="suporte@seudominio.com"/>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Fallback por API (HTTPS)</legend>
+        <p class="form-hint">Usado quando o SMTP estiver indisponivel (exemplo: bloqueio de porta no Railway).</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="apiProvider">Provedor</label>
+            <input id="apiProvider" class="input" th:field="*{apiProvider}" placeholder="brevo"/>
+          </div>
+          <div class="form-group">
+            <label for="apiBaseUrl">Base URL</label>
+            <input id="apiBaseUrl" class="input" th:field="*{apiBaseUrl}" placeholder="https://api.brevo.com/v3/smtp/email"/>
+          </div>
+          <div class="form-group">
+            <label for="apiKey">API key</label>
+            <input id="apiKey" class="input" type="password" th:field="*{apiKey}" autocomplete="new-password"/>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button class="btn btn-ghost" type="reset">Cancelar</button>
+        <button class="btn btn-primary" type="submit">Salvar</button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

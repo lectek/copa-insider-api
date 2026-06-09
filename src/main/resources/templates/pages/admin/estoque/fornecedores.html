@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Estoque a Fornecedores</title><link rel="stylesheet" th:href="@{/css/main.css}"/></head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+<div class="layout layout--with-sidebar">
+<aside th:replace="~{fragments/admin-sidebar :: adminSidebar('estoque')}"></aside>
+<main id="main-content" class="container stack mt-4 mb-6">
+  <div class="between"><h1 class="page-title">Fornecedores</h1>
+    <a class="btn btn-primary" th:href="@{/admin/estoque/fornecedores/novo}">Novo</a></div>
+  <section class="card table-responsive">
+    <table class="table">
+      <thead><tr><th>Nome</th><th>Contato</th><th>Acoes</th></tr></thead>
+      <tbody>
+        <tr th:each="f : ${fornecedores}">
+          <td th:text="${f.nome}">Fornecedor XYZ</td>
+          <td th:text="${f.contato}">email@ex.com</td>
+          <td class="actions"><a class="btn btn-ghost" th:href="@{|/admin/estoque/fornecedores/${f.id}/editar|}">Editar</a></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(fornecedores)}"><td colspan="3" class="text-center text-muted">Nenhum fornecedor.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main></div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body></html>
+
+
+
+
+
+

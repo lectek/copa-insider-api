@@ -1,0 +1,7 @@
+<!-- templates/fragments/flash.html -->
+<div class="flash-stack" th:fragment="flash" aria-live="polite">
+  <output class="alert" th:if="${success}" th:text="${success}">Acao realizada com sucesso.</output>
+  <output class="alert alert-info" th:if="${info}" th:text="${info}">Informacao.</output>
+  <div class="alert alert-warning" th:if="${warning}" th:text="${warning}" role="alert">Atencao.</div>
+  <div class="alert alert-error" th:if="${error}" th:text="${error}" role="alert">Ocorreu um erro.</div>
+</div>

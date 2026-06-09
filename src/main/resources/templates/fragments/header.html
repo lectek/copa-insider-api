@@ -1,0 +1,119 @@
+﻿<!-- templates/fragments/header.html -->
+<header class="site-header" role="banner" th:fragment="header">
+  <!-- atalho para conteúdo principal -->
+  <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+  <style th:inline="css">
+    body:not(.admin-page) {
+      --font-sans: [[${clientFrontendFontFamily}]];
+      --font-display: [[${clientFrontendFontFamily}]];
+      --color-primary: [[${clientFrontendPrimary}]];
+      --color-primary-hover: color-mix(in oklab, [[${clientFrontendPrimary}]] 84%, black);
+      --color-secondary: [[${clientFrontendSecondary}]];
+      --layout-accent: [[${clientFrontendAccent}]];
+      --layout-accent-hover: color-mix(in oklab, [[${clientFrontendAccent}]] 84%, black);
+      background: var(--layout-bg);
+      color: var(--layout-dark);
+    }
+
+    :root[data-theme="light"] body:not(.admin-page) {
+      --layout-bg: [[${clientFrontendBgLight}]];
+      --layout-dark: [[${clientFrontendTextLight}]];
+      --color-neutral-5: color-mix(in oklab, [[${clientFrontendTextLight}]] 62%, white);
+      --color-neutral-2: color-mix(in oklab, [[${clientFrontendBgLight}]] 88%, white);
+      --color-neutral-3: color-mix(in oklab, [[${clientFrontendTextLight}]] 12%, [[${clientFrontendBgLight}]]);
+      --layout-card: color-mix(in oklab, [[${clientFrontendBgLight}]] 18%, white);
+      --focus-ring: 0 0 0 3px color-mix(in oklab, [[${clientFrontendSecondary}]] 28%, transparent);
+    }
+
+    :root[data-theme="dark"] body:not(.admin-page) {
+      --layout-bg: [[${clientFrontendBgDark}]];
+      --layout-dark: [[${clientFrontendTextDark}]];
+      --color-light: [[${clientFrontendTextDark}]];
+      --color-neutral-5: color-mix(in oklab, [[${clientFrontendTextDark}]] 68%, black);
+      --color-neutral-1: color-mix(in oklab, [[${clientFrontendBgDark}]] 88%, white);
+      --color-neutral-2: color-mix(in oklab, [[${clientFrontendBgDark}]] 94%, black);
+      --color-neutral-3: color-mix(in oklab, [[${clientFrontendTextDark}]] 18%, [[${clientFrontendBgDark}]]);
+      --layout-card: color-mix(in oklab, [[${clientFrontendBgDark}]] 84%, white);
+      --focus-ring: 0 0 0 3px color-mix(in oklab, [[${clientFrontendSecondary}]] 32%, transparent);
+    }
+  </style>
+
+  <div class="header-inner container-fluid">
+    <button class="sidebar-toggle header-control header-control--menu"
+            type="button"
+            data-sidebar-toggle
+            aria-label="Abrir o menu lateral">
+      <span class="menu-icon" aria-hidden="true"></span>
+    </button>
+    <!-- Logo / Marca -->
+    <a th:href="@{/}" class="logo-link header-brand" aria-label="Página inicial">
+      <img class="brand-logo"
+           th:src="${#strings.isEmpty(brandingLogoUrl) or #strings.containsIgnoreCase(brandingLogoUrl, 'logofarma.png') or #strings.containsIgnoreCase(brandingLogoUrl, 'logo-redemaisfarma.png') or #strings.containsIgnoreCase(brandingLogoUrl, 'novalogo.webp')} ? @{/images/logonova.png} : ${brandingLogoUrl}"
+           th:classappend="${brandingLogoSize != null ? ' brand-logo--' + brandingLogoSize : ' brand-logo--medium'}"
+           th:attr="data-logo-size=${brandingLogoSize != null ? brandingLogoSize : 'medium'}"
+           alt="Embalando Soluções em Enbalagens e Bomboniere" />
+    </a>
+
+    <nav id="primary-nav" class="primary-nav primary-nav--desktop" aria-label="Menu principal">
+      <ul class="nav-list">
+        <li><a th:href="@{/}"
+               class="menu-button"
+               data-section=""
+               th:text="${uiNavHomeLabel} ?: 'Inicio'">Inicio</a></li>
+        <li><a th:href="@{/alysson}"
+               class="menu-button"
+               data-section="alysson"
+               th:text="${uiNavAssistantLabel} ?: (${aiAssistantName} ?: 'Alysson')">Alysson</a></li>
+        <li>
+          <a th:href="${headerUserAuthenticated} ? @{/cliente/conta} : @{/auth/login}"
+             class="menu-button"
+             data-section="cliente/conta"
+             th:text="${uiNavAccountLabel} ?: 'Minha conta'">Minha conta</a>
+        </li>
+        <li>
+          <a th:href="@{/carrinho}"
+             class="menu-button menu-button--icon menu-button--cart"
+             data-section="carrinho"
+             aria-label="Meu carrinho"
+             title="Meu carrinho">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M6 6h15l-1.4 7.2a2 2 0 0 1-2 1.6H9.2L8.6 18h10.9v2H8.1a1.8 1.8 0 0 1-1.8-2.2L8 9H5V7h2l.5-2.2H3V3h5.2L9 6Zm3.3 16a1.6 1.6 0 1 1 0-3.2 1.6 1.6 0 0 1 0 3.2Zm7 0a1.6 1.6 0 1 1 0-3.2 1.6 1.6 0 0 1 0 3.2Z"/>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="header-actions header-controls">
+      <button class="theme-toggle header-control header-control--theme"
+              type="button"
+              data-theme-toggle
+              aria-pressed="false"
+              aria-label="Ativar modo escuro"
+              title="Alternar tema">
+        <span class="theme-toggle__icon" aria-hidden="true">☾</span>
+        <span class="theme-toggle__label">Tema</span>
+      </button>
+
+      <a th:href="${headerUserAuthenticated} ? @{/cliente/conta} : @{/auth/login}"
+         class="header-account header-control header-control--account"
+         th:attr="aria-label=${headerUserAuthenticated} ? 'Abrir minha conta' : 'Entrar na conta'">
+        <span class="header-account__avatar" aria-hidden="true">
+          <img th:if="${headerUserAvatarUrl != null and !#strings.isEmpty(headerUserAvatarUrl)}"
+               th:src="${headerUserAvatarUrl}"
+               alt=""
+               loading="lazy"
+               decoding="async" />
+          <span th:if="${headerUserAvatarUrl == null or #strings.isEmpty(headerUserAvatarUrl)}"
+                th:text="${headerUserInitial != null and !#strings.isEmpty(headerUserInitial) ? headerUserInitial : 'U'}">U</span>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- backdrop do menu mobile (você já tem CSS pronto pra isso) -->
+  <button type="button" class="nav-backdrop" aria-label="Fechar menu"></button>
+  <script defer th:src="@{/js/theme-toggle.js}"></script>
+  <script defer th:src="@{/js/header.js(v=${#dates.createNow().time})}"></script>
+  <script defer th:src="@{/js/sidebar.js(v=${#dates.createNow().time})}"></script>
+</header>

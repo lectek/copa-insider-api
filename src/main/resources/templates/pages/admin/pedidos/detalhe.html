@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Pedido - Admin</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('pedidos')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="stack gap-8">
+      <h1 class="page-title" th:text="${'Pedido #' + pedido.numero}">Pedido #0001</h1>
+      <p class="text-muted m-0"
+         th:text="${pedido.data != null ? 'Compra registrada em ' + #temporals.format(pedido.data, 'dd/MM/yyyy HH:mm') : 'Compra registrada.'}">
+        Compra registrada em 12/03/2026 14:00
+      </p>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-16">
+      <article class="card">
+        <h2 class="card-title">Cliente</h2>
+        <p><strong>Nome:</strong> <span th:text="${pedido.clienteNome}">Cliente</span></p>
+        <p><strong>E-mail:</strong> <span th:text="${pedido.clienteEmail}">cliente@exemplo.com</span></p>
+        <p><strong>Telefone:</strong> <span th:text="${pedido.clienteTelefone}">89999999999</span></p>
+        <p><strong>CPF:</strong> <span th:text="${pedido.clienteCpf}">12345678901</span></p>
+      </article>
+
+      <article class="card">
+        <h2 class="card-title">Recebimento</h2>
+        <p><strong>Modo:</strong> <span th:text="${pedido.modoEntrega}">Entrega</span></p>
+        <p th:if="${pedido.modoEntrega == 'Entrega'}">
+          <strong>Endereco:</strong>
+          <span th:text="${pedido.enderecoEntrega}">Rua Exemplo, 123</span>
+          <span class="text-muted"> | </span>
+          <a th:if="${pedido.googleMapsUrl != null and !#strings.isEmpty(pedido.googleMapsUrl)}"
+             th:href="${pedido.googleMapsUrl}"
+             target="_blank"
+             rel="noopener noreferrer">Maps</a>
+          <span th:if="${pedido.googleMapsUrl != null and !#strings.isEmpty(pedido.googleMapsUrl)
+                         and pedido.wazeUrl != null and !#strings.isEmpty(pedido.wazeUrl)}"
+                class="text-muted"> / </span>
+          <a th:if="${pedido.wazeUrl != null and !#strings.isEmpty(pedido.wazeUrl)}"
+             th:href="${pedido.wazeUrl}"
+             target="_blank"
+             rel="noopener noreferrer">Waze</a>
+        </p>
+        <p th:if="${pedido.modoEntrega == 'Retirada na loja'}">
+          <strong>Retirada:</strong>
+          <span>Organizar separacao e avisar o cliente quando estiver pronto.</span>
+        </p>
+        <p th:if="${pedido.codigoEntrega != null and !#strings.isEmpty(pedido.codigoEntrega)}">
+          <strong th:text="${pedido.modoEntrega == 'Retirada na loja'} ? 'Codigo de retirada:' : 'Codigo de entrega:'">Codigo de entrega:</strong>
+          <span th:text="${pedido.codigoEntrega}">123456</span>
+        </p>
+        <p th:if="${pedido.codigoEntregaGeradoEm != null}">
+          <strong>Codigo gerado em:</strong>
+          <span th:text="${#temporals.format(pedido.codigoEntregaGeradoEm, 'dd/MM/yyyy HH:mm')}">--</span>
+        </p>
+        <p th:if="${pedido.codigoEntregaConfirmadoEm != null}">
+          <strong>Confirmado em:</strong>
+          <span th:text="${#temporals.format(pedido.codigoEntregaConfirmadoEm, 'dd/MM/yyyy HH:mm')}">--</span>
+        </p>
+      </article>
+
+      <article class="card">
+        <h2 class="card-title">Pagamento</h2>
+        <p><strong>Metodo:</strong> <span th:text="${pedido.pagamento.metodo}">Pix</span></p>
+        <p><strong>Tipo:</strong> <span th:text="${pedido.pagamento.tipo}">Pix</span></p>
+        <p th:if="${pedido.pagamento.metodoRecebidoValor != null and !#strings.isEmpty(pedido.pagamento.metodoRecebidoValor)}">
+          <strong>Recebido como:</strong>
+          <span th:text="${pedido.pagamento.metodoRecebido}">Dinheiro</span>
+        </p>
+        <p th:if="${pedido.pagamento.pagamentoRecebidoEm != null}">
+          <strong>Recebido em:</strong>
+          <span th:text="${#temporals.format(pedido.pagamento.pagamentoRecebidoEm, 'dd/MM/yyyy HH:mm')}">--</span>
+        </p>
+        <p th:if="${pedido.pagamento.avaliacaoCliente != null}">
+          <strong>Avaliacao do cliente:</strong>
+          <span th:text="${pedido.pagamento.avaliacaoCliente + '/5'}">5/5</span>
+        </p>
+        <p th:if="${pedido.pagamento.pagamentoDivergente}">
+          <strong>Divergencia:</strong>
+          <span>Forma recebida diferente da solicitada.</span>
+        </p>
+        <p><strong>Total:</strong> <span th:text="${pedido.total != null ? #numbers.formatCurrency(pedido.total) : '-'}">R$ 0,00</span></p>
+        <p><strong>Itens:</strong> <span th:text="${pedido.totalItens + ' item(ns)'}">1 item(ns)</span></p>
+      </article>
+
+      <article class="card">
+        <h2 class="card-title">Status do pedido</h2>
+        <p>
+          <strong>Atual:</strong>
+          <span class="badge" th:text="${pedido.statusLabel}">Pago</span>
+        </p>
+        <form th:action="@{|/admin/pedidos/${pedido.id}/status|}"
+              method="post"
+              class="stack gap-8"
+              data-order-status-form>
+          <input type="hidden" name="redirectTo" th:value="@{|/admin/pedidos/${pedido.id}|}" />
+          <select class="select" name="status" data-order-status-select>
+            <option th:each="option : ${statusOptions}"
+                    th:value="${option.value}"
+                    th:text="${option.label}"
+                    th:selected="${option.value == pedido.status}">
+              Pago
+            </option>
+          </select>
+          <div class="stack gap-8"
+               data-payment-receipt-panel
+               th:hidden="${pedido.status != 'PAGO'}">
+            <p class="text-muted m-0">
+              Ao marcar como pago, informe como recebeu o valor e avalie o cliente para organizacao financeira.
+            </p>
+            <label class="stack gap-4">
+              <span>Pagamento recebido em</span>
+              <select class="select"
+                      name="formaPagamentoRecebida"
+                      data-payment-method-select>
+                <option value="">Selecione</option>
+                <option value="DINHEIRO"
+                        th:selected="${pedido.pagamento.metodoRecebidoValor == 'DINHEIRO'}">
+                  Dinheiro
+                </option>
+                <option value="CARTAO"
+                        th:selected="${pedido.pagamento.metodoRecebidoValor == 'CARTAO'}">
+                  Cartao
+                </option>
+                <option value="PIX"
+                        th:selected="${pedido.pagamento.metodoRecebidoValor == 'PIX'}">
+                  Pix
+                </option>
+              </select>
+            </label>
+            <label class="stack gap-4">
+              <span>Avaliacao do cliente</span>
+              <select class="select" name="avaliacaoCliente" data-customer-rating-select>
+                <option value="">Selecione</option>
+                <option th:each="rating : ${#numbers.sequence(0, 5)}"
+                        th:value="${rating}"
+                        th:text="${rating + ' estrela(s)'}"
+                        th:selected="${pedido.pagamento.avaliacaoCliente == rating}">
+                  5 estrela(s)
+                </option>
+              </select>
+            </label>
+            <div class="actions">
+              <button class="btn"
+                      type="submit"
+                      name="fiscalAction"
+                      value="NONE">
+                Salvar pagamento
+              </button>
+              <button class="btn btn-ghost"
+                      type="submit"
+                      name="fiscalAction"
+                      value="PRINT">
+                Salvar e imprimir nota
+              </button>
+              <button class="btn btn-ghost"
+                      type="submit"
+                      name="fiscalAction"
+                      value="EMAIL">
+                Salvar e enviar nota por e-mail
+              </button>
+            </div>
+          </div>
+          <div data-default-status-actions th:hidden="${pedido.status == 'PAGO'}">
+            <button class="btn" type="submit">Atualizar status</button>
+          </div>
+        </form>
+        <p class="text-muted m-0 mt-4" th:if="${pedido.modoEntrega == 'Entrega'}">
+          Primeiro marque o pedido como pronto para entrega. Depois agrupe varios pedidos no painel de entregas.
+        </p>
+        <div class="stack gap-8 mt-4"
+             th:if="${pedido.canceladoEm != null or pedido.cancelamentoMotivo != '-'}">
+          <p th:if="${pedido.canceladoEm != null}">
+            <strong>Cancelado em:</strong>
+            <span th:text="${#temporals.format(pedido.canceladoEm, 'dd/MM/yyyy HH:mm')}">12/03/2026 14:00</span>
+          </p>
+          <p th:if="${pedido.cancelamentoMotivo != '-'}">
+            <strong>Motivo:</strong>
+            <span th:text="${pedido.cancelamentoMotivo}">Cliente solicitou</span>
+          </p>
+        </div>
+        <div class="stack gap-8 mt-4"
+             th:if="${canCancelPedido}"
+             data-cancel-order-root>
+          <p class="text-muted m-0">
+            Cancelamento manual disponivel apenas para pedidos ainda nao pagos.
+          </p>
+          <button class="btn btn--danger"
+                  type="button"
+                  data-cancel-start>
+            Cancelar pedido
+          </button>
+          <form th:action="@{|/admin/pedidos/${pedido.id}/status|}"
+                method="post"
+                class="stack gap-8"
+                data-cancel-form
+                hidden>
+            <input type="hidden" name="redirectTo" th:value="@{|/admin/pedidos/${pedido.id}|}" />
+            <input type="hidden" name="status" value="CANCELADO" />
+            <label class="stack gap-4">
+              <span>Motivo do cancelamento</span>
+              <select class="select" name="cancelReason" required data-cancel-reason>
+                <option value="">Selecione o motivo</option>
+                <option th:each="option : ${cancelReasonOptions}"
+                        th:value="${option.value}"
+                        th:text="${option.label}">
+                  Cliente solicitou
+                </option>
+              </select>
+            </label>
+            <div class="actions">
+              <button class="btn btn--danger" type="submit">Confirmar cancelamento</button>
+              <button class="btn btn--ghost" type="button" data-cancel-reset>Voltar</button>
+            </div>
+          </form>
+        </div>
+        <div class="table-actions mt-4" th:if="${pedido.modoEntrega == 'Entrega'}">
+          <form th:if="${pedido.canMarkReadyForDelivery}"
+                th:action="@{|/admin/pedidos/${pedido.id}/status|}"
+                method="post">
+            <input type="hidden" name="status" value="PRONTO_PARA_ENTREGA" />
+            <input type="hidden" name="redirectTo" th:value="@{|/admin/pedidos/${pedido.id}|}" />
+            <button class="btn btn-ghost" type="submit">Pronto para entrega</button>
+          </form>
+          <a class="btn btn-ghost"
+             th:if="${pedido.canOpenDeliveryPanel or activeRouteId != null}"
+             th:href="@{/admin/entregas}">
+            Painel de entregas
+          </a>
+          <a class="btn btn-ghost"
+             th:if="${activeRouteId != null}"
+             th:href="@{|/admin/entregas/rotas/${activeRouteId}|}">
+            Ver rota ativa
+          </a>
+          <a class="btn btn-ghost"
+             th:if="${activeRouteId != null}"
+             th:href="@{|/admin/entregas/rotas/${activeRouteId}/motoboy|}">
+            Painel do motoboy
+          </a>
+        </div>
+      </article>
+    </section>
+
+    <article class="card" th:if="${fiscal != null}">
+      <h2 class="card-title">Fiscal</h2>
+      <p><strong>Impressao:</strong> <span th:text="${fiscal.printChannelLabel}">Imprimir na hora</span></p>
+      <p th:text="${fiscal.physicalInstruction}">
+        Via fisica para impressao imediata no caixa ou na retirada.
+      </p>
+      <p><strong>Modelo:</strong> <span th:text="${fiscal.documentModelLabel}">NFC-e 65</span></p>
+      <p><strong>Status:</strong> <span th:text="${fiscal.documentStatusLabel}">Aguardando emissao</span></p>
+      <p><strong>E-mail:</strong> <span th:text="${fiscal.emailStatusLabel}">Cliente nao solicitou envio por e-mail.</span></p>
+      <p th:if="${fiscal.emailSentAt != null}">
+        <strong>Enviado em:</strong>
+        <span th:text="${#temporals.format(fiscal.emailSentAt, 'dd/MM/yyyy HH:mm')}">--</span>
+      </p>
+      <p th:if="${fiscal.accessKey != null and !#strings.isEmpty(fiscal.accessKey)}">
+        <strong>Chave de acesso:</strong>
+        <span th:text="${fiscal.accessKey}">--</span>
+      </p>
+      <div class="actions"
+           th:if="${(fiscal.danfeUrl != null and !#strings.isEmpty(fiscal.danfeUrl)) or (fiscal.xmlUrl != null and !#strings.isEmpty(fiscal.xmlUrl))}">
+        <a class="btn btn-ghost"
+           th:if="${fiscal.danfeUrl != null and !#strings.isEmpty(fiscal.danfeUrl)}"
+           th:href="${fiscal.danfeUrl}"
+           rel="noopener"
+           target="_blank">
+          Abrir DANFE
+        </a>
+        <a class="btn btn-ghost"
+           th:if="${fiscal.xmlUrl != null and !#strings.isEmpty(fiscal.xmlUrl)}"
+           th:href="${fiscal.xmlUrl}"
+           rel="noopener"
+           target="_blank">
+          Abrir XML
+        </a>
+        <a class="btn btn-ghost"
+           th:href="@{|/admin/fiscal/impressao?pedidoId=${pedido.id}|}">
+          Fila de impressao
+        </a>
+      </div>
+    </article>
+
+    <section class="card table-responsive">
+      <h2 class="card-title">Itens do pedido</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Qtd</th>
+            <th>Preco unitario</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="i : ${pedido.itens}">
+            <td th:text="${i.nome}">Produto</td>
+            <td th:text="${i.qtd}">1</td>
+            <td th:text="${#numbers.formatCurrency(i.preco)}">R$ 0,00</td>
+            <td th:text="${#numbers.formatCurrency(i.subtotal)}">R$ 0,00</td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(pedido.itens)}">
+            <td colspan="4" class="text-center text-muted">Nenhum item encontrado para este pedido.</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3" class="text-right">Total</th>
+            <th th:text="${pedido.total != null ? #numbers.formatCurrency(pedido.total) : '-'}">R$ 0,00</th>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script defer th:src="@{/js/pages/admin/admin-pedidos-detalhe.js}"></script>
+</body>
+</html>
+

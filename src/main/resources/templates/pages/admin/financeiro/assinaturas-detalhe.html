@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title th:text="${pageTitle}">Assinatura</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar" th:if="${assinatura != null}">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('financeiro')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6"
+        th:with="badgeClass=${assinatura.status}=='ATIVA' ? 'badge-success' : (${assinatura.status}=='atrasADA' ? 'badge-danger' : 'badge-warning')}">
+    <nav class="breadcrumb mb-2">
+      <a th:href="@{/admin}">Admin</a> /
+      <a th:href="@{/admin/financeiro/assinaturas}">Assinaturas</a> /
+      <span th:text="${assinatura.clienteNome}">Cliente</span>
+    </nav>
+
+    <h1 class="page-title" th:text="${assinatura.clienteNome}">Cliente</h1>
+
+    <section class="grid grid-2 gap">
+      <div class="card">
+        <h2 class="card-title">Resumo</h2>
+        <dl class="dl">
+          <dt>ID</dt>
+          <dd th:text="${assinatura.id}">1</dd>
+
+          <dt>Plano</dt>
+          <dd th:text="${assinatura.plano}">Plano VIP</dd>
+
+          <dt>Valor</dt>
+          <dd th:text="${#numbers.formatCurrency(assinatura.valor)}">R$ 0,00</dd>
+
+          <dt>Renova em</dt>
+          <dd th:text="${#temporals.format(assinatura.renovaEm,'dd/MM/yyyy')}">01/01/2026</dd>
+
+          <dt>Status</dt>
+          <dd>
+            <span class="badge" th:text="${assinatura.status}" th:classappend="${' ' + badgeClass}">ATIVA</span>
+          </dd>
+        </dl>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Acoes</h2>
+        <div class="stack">
+          <a class="btn" th:href="@{/admin/financeiro/assinaturas}">Voltar</a>
+          <!-- Exemplo de Acoes futuras -->
+          <button class="btn btn-primary" type="button" disabled>Renovar (em breve)</button>
+          <button class="btn btn-danger outline" type="button" disabled>Cancelar (em breve)</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- fallback simples caso assinatura==null -->
+<div class="container mt-6" th:if="${assinatura == null}">
+  <p class="text-center text-muted">Assinatura nao encontrada.</p>
+  <p class="text-center"><a class="btn" th:href="@{/admin/financeiro/assinaturas}">Voltar A lista</a></p>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+
+
+
+
+
+
+

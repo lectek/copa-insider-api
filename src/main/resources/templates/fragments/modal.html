@@ -1,0 +1,79 @@
+<!-- src/main/resources/templates/fragments/modal.html -->
+<!-- Modal reutilizável (Thymeleaf) -->
+<div th:fragment="modal(
+        id='modal-embalando',
+        title='Detalhes',
+        bodyText=${null},
+        bodyFrag=${null},
+        confirmLabel='Confirmar',
+        cancelLabel='Cancelar',
+        showConfirm=${true},
+        confirmAttrs=${null}
+     )"
+     th:attr="id=${id}"
+     class="modal"
+     role="dialog"
+     aria-modal="true"
+     th:aria-labelledby="${id} + '-title'"
+     hidden>
+
+  <!-- Fundo escurecido -->
+  <div class="modal-backdrop" data-close-modal></div>
+
+  <!-- Caixa de conteúdo -->
+  <div class="modal-content" role="document" tabindex="-1">
+    <!-- Cabeçalho -->
+    <header class="modal-header">
+      <h2 th:attr="id=${id} + '-title'"
+          th:text="${title}">Título do Modal</h2>
+      <button class="modal-close" aria-label="Fechar" data-close-modal>&times;</button>
+    </header>
+
+    <!-- Corpo -->
+    <div class="modal-body" th:if="${bodyText != null}" th:utext="${bodyText}">
+      <!-- Conteúdo simples por texto/HTML (bodyText) -->
+      <!-- Quando bodyFrag for usado, este bloco é omitido -->
+    </div>
+    <th:block th:if="${bodyFrag != null}">
+      <div class="modal-body" th:replace="~{${bodyFrag}}">
+        <!-- Ou injete um fragmento externo (bodyFrag) -->
+      </div>
+    </th:block>
+
+    <!-- Rodapé -->
+    <footer class="modal-footer">
+      <button type="button" class="btn-cancelar" data-close-modal
+              th:text="${cancelLabel}">Cancelar</button>
+
+      <!-- confirmAttrs aceita map para th:attrappend -->
+      <button type="button"
+              class="btn-confirmar"
+              th:if="${showConfirm}"
+              data-confirm="true"
+              th:text="${confirmLabel}"
+              th:attrappend="${confirmAttrs}">
+        Confirmar
+      </button>
+    </footer>
+  </div>
+</div>
+
+<!-- Compatibilidade com telas antigas que usam fragments/modal :: confirm(...) -->
+<th:block th:fragment="confirm(
+        id='modal-confirm',
+        title='Confirmar',
+        bodyText=${null},
+        confirmLabel='Confirmar',
+        cancelLabel='Cancelar'
+     )">
+  <div th:replace="~{fragments/modal :: modal(
+        ${id},
+        ${title},
+        ${bodyText},
+        ${null},
+        ${confirmLabel},
+        ${cancelLabel},
+        ${true},
+        ${null}
+     )}"></div>
+</th:block>

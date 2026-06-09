@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Fila de e-mails</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('marketing')}"></aside>
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Fila de e-mail</h1>
+        <p class="page-lead">Monitore pendências, envios e logs do worker.</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn btn-ghost" th:href="@{/admin/marketing/emails/campanhas}">Voltar para campanhas</a>
+      </div>
+    </div>
+
+    <section class="grid gap-4">
+      <article class="card status-card" th:each="status : ${statuses}">
+        <div class="status-card__headline" th:text="${status.status}">STATUS</div>
+        <div class="status-card__value" th:text="${status.total}">0</div>
+      </article>
+    </section>
+
+    <section class="card mt-6">
+      <div class="between mb-12">
+        <div>
+          <h2 class="section-title">Últimos itens na fila</h2>
+          <p class="section-subtitle">Registros pendentes, em envio e falhas.</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Campanha</th>
+              <th>Destinatário</th>
+              <th>Status</th>
+              <th>Agendado</th>
+              <th>Tentativas</th>
+              <th>Erro</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="queue : ${queueItems}">
+              <td th:text="${campaignNames[queue.campaignId]} ?: '---'">Campanha</td>
+              <td th:text="${queue.recipientEmail}">email@exemplo.com</td>
+              <td th:text="${queue.status}">PENDING</td>
+              <td th:text="${queue.scheduledAt != null ? #dates.format(queue.scheduledAt,'dd/MM/yyyy HH:mm') : '-'}">-</td>
+              <td th:text="${queue.attempts}">0</td>
+              <td th:text="${queue.lastError != null ? queue.lastError : '-'}">-</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(queueItems)}">
+              <td colspan="6" class="text-center text-muted">Nenhum item na fila.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card mt-6">
+      <div class="between mb-12">
+        <div>
+          <h2 class="section-title">Logs recentes</h2>
+          <p class="section-subtitle">Histórico de entregas e falhas de campanhas.</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Campanha</th>
+              <th>Destinatário</th>
+              <th>Status</th>
+              <th>Erro</th>
+              <th>Registrado em</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="log : ${logs}">
+              <td th:text="${campaignNames[log.campaignId]} ?: '---'">Campanha</td>
+              <td th:text="${log.recipientEmail}">email@exemplo.com</td>
+              <td th:text="${log.status}">SENT</td>
+              <td th:text="${log.errorText != null ? log.errorText : '-'}">-</td>
+              <td th:text="${log.createdAt != null ? #dates.format(log.createdAt,'dd/MM/yyyy HH:mm:ss') : '-'}">-</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(logs)}">
+              <td colspan="5" class="text-center text-muted">Nenhum log disponível.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

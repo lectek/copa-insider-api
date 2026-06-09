@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Venda rápida - Caixa</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+  <link rel="stylesheet" th:href="@{/css/pages/venda-rapida.css}" />
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('venda-rapida')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Venda rápida</h1>
+        <p class="page-lead">Atalho de caixa para registrar vendas com leitor de código de barras.</p>
+      </div>
+    </div>
+
+    <section class="pdv-layout">
+      <div class="pdv-left">
+        <div class="card pdv-card">
+          <div class="pdv-card__header">
+            <h2>Buscar produto</h2>
+          </div>
+          <div class="pdv-card__body">
+            <form id="pdv-search" class="pdv-search" autocomplete="off">
+              <input id="pdv-term" class="input" type="text"
+                     placeholder="Código de barras ou nome do produto" />
+              <input id="pdv-qty" class="input pdv-qty" type="number" min="1" value="1" />
+              <button class="btn btn--primary" type="submit">Adicionar</button>
+            </form>
+            <div id="pdv-scan-status" class="pdv-scan-status" aria-live="polite">
+              Leitor pronto. Foque o campo e escaneie o código.
+            </div>
+            <div id="pdv-results" class="pdv-results"></div>
+          </div>
+        </div>
+
+        <div class="card pdv-card">
+          <div class="pdv-card__header">
+            <h2>Itens da venda</h2>
+            <span class="muted">Total de itens: <strong id="pdv-total-items">0</strong></span>
+          </div>
+          <div class="pdv-card__body">
+            <table class="table table--striped pdv-table">
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Qtd</th>
+                  <th>Preco</th>
+                  <th>Subtotal</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="pdv-cart"></tbody>
+            </table>
+            <div id="pdv-empty" class="pdv-empty">Nenhum item adicionado.</div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="pdv-right">
+        <div class="card pdv-card">
+          <div class="pdv-card__header">
+            <h2>Resumo</h2>
+          </div>
+          <div class="pdv-card__body">
+            <div class="pdv-total">
+              <span>Total</span>
+              <strong id="pdv-total">R$ 0,00</strong>
+            </div>
+
+            <div class="pdv-section">
+              <h3>Pagamento</h3>
+              <label class="pdv-radio">
+                <input type="radio" name="pagamento" value="PIX" checked />
+                <span>PIX</span>
+              </label>
+              <label class="pdv-radio">
+                <input type="radio" name="pagamento" value="DINHEIRO" />
+                <span>Dinheiro</span>
+              </label>
+              <label class="pdv-radio">
+                <input type="radio" name="pagamento" value="CARTAO_CREDITO" />
+                <span>Cartão crédito</span>
+              </label>
+              <label class="pdv-radio">
+                <input type="radio" name="pagamento" value="CARTAO_DEBITO" />
+                <span>Cartão débito</span>
+              </label>
+              <div class="pdv-field">
+                <label for="pdv-troco">Troco para (dinheiro)</label>
+                <input id="pdv-troco" class="input" type="number" min="0" step="0.01" placeholder="0,00" />
+              </div>
+            </div>
+
+            <div class="pdv-section">
+              <h3>Cliente (opcional)</h3>
+              <div class="pdv-field">
+                <label for="pdv-cliente-cpf">CPF</label>
+                <input id="pdv-cliente-cpf" class="input" type="text" placeholder="000.000.000-00" />
+              </div>
+              <div class="pdv-field">
+                <label for="pdv-cliente-nome">Nome</label>
+                <input id="pdv-cliente-nome" class="input" type="text" placeholder="Nome do cliente" />
+              </div>
+              <div class="pdv-field">
+                <label for="pdv-cliente-email">E-mail</label>
+                <input id="pdv-cliente-email" class="input" type="email" placeholder="cliente@email.com" />
+              </div>
+            </div>
+
+            <div class="pdv-section">
+              <h3>Nota fiscal</h3>
+              <label class="pdv-radio">
+                <input type="radio" name="nota" value="IMPRESSAO" checked />
+                <span>Imprimir</span>
+              </label>
+              <label class="pdv-radio">
+                <input type="radio" name="nota" value="EMAIL" />
+                <span>Enviar por e-mail</span>
+              </label>
+              <label class="pdv-radio">
+                <input type="radio" name="nota" value="PULAR" />
+                <span>Pular (não registra venda)</span>
+              </label>
+            </div>
+
+            <button id="pdv-finalizar" class="btn btn--primary btn--full" type="button">
+              Finalizar venda
+            </button>
+            <div id="pdv-status" class="pdv-status" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="card pdv-card pdv-cash-card">
+          <div class="pdv-card__header">
+            <h2>Controle de caixa</h2>
+            <button id="pdv-caixa-refresh" class="btn btn--ghost btn--sm" type="button">Atualizar</button>
+          </div>
+          <div class="pdv-card__body">
+            <div class="pdv-cash-grid">
+              <div class="pdv-cash-row">
+                <span>Entrou em dinheiro</span>
+                <strong id="pdv-caixa-dinheiro">R$ 0,00</strong>
+              </div>
+              <div class="pdv-cash-row">
+                <span>Entrou em PIX</span>
+                <strong id="pdv-caixa-pix">R$ 0,00</strong>
+              </div>
+              <div class="pdv-cash-row">
+                <span>Entrou em cartao</span>
+                <strong id="pdv-caixa-cartao">R$ 0,00</strong>
+              </div>
+              <div class="pdv-cash-row">
+                <span>Total vendido</span>
+                <strong id="pdv-caixa-total-vendido">R$ 0,00</strong>
+              </div>
+            </div>
+
+            <div class="pdv-section">
+              <h3>Conferencia do dinheiro</h3>
+              <div class="pdv-field">
+                <label for="pdv-caixa-abertura">Saldo inicial do caixa</label>
+                <input id="pdv-caixa-abertura" class="input" type="number" min="0" step="0.01" placeholder="0,00" />
+              </div>
+              <div class="pdv-field">
+                <label for="pdv-caixa-suprimento">Suprimentos (+)</label>
+                <input id="pdv-caixa-suprimento" class="input" type="number" min="0" step="0.01" placeholder="0,00" />
+              </div>
+              <div class="pdv-field">
+                <label for="pdv-caixa-sangria">Sangrias (-)</label>
+                <input id="pdv-caixa-sangria" class="input" type="number" min="0" step="0.01" placeholder="0,00" />
+              </div>
+              <div class="pdv-field">
+                <label for="pdv-caixa-contado">Dinheiro contado agora</label>
+                <input id="pdv-caixa-contado" class="input" type="number" min="0" step="0.01" placeholder="0,00" />
+              </div>
+
+              <div class="pdv-cash-row pdv-cash-row--strong">
+                <span>Dinheiro esperado no caixa</span>
+                <strong id="pdv-caixa-esperado">R$ 0,00</strong>
+              </div>
+              <div class="pdv-cash-row pdv-cash-row--strong">
+                <span>Diferenca (contado - esperado)</span>
+                <strong id="pdv-caixa-diferenca">R$ 0,00</strong>
+              </div>
+
+              <p id="pdv-caixa-periodo" class="pdv-cash-periodo muted">Resumo de hoje.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:src="@{/js/pages/admin/venda-rapida.js}" defer></script>
+</body>
+</html>

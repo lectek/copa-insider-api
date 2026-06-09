@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Configuracoes de design</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('configuracoes')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Design (tokens e layout)</h1>
+        <p class="page-lead">Ajustes finos de temas, bordas e espacamento.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary" type="submit" form="design-form">Salvar</button>
+      </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+    <nav th:replace="~{fragments/admin-config-nav :: adminConfigNav('design')}"></nav>
+
+    <div class="alert alert-info">
+      Tipografia, cor de texto e fundo do site publico ficam em <strong>Area do cliente</strong>. Aqui ficam tokens
+      estruturais e preferencias compartilhadas de layout.
+    </div>
+
+    <form id="design-form" class="card form-grid" th:action="@{/admin/configuracoes/design}" method="post" th:object="${design}">
+      <fieldset class="fieldset">
+        <legend>Preferencias visuais</legend>
+        <div class="form-row">
+          <label class="checkbox"><input type="checkbox" th:field="*{darkByDefault}"/> Tema escuro por padrao</label>
+          <label class="checkbox"><input type="checkbox" th:field="*{usarBordasArredondadas}"/> Bordas 12px</label>
+          <label class="checkbox"><input type="checkbox" th:field="*{animacoesAtivas}"/> Animacoes ativas</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Tokens base</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fontFamily">Fonte</label>
+            <input id="fontFamily" class="input" th:field="*{fontFamily}" placeholder="Inter, Arial, sans-serif"/>
+          </div>
+          <div class="form-group">
+            <label for="radius">Raio de borda (px)</label>
+            <input id="radius" class="input" th:field="*{radius}" placeholder="12"/>
+          </div>
+          <div class="form-group">
+            <label for="spacing">Base de espacamento (px)</label>
+            <input id="spacing" class="input" th:field="*{spacing}" placeholder="8"/>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button class="btn btn-ghost" type="reset">Cancelar</button>
+        <button class="btn btn-primary" type="submit">Salvar</button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

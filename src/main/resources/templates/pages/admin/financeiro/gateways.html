@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Financeiro a Gateways</title><link rel="stylesheet" th:href="@{/css/main.css}"/></head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+<div class="layout layout--with-sidebar">
+<aside th:replace="~{fragments/admin-sidebar :: adminSidebar('financeiro')}"></aside>
+<main id="main-content" class="container stack mt-4 mb-6">
+  <h1 class="page-title">Gateways de pagamento</h1>
+  <p class="text-sm text-muted mb-2">Gerencie credenciais e webhooks (pagar.me, PagSeguro, Mercado Pagoa).</p>
+  <form class="card form-grid" th:action="@{/admin/financeiro/gateways}" method="post" th:object="${gw}">
+    <div class="form-row">
+      <select class="select" th:field="*{fornecedor}">
+        <option value="pagarme">pagar.me</option><option value="pagseguro">PagSeguro</option><option value="mercadopago">Mercado Pago</option>
+      </select>
+      <input class="input" th:field="*{publicKey}" placeholder="Public Key"/>
+      <input class="input" type="password" th:field="*{secretKey}" placeholder="Secret Key" autocomplete="new-password"/>
+      <input class="input" type="url" th:field="*{webhookUrl}" placeholder="https://.../webhooks/pagamentos"/>
+    </div>
+    <div class="form-actions"><button class="btn btn-primary">Salvar</button></div>
+  </form>
+</main></div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body></html>
+
+
+
+
+
+

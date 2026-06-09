@@ -1,0 +1,160 @@
+<!-- fragments/admin-sidebar.html -->
+<aside class="sidebar"
+       th:fragment="adminSidebar(active='')"
+       role="complementary"
+       aria-label="Menu admin">
+  <nav class="sidebar__nav">
+    <button class="sidebar__toggle"
+            type="button"
+            data-sidebar-compact-toggle
+            aria-label="Recolher menu lateral">
+      <span>Recolher</span>
+    </button>
+    <ul class="sidebar__list">
+      <li>
+        <a th:href="@{/admin/dashboard}"
+           class="sidebar__link"
+           th:classappend="${active}=='dashboard' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='dashboard' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4V4Zm9 0h7v4h-7V4Zm0 6h7v10h-7V10ZM4 13h7v7H4v-7Z"/></svg>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/alertas}"
+           class="sidebar__link"
+           th:classappend="${active}=='alertas' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='alertas' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 7v6c0 5 4.4 8.6 9 9 4.6-.4 9-4 9-9V7l-9-5Zm0 6.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm-1 5h2v2h-2v-2Z"/></svg>
+          <span>Alertas</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/produtos}"
+           class="sidebar__link"
+           th:classappend="${active}=='produtos' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='produtos' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v4H4V6Zm0 6h10v6H4v-6Zm12 0h4v6h-4v-6Z"/></svg>
+          <span>Produtos</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/pedidos}"
+           class="sidebar__link"
+           th:classappend="${active}=='pedidos' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='pedidos' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l2 4v12H4V8l2-4Zm2.4 0-1 2h9.2l-1-2H8.4ZM6 10v8h12v-8H6Z"/></svg>
+          <span>Pedidos</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/entregas}"
+           class="sidebar__link"
+           th:classappend="${active}=='entregas' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='entregas' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v8H3V7Zm12 2h3l3 3v3h-6V9Zm1.5 8a2.5 2.5 0 1 1-2.45 3H9.45a2.5 2.5 0 1 1-4.9 0H3v-2h1.55a2.5 2.5 0 0 1 4.9 0h5.1A2.5 2.5 0 0 1 17 17Z"/></svg>
+          <span>Entregas</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/fiscal/impressao}"
+           class="sidebar__link"
+           th:classappend="${active}=='fiscal-print' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='fiscal-print' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v4H7V3Zm11 6a3 3 0 0 1 3 3v5h-4v4H7v-4H3v-5a3 3 0 0 1 3-3h12Zm-3 10v-6H9v6h6Zm3-7h1a1 1 0 0 0-1-1h-1v1h1Z"/></svg>
+          <span>Impressao fiscal</span>
+        </a>
+      </li>
+      <li th:if="${#authorization != null and #authorization.expression('hasAnyRole(''ADMIN'',''CAIXA'',''DEV'',''DEVELOPER'')')}">
+        <a th:href="@{/admin/vendas/rapida}"
+           class="sidebar__link"
+           th:classappend="${active}=='venda-rapida' ? ' is-active' : ''"
+           data-admin-shortcut="venda-rapida"
+           title="Venda rapida (F3)"
+           th:attr="aria-current=${active}=='venda-rapida' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v4H4V6Zm2 6h8v6H6v-6Zm10 0h2v6h-2v-6Z"/></svg>
+          <span>Venda rápida</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/clientes}"
+           class="sidebar__link"
+           th:classappend="${active}=='clientes' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='clientes' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8a5 5 0 1 1 10 0 5 5 0 0 1-10 0Zm-3 12a7 7 0 0 1 14 0H4Z"/></svg>
+          <span>Clientes</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/usuarios}"
+           class="sidebar__link"
+           th:classappend="${active}=='usuarios' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='usuarios' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11a4 4 0 1 0-3.999-4A4 4 0 0 0 16 11Zm-8 1a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm8 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4ZM8 14c-.29 0-.62.02-.97.05C5.02 14.24 1 15.25 1 18v2h5v-2c0-1.16.84-2.18 2-3-.01-.33 0-.67 0-1Z"/></svg>
+          <span>Usuarios</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/estoque/niveis}"
+           class="sidebar__link"
+           th:classappend="${active}=='estoque' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='estoque' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v4H3V5Zm0 5h18v4H3v-4Zm0 5h18v4H3v-4Zm2-9v2h4V6H5Zm0 5v2h6v-2H5Zm0 5v2h8v-2H5Z"/></svg>
+          <span>Estoque</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/financeiro/pagamentos}"
+           class="sidebar__link"
+           th:classappend="${active}=='financeiro' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='financeiro' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Zm2 0v2h14V6H5Zm0 5v7h14v-7H5Zm2 2h5v2H7v-2Z"/></svg>
+          <span>Financeiro</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/marketing/emails/templates}"
+           class="sidebar__link"
+           th:classappend="${active}=='marketing' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='marketing' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm0 2v.01L12 12l8-4.99V7H4Zm16 10V9.3l-7.47 4.67a1 1 0 0 1-1.06 0L4 9.3V17h16Z"/></svg>
+          <span>Marketing</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/relatorios/vendas}"
+           class="sidebar__link"
+           th:classappend="${active}=='relatorios' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='relatorios' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5V4Zm2 3h6v2H7V7Zm0 4h10v2H7v-2Zm0 4h8v2H7v-2Z"/></svg>
+          <span>Relatórios</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/configuracoes/geral}"
+           class="sidebar__link"
+           th:classappend="${active}=='configuracoes' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='configuracoes' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm8 4a7.9 7.9 0 0 0-.1-1.2l2-1.6-2-3.5-2.4.7a8.4 8.4 0 0 0-2-1.2L13 2h-2l-.5 2.2a8.4 8.4 0 0 0-2 1.2L6.1 4.7l-2 3.5 2 1.6A7.9 7.9 0 0 0 6 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.5 2.4-.7a8.4 8.4 0 0 0 2 1.2L11 22h2l.5-2.2a8.4 8.4 0 0 0 2-1.2l2.4.7 2-3.5-2-1.6c.1-.4.1-.8.1-1.2Z"/></svg>
+          <span>Configurações</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/admin/notificacoes}"
+           class="sidebar__link"
+           th:classappend="${active}=='notificacoes' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='notificacoes' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.4-2H9.6A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 1 0-14 0v5l-2 2v1h18v-1l-2-2Z"/></svg>
+          <span>Notificações</span>
+        </a>
+      </li>
+
+      <li class="sidebar__admin-link">
+        <a th:href="@{/}" class="sidebar__link sidebar__link--muted">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6 1.4-1.4L7.8 13H20v-2H7.8l3.6-3.6L10 6Z"/></svg>
+          <span>Voltar ao site</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</aside>

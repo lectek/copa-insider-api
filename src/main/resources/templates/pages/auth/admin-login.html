@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#5f000f" />
+  <title>Admin - Entrar</title>
+  <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().time})}"/>
+  <link rel="stylesheet" th:href="@{/css/pages/login.css(v=${#dates.createNow().time})}"/>
+  <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}"/>
+  <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body class="body-flex login-page"
+      th:style="'--space-900:' + (${loginAdminBgStart} ?: '#1f0828')
+      + ';--space-800:' + (${loginAdminBgMid} ?: '#2b1452')
+      + ';--space-700:' + (${loginAdminBgEnd} ?: '#163a6b')">
+<main class="login-shell" id="main-content" tabindex="-1">
+  <section class="login-stage" aria-label="Area de login admin">
+    <header class="login-brand">
+      <img class="login-brand-logo"
+           th:src="${#strings.isEmpty(brandingLogoUrl) or #strings.containsIgnoreCase(brandingLogoUrl, 'logofarma.png') or #strings.containsIgnoreCase(brandingLogoUrl, 'logo-redemaisfarma.png') or #strings.containsIgnoreCase(brandingLogoUrl, 'novalogo.webp')} ? @{/images/logonova.png} : ${brandingLogoUrl}"
+           alt="Embalando Soluções em Enbalagens e Bomboniere"
+           loading="eager"
+           decoding="async" />
+    </header>
+
+    <div class="login-layout">
+      <section class="login-card" aria-labelledby="titulo-admin-login">
+        <h1 id="titulo-admin-login" class="login-title">Entrar</h1>
+        <p class="login-subtitle">Acesso administrativo com permissao restrita.</p>
+
+        <div th:if="${param.error}" class="alert alert-login alert-login--error">Credenciais invalidas.</div>
+        <div th:if="${param.logout}" class="alert alert-login alert-login--info">Sessao encerrada.</div>
+
+        <form id="adminLoginForm" th:action="@{/auth/login}" method="post" class="login-form" novalidate>
+          <input type="hidden" name="perfil" value="admin"/>
+          <input type="hidden" name="redirect" value="/admin/dashboard"/>
+          <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+          <div class="field">
+            <label class="visually-hidden" for="admin-usuario">Usuario ou e-mail</label>
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.4 0-8 2-8 4.5V20h16v-1.5C20 16 16.4 14 12 14Z"/></svg>
+              </span>
+              <input id="admin-usuario" class="input" type="text" name="username" autocomplete="username" placeholder="seu@email.com" required autofocus/>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="visually-hidden" for="admin-senha">Senha</label>
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M6 10V8a6 6 0 1 1 12 0v2h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Zm2 0h8V8a4 4 0 1 0-8 0v2Z"/></svg>
+              </span>
+              <input id="admin-senha" class="input" type="password" name="password" autocomplete="current-password" placeholder="Sua senha" required/>
+              <button type="button" class="toggle-pass" id="toggleSenhaAdmin"
+                      aria-pressed="false" aria-label="Mostrar senha">
+                <svg viewBox="0 0 24 24" class="toggle-icon"><path d="M12 5c5 0 9 4.5 10 7-1 2.5-5 7-10 7S3 14.5 2 12c1-2.5 5-7 10-7Zm0 3.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <label class="remember">
+            <input type="checkbox" name="remember-me"/>
+            <span>Lembrar de mim</span>
+          </label>
+
+          <div class="login-actions">
+            <button class="btn btn--admin" type="submit">Entrar como Admin</button>
+          </div>
+
+          <nav class="login-links" aria-label="Navegacao login">
+            <a th:href="@{/auth/login}">Voltar para login</a>
+            <a th:href="@{/auth/esqueci-senha}">Esqueci minha senha</a>
+          </nav>
+        </form>
+      </section>
+
+      <aside class="login-illustration" aria-hidden="true">
+        <div class="login-mascot-shell">
+          <video class="login-mascot-video"
+                 autoplay
+                 loop
+                 muted
+                 playsinline
+                 preload="metadata"
+                 tabindex="-1"
+                 th:poster="@{/images/mascote-login.png}"
+                 poster="/images/mascote-login.png">
+            <source th:src="${#strings.isEmpty(loginAnimationUrl) ? '/animations/mascote-flow-loop.mp4' : loginAnimationUrl}"
+                    src="/animations/mascote-flow-loop.mp4"
+                    type="video/mp4" />
+          </video>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<script>
+  document.getElementById('toggleSenhaAdmin')?.addEventListener('click', (event) => {
+    const field = document.getElementById('admin-senha');
+    if (!field) {
+      return;
+    }
+    const button = event.currentTarget;
+    const hidden = field.type === 'password';
+    field.type = hidden ? 'text' : 'password';
+    button.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+    button.setAttribute('aria-label', hidden ? 'Ocultar senha' : 'Mostrar senha');
+  });
+</script>
+</body>
+</html>

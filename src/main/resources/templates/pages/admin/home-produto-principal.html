@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Produto principal - Admin</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+  <header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+  <div class="layout layout--with-sidebar">
+    <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('configuracoes')}"></aside>
+
+    <main id="main-content" class="container stack mt-4 mb-6 page">
+      <header class="page__header">
+        <h1 class="page__title">Produto principal da home</h1>
+        <div class="page__actions">
+          <a th:href="@{/admin/settings}" class="btn">Voltar</a>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="card__body">
+          <div th:if="${success}" class="alert info" th:text="${success}"></div>
+          <div th:if="${error}" class="alert error" th:text="${error}"></div>
+
+          <form class="form form--vertical" th:action="@{/admin/home/produto-principal}" method="post">
+            <div class="form-group">
+              <label for="produtoFiltro">Buscar</label>
+              <input id="produtoFiltro" class="input" type="search"
+                     placeholder="Digite nome ou preco" autocomplete="off"/>
+            </div>
+
+            <div class="form-group">
+              <label for="produtoId">Selecione o produto</label>
+              <select id="produtoId" name="produtoId" class="select">
+                <option value="">-- Nenhum (remover) --</option>
+                <option th:each="p : ${produtos}"
+                        th:value="${p.id}"
+                        th:selected="${selectedId} == ${p.id}"
+                        th:attr="data-img=${p.imagem} ?: @{/img/produtos/placeholder-generico.png},
+                                 data-nome=${p.nome},
+                                 data-preco=${p.preco != null ? #numbers.formatCurrency(p.preco) : 'R$ 0,00'},
+                                 data-disponivel=${p.disponivel ? 'Disponivel' : 'Indisponivel'}"
+                        th:text="${p.nome} + (p.preco != null ? ' - ' + #numbers.formatCurrency(p.preco) : '') + (p.disponivel ? ' (disponivel)' : ' (indisponivel)')">
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Preview</label>
+              <div class="card" id="produtoPreview">
+                <div class="card__body">
+                  <div class="stack" style="gap:.6rem">
+                    <img id="previewImg" src="/img/produtos/placeholder-generico.png" alt="Preview do produto"
+                         style="width:160px;height:auto;object-fit:contain;border-radius:12px"/>
+                    <div>
+                      <strong id="previewNome">Selecione um produto</strong>
+                      <div id="previewPreco" class="muted">--</div>
+                      <div id="previewStatus" class="muted">--</div>
+                      <a id="previewLink" class="btn btn--ghost btn--sm" href="#" aria-disabled="true">Ver produto</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form__actions">
+              <button class="btn btn--primary" type="submit">Salvar</button>
+              <a class="btn" th:href="@{/admin/produtos}">Ver produtos</a>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+  <script>
+    const filtro = document.getElementById('produtoFiltro');
+    const select = document.getElementById('produtoId');
+    const options = Array.from(select?.options || []).filter(o => o.value);
+    const preview = {
+      img: document.getElementById('previewImg'),
+      nome: document.getElementById('previewNome'),
+      preco: document.getElementById('previewPreco'),
+      status: document.getElementById('previewStatus')
+    };
+    if (filtro && select) {
+      filtro.addEventListener('input', () => {
+        const q = filtro.value.trim().toLowerCase();
+        options.forEach(o => {
+          const match = !q || o.text.toLowerCase().includes(q);
+          o.hidden = !match;
+        });
+      });
+    }
+    function updatePreview() {
+      const opt = select?.selectedOptions?.[0];
+      if (!opt || !opt.value) {
+      preview.img.src = '/img/produtos/placeholder-generico.png';
+      preview.nome.textContent = 'Selecione um produto';
+      preview.preco.textContent = '--';
+      preview.status.textContent = '--';
+      preview.link = document.getElementById('previewLink');
+      preview.link.setAttribute('href', '#');
+      preview.link.setAttribute('aria-disabled', 'true');
+      preview.link.classList.add('is-disabled');
+      return;
+    }
+    preview.img.src = opt.dataset.img || '/img/produtos/placeholder-generico.png';
+    preview.nome.textContent = opt.dataset.nome || opt.textContent;
+    preview.preco.textContent = opt.dataset.preco || '--';
+    preview.status.textContent = opt.dataset.disponivel || '--';
+    preview.link = document.getElementById('previewLink');
+    preview.link.setAttribute('href', `/produto/${opt.value}`);
+    preview.link.setAttribute('aria-disabled', 'false');
+    preview.link.classList.remove('is-disabled');
+  }
+    select?.addEventListener('change', updatePreview);
+    updatePreview();
+  </script>
+</body>
+</html>
+
+
+
+
+
+

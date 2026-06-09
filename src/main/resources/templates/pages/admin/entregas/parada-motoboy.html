@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title th:text="${'Pedido #' + detalhe.parada.pedidoNumero + ' - Rota #' + detalhe.rota.id}">Pedido da rota</title>
+  <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}"/>
+  <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+  <link rel="stylesheet" th:href="@{/css/pages/admin-entregas.css(v=${#dates.createNow().time})}"/>
+</head>
+<body class="body-flex admin-page admin-entregas-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('entregas')}"></aside>
+
+  <main id="main-content"
+        class="container stack mt-4 mb-6"
+        data-driver-tracking="true"
+        th:attr="data-route-id=${detalhe.rota.id},
+                 data-route-status=${detalhe.rota.status},
+                 data-detail-url=@{|/api/admin/entregas/rotas/${detalhe.rota.id}/motoboy|},
+                 data-update-url=@{|/api/admin/entregas/rotas/${detalhe.rota.id}/localizacao|}">
+    <section th:replace="~{fragments/flash :: flash}"></section>
+
+    <div class="entregas-detail__header">
+      <div class="entregas-detail__title">
+        <h1 th:text="${'Pedido #' + detalhe.parada.pedidoNumero + ' da rota #' + detalhe.rota.id}">Pedido da rota</h1>
+        <p th:text="${'Parada ' + detalhe.parada.ordem + ' para ' + detalhe.parada.clienteNome}">Parada da rota</p>
+      </div>
+      <div class="entregas-detail__actions">
+        <a class="btn btn-ghost" th:href="@{|/admin/entregas/rotas/${detalhe.rota.id}/motoboy|}">Painel do motoboy</a>
+        <a class="btn btn-ghost" th:href="@{|/admin/entregas/rotas/${detalhe.rota.id}|}">Detalhes da rota</a>
+        <a class="btn btn-primary"
+           th:if="${detalhe.parada.googleMapsUrl != null and !#strings.isEmpty(detalhe.parada.googleMapsUrl)}"
+           th:href="${detalhe.parada.googleMapsUrl}"
+           target="_blank"
+           rel="noopener noreferrer">Abrir no Maps</a>
+        <a class="btn btn-ghost"
+           th:if="${detalhe.parada.wazeUrl != null and !#strings.isEmpty(detalhe.parada.wazeUrl)}"
+           th:href="${detalhe.parada.wazeUrl}"
+           target="_blank"
+           rel="noopener noreferrer">Abrir no Waze</a>
+      </div>
+    </div>
+
+    <section class="entregas-detail__hero">
+      <div class="entregas-detail__hero-grid">
+        <div class="entregas-detail__hero-item">
+          <span>Status da rota</span>
+          <strong th:text="${detalhe.rota.statusLabel}">Em execucao</strong>
+        </div>
+        <div class="entregas-detail__hero-item">
+          <span>Status da parada</span>
+          <strong th:text="${detalhe.parada.statusLabel}">A caminho</strong>
+        </div>
+        <div class="entregas-detail__hero-item">
+          <span>Cliente</span>
+          <strong th:text="${detalhe.parada.clienteNome}">Cliente</strong>
+        </div>
+        <div class="entregas-detail__hero-item">
+          <span>Telefone</span>
+          <strong th:text="${detalhe.telefoneCliente != null and !#strings.isEmpty(detalhe.telefoneCliente) ? detalhe.telefoneCliente : '-'}">-</strong>
+        </div>
+        <div class="entregas-detail__hero-item">
+          <span>Total do pedido</span>
+          <strong th:text="${detalhe.totalPedido != null ? #numbers.formatCurrency(detalhe.totalPedido) : '-'}">R$ 0,00</strong>
+        </div>
+        <div class="entregas-detail__hero-item">
+          <span>Pagamento solicitado</span>
+          <strong th:text="${detalhe.parada.pagamentoSolicitado}">Pix</strong>
+        </div>
+        <div class="entregas-detail__hero-item">
+          <span>Codigo</span>
+          <strong th:text="${detalhe.parada.codigoEntrega != null and !#strings.isEmpty(detalhe.parada.codigoEntrega) ? detalhe.parada.codigoEntrega : '-'}">123456</strong>
+        </div>
+        <div class="entregas-detail__hero-item">
+          <span>Distancia acumulada</span>
+          <strong th:text="${detalhe.parada.distanciaAcumuladaKm + ' km'}">0 km</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="entregas-card">
+      <div class="entregas-card__header">
+        <div>
+          <h2>Endereco e navegacao</h2>
+          <p th:text="${detalhe.parada.enderecoEntrega}">Endereco da entrega</p>
+        </div>
+      </div>
+
+      <div class="entregas-driver-card">
+        <div class="entregas-driver-card__main">
+          <span class="entregas-chip entregas-chip--stop" th:text="${detalhe.parada.statusLabel}">A caminho</span>
+          <h3 th:text="${detalhe.parada.clienteNome}">Cliente</h3>
+          <p th:text="${detalhe.parada.enderecoEntrega}">Endereco</p>
+          <div class="entregas-driver-card__links">
+            <a class="btn btn-primary"
+               th:if="${detalhe.parada.googleMapsUrl != null and !#strings.isEmpty(detalhe.parada.googleMapsUrl)}"
+               th:href="${detalhe.parada.googleMapsUrl}"
+               target="_blank"
+               rel="noopener noreferrer">Abrir no Maps</a>
+            <a class="btn btn-ghost"
+               th:if="${detalhe.parada.wazeUrl != null and !#strings.isEmpty(detalhe.parada.wazeUrl)}"
+               th:href="${detalhe.parada.wazeUrl}"
+               target="_blank"
+               rel="noopener noreferrer">Abrir no Waze</a>
+          </div>
+        </div>
+
+        <div class="entregas-driver-card__meta">
+          <p><strong>Pedido:</strong> <span th:text="${detalhe.parada.pedidoNumero}">0001</span></p>
+          <p><strong>Parada atual:</strong> <span th:text="${detalhe.paradaAtual ? 'Sim' : 'Nao'}">Sim</span></p>
+          <p><strong>Tempo acumulado:</strong> <span th:text="${detalhe.parada.duracaoAcumuladaSegundos != null ? (detalhe.parada.duracaoAcumuladaSegundos / 60) + ' min' : '-'}">10 min</span></p>
+          <p><strong>Pagamento recebido:</strong> <span th:text="${detalhe.parada.pagamentoRecebido != null and !#strings.isEmpty(detalhe.parada.pagamentoRecebido) ? detalhe.parada.pagamentoRecebido : '-'}">-</span></p>
+          <p th:if="${detalhe.parada.motivoFalha != null and !#strings.isEmpty(detalhe.parada.motivoFalha)}">
+            <strong>Motivo da falha:</strong>
+            <span th:text="${detalhe.parada.motivoFalha}">Cliente ausente</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="entregas-card">
+      <div class="entregas-card__header">
+        <div>
+          <h2>Operacao da parada</h2>
+          <p th:text="${detalhe.mensagemOperacional}">Mensagem operacional.</p>
+        </div>
+      </div>
+
+      <div class="entregas-driver-next-step" th:if="${detalhe.podeRegistrarChegada}">
+        <form th:action="@{|/admin/entregas/rotas/${detalhe.rota.id}/paradas/${detalhe.parada.id}/cheguei|}"
+              method="post">
+          <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button class="btn btn-primary" type="submit">Cheguei no local</button>
+        </form>
+      </div>
+
+      <form class="entregas-driver-form"
+            th:if="${detalhe.podeConfirmarEntrega}"
+            th:action="@{|/admin/entregas/rotas/${detalhe.rota.id}/paradas/${detalhe.parada.id}/confirmar|}"
+            method="post">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <label class="stack gap-4" th:if="${detalhe.parada.requerPagamentoNoLocal}">
+          <span>Pagamento recebido no local</span>
+          <select class="select" name="formaPagamentoRecebida" required>
+            <option value="">Selecione</option>
+            <option value="PIX">Pix</option>
+            <option value="DINHEIRO">Dinheiro</option>
+            <option value="CARTAO">Cartao</option>
+            <option value="OUTRO">Outro</option>
+          </select>
+        </label>
+
+        <label class="stack gap-4">
+          <span>Avaliacao da parada</span>
+          <select class="select" name="avaliacaoEntrega">
+            <option value="">Sem nota</option>
+            <option value="0">0 estrela</option>
+            <option value="1">1 estrela</option>
+            <option value="2">2 estrelas</option>
+            <option value="3">3 estrelas</option>
+            <option value="4">4 estrelas</option>
+            <option value="5">5 estrelas</option>
+          </select>
+        </label>
+
+        <fieldset class="entregas-driver-form__fieldset">
+          <legend>Ocorrencias essenciais</legend>
+          <label class="entregas-driver-form__check" th:each="option : ${occurrenceOptions}">
+            <input type="checkbox" name="ocorrencias" th:value="${option.value}"/>
+            <span th:text="${option.label}">Racismo</span>
+          </label>
+        </fieldset>
+
+        <label class="stack gap-4">
+          <span>Observacao</span>
+          <textarea class="textarea"
+                    name="observacao"
+                    rows="4"
+                    placeholder="Registre qualquer detalhe importante da entrega."></textarea>
+        </label>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Confirmar entrega e avancar</button>
+        </div>
+      </form>
+
+      <form class="entregas-driver-form"
+            th:if="${detalhe.podeRegistrarInsucesso}"
+            th:action="@{|/admin/entregas/rotas/${detalhe.rota.id}/paradas/${detalhe.parada.id}/insucesso|}"
+            method="post">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <label class="stack gap-4">
+          <span>Resultado da parada</span>
+          <select class="select" name="statusFalha" required>
+            <option value="">Selecione</option>
+            <option th:each="option : ${failureStatusOptions}"
+                    th:value="${option.value}"
+                    th:text="${option.label}">
+              Tentativa sem sucesso
+            </option>
+          </select>
+        </label>
+
+        <label class="stack gap-4">
+          <span>Motivo principal</span>
+          <select class="select" name="motivoFalha" required>
+            <option value="">Selecione</option>
+            <option th:each="option : ${failureReasonOptions}"
+                    th:value="${option.value}"
+                    th:text="${option.label}">
+              Cliente ausente
+            </option>
+          </select>
+        </label>
+
+        <label class="stack gap-4">
+          <span>Observacao do insucesso</span>
+          <textarea class="textarea"
+                    name="observacao"
+                    rows="3"
+                    placeholder="Explique o que houve para a equipe reorganizar a entrega."></textarea>
+        </label>
+
+        <div class="actions">
+          <button class="btn btn-ghost" type="submit">Registrar insucesso e avancar</button>
+        </div>
+      </form>
+
+      <div class="entregas-driver-next-step" th:if="${!detalhe.podeRegistrarChegada and !detalhe.podeConfirmarEntrega and !detalhe.podeRegistrarInsucesso}">
+        <p th:text="${detalhe.mensagemOperacional}">Mensagem operacional.</p>
+      </div>
+    </section>
+
+    <section class="entregas-card">
+      <div class="entregas-card__header">
+        <div>
+          <h2>Mapa ao vivo</h2>
+          <p>Continue com a localizacao do navegador ativa para atualizar o cliente.</p>
+        </div>
+      </div>
+
+      <div class="entregas-live">
+        <div class="entregas-live__map">
+          <iframe class="entregas-live__frame"
+                  title="Mapa ao vivo da rota"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  data-driver-map-frame
+                  th:if="${detalhe.rota.mapaAoVivoUrl != null and !#strings.isEmpty(detalhe.rota.mapaAoVivoUrl)}"
+                  th:src="${detalhe.rota.mapaAoVivoUrl}"></iframe>
+          <div class="entregas-live__empty"
+               data-driver-map-empty
+               th:classappend="${detalhe.rota.mapaAoVivoUrl != null and !#strings.isEmpty(detalhe.rota.mapaAoVivoUrl)} ? ' is-hidden' : ''">
+            Aguarde a primeira localizacao do navegador para carregar o mapa.
+          </div>
+        </div>
+
+        <div class="entregas-live__meta">
+          <p class="entregas-live__status" data-driver-tracking-status>
+            <span th:if="${detalhe.rota.status == 'EM_EXECUCAO'}">Tentando enviar sua localizacao ao vivo.</span>
+            <span th:if="${detalhe.rota.status != 'EM_EXECUCAO'}">Inicie a rota para liberar o rastreamento ao vivo.</span>
+          </p>
+          <p>
+            <strong>Ultima atualizacao:</strong>
+            <span data-driver-last-seen
+                  th:text="${detalhe.rota.motoristaLocalizacaoEm != null ? #temporals.format(detalhe.rota.motoristaLocalizacaoEm, 'dd/MM/yyyy HH:mm:ss') : 'Aguardando localizacao'}">
+              Aguardando localizacao
+            </span>
+          </p>
+          <p>
+            <strong>Distancia ate a proxima parada:</strong>
+            <span data-driver-distance
+                  th:text="${detalhe.rota.distanciaAteProximaParadaKm != null ? detalhe.rota.distanciaAteProximaParadaKm + ' km' : '-'}">
+              -
+            </span>
+          </p>
+          <p>
+            <strong>Proxima parada:</strong>
+            <span data-driver-next-stop
+                  th:text="${detalhe.rota.proximaParada != null ? detalhe.rota.proximaParada.clienteNome : 'Rota concluida'}">
+              Cliente
+            </span>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:src="@{/js/pages/admin/entregas-motoboy.js(v=${#dates.createNow().time})}"></script>
+</body>
+</html>

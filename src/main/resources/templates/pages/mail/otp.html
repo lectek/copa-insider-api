@@ -1,0 +1,160 @@
+package br.com.redemaisfarma.infra.mail;
+
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Locale;
+
+@Service
+public class OtpEmailService {
+
+    private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
+
+    // -------- Mail / Branding --------
+    @Value("${app.mail.from:no-reply@redemaisfarma.local}")
+    private String from;
+
+    @Value("${app.mail.css-url:https://SEU_DOMINIO_PUBLICO/assets/mail/main.css}")
+    private String cssUrl;
+
+    @Value("${app.company.logo-url:https://SEU_DOMINIO_PUBLICO/assets/logo-saude-mais-farma.png}")
+    private String logoUrl;
+
+    @Value("${app.company.name:SAÚDE MAIS FARMA}")
+    private String companyName;
+
+    @Value("${app.company.city:João Pessoa – PB}")
+    private String city;
+
+    @Value("${app.company.site:https://SEU_DOMINIO_PUBLICO}")
+    private String siteUrl;
+
+    @Value("${app.company.support-email:suporte@SEU_DOMINIO_PUBLICO}")
+    private String supportEmail;
+
+    @Value("${app.company.cnpj:43.434.602/0001-60}")
+    private String cnpj;
+
+    // -------- Endereço --------
+    @Value("${app.company.address.street:Rua Prefeito Luiz Alberto Moreira Coutinho}")
+    private String street;
+    @Value("${app.company.address.number:310}")
+    private String number;
+    @Value("${app.company.address.complement:Loja 102}")
+    private String complement;
+    @Value("${app.company.address.district:Mangabeira}")
+    private String district;
+    @Value("${app.company.address.zip:58058-800}")
+    private String zip;
+
+    // -------- Telefones / Social --------
+    @Value("${app.company.phone.primary.display:(83) 3576-2613}")
+    private String phone1Display;
+    @Value("${app.company.phone.primary.e164:+558335762613}")
+    private String phone1E164;
+
+    @Value("${app.company.phone.secondary.display:(83) 98885-3265}")
+    private String phone2Display;
+    @Value("${app.company.phone.secondary.e164:+5583988853265}")
+    private String phone2E164;
+
+    @Value("${app.company.instagram.handle:@saudemaisfarmaa}")
+    private String instagramHandle;
+    @Value("${app.company.instagram.url:https://instagram.com/saudemaisfarmaa}")
+    private String instagramUrl;
+
+    // -------- Assunto --------
+    @Value("${app.mail.subject-prefix:[SAÚDE MAIS FARMA] }")
+    private String subjectPrefix;
+
+    public OtpEmailService(JavaMailSender mailSender, SpringTemplateEngine templateEngine) {
+        this.mailSender = mailSender;
+        this.templateEngine = templateEngine;
+    }
+
+    /**
+     * Envia e-mail de OTP em multipart/alternative (texto + HTML).
+     *
+     * @param to      destinatário (ex.: "julianalirasilva24@hotmail.com")
+     * @param otpCode código de 6 dígitos
+     * @param ttl     tempo de expiração do código (ex.: Duration.ofMinutes(10))
+     */
+    public void sendOtpEmail(@NonNull String to, @NonNull String otpCode, @NonNull Duration ttl) {
+        try {
+            int ttlMinutes = Math.max(1, (int) Math.ceil(ttl.toMinutes()));
+
+            // ===== Thymeleaf context (usado no otp.html) =====
+            Locale ptBR = new Locale("pt", "BR");
+            Context ctx = new Context(ptBR);
+            ctx.setVariable("otpCode", otpCode);
+            ctx.setVariable("ttlMinutes", ttlMinutes);
+
+            // Branding / links / assets
+            ctx.setVariable("appCompanyName", companyName);
+            ctx.setVariable("city", city);
+            ctx.setVariable("siteUrl", siteUrl);
+            ctx.setVariable("supportEmail", supportEmail);
+            ctx.setVariable("logoUrl", logoUrl);
+            ctx.setVariable("cssUrl", cssUrl);
+
+            // Rodapé com dados legais / contato
+            ctx.setVariable("cnpj", cnpj);
+            ctx.setVariable("street", street);
+            ctx.setVariable("number", number);
+            ctx.setVariable("complement", complement);
+            ctx.setVariable("district", district);
+            ctx.setVariable("zip", zip);
+            ctx.setVariable("phone1Display", phone1Display);
+            ctx.setVariable("phone1E164", phone1E164);
+            ctx.setVariable("phone2Display", phone2Display);
+            ctx.setVariable("phone2E164", phone2E164);
+            ctx.setVariable("instagramHandle", instagramHandle);
+            ctx.setVariable("instagramUrl", instagramUrl);
+
+            String html = templateEngine.process("mail/otp", ctx); // resolve mail/otp.html
+
+            // ===== Texto simples (fallback) =====
+            String text = buildPlainText(companyName, city, otpCode, ttlMinutes, supportEmail, siteUrl);
+
+            // ===== Montagem e envio =====
+            MimeMessage mime = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    mime, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+
+            helper.setFrom(from);
+            helper.setTo(to);
+            helper.setSubject(subjectPrefix + "Seu código de verificação");
+            helper.setText(text, html); // first arg = text/plain, second = text/html
+
+            // Headers úteis (opcional)
+            helper.getMimeMessage().addHeader("X-Company", companyName);
+            helper.getMimeMessage().addHeader("X-OTP-TTL-Minutes", String.valueOf(ttlMinutes));
+
+            mailSender.send(mime);
+        } catch (Exception e) {
+            throw new IllegalStateException("Falha ao enviar e-mail de OTP: " + e.getMessage(), e);
+        }
+    }
+
+    private static String buildPlainText(String company, String city,
+                                         String otpCode, int ttlMinutes,
+                                         String supportEmail, String siteUrl) {
+        String nl = System.lineSeparator();
+        return company + " - " + city + nl + nl +
+                "Seu código de verificação: " + otpCode + nl +
+                "Expira em " + ttlMinutes + " minutos." + nl + nl +
+                "Se você não solicitou este código, ignore este e-mail." + nl + nl +
+                company + nl +
+                "Suporte: " + supportEmail + nl +
+                "Site: " + siteUrl + nl;
+    }
+}

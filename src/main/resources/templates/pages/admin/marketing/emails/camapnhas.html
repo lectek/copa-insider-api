@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Campanhas de e-mail</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('marketing')}"></aside>
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Campanhas</h1>
+        <p class="page-lead">Crie e agende campanhas de email.</p>
+      </div>
+    <div class="page-actions">
+      <a class="btn btn-ghost" th:href="@{/admin/marketing/emails/campanhas/fila}">Fila de e-mail</a>
+      <button class="btn btn-primary" type="submit" form="campanha-form">Criar campanha</button>
+    </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+
+    <form id="campanha-form" class="card form-grid" th:action="@{/admin/marketing/emails/campanhas}" method="post" th:object="${campanha}">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nome">Nome da campanha</label>
+          <input id="nome" class="input" th:field="*{nome}" placeholder="Promocoes da semana" required/>
+        </div>
+        <div class="form-group">
+          <label for="assunto">Assunto do email</label>
+          <input id="assunto" class="input" th:field="*{assunto}" placeholder="Confira as ofertas" required/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="templateKey">Template</label>
+          <select id="templateKey" class="select" th:field="*{templateKey}">
+            <option th:each="t : ${templates}" th:value="${t.key}" th:text="${t.label}">Template</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="segmento">Lista/Segmento</label>
+          <select id="segmento" class="select" th:field="*{segmento}">
+            <option value="TODOS">Todos os clientes</option>
+            <option value="VIP">Clientes VIP</option>
+            <option value="INATIVOS_90D">Inativos (90 dias)</option>
+            <option value="CATEGORIA">Compraram categoria específica</option>
+            <option value="RECENCIA">Compraram recentemente (dias)</option>
+            <option value="TICKET">Ticket médio mínimo</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="categoriaFiltro">Categoria comprada</label>
+          <input id="categoriaFiltro" class="input" th:field="*{categoria}" placeholder="Saúde, higiene..."/>
+        </div>
+        <div class="form-group">
+          <label for="recenciaDias">Recência (dias)</label>
+          <input id="recenciaDias" class="input" type="number" min="1" th:field="*{recenciaDias}"/>
+        </div>
+        <div class="form-group">
+          <label for="ticketMinimo">Ticket mínimo (R$)</label>
+          <input id="ticketMinimo" class="input" type="number" step="0.01" min="0" th:field="*{ticketMinimo}"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="agendarPara">Agendar para</label>
+          <input id="agendarPara" class="input" type="datetime-local" th:field="*{agendarPara}"/>
+        </div>
+        <label class="checkbox"><input type="checkbox" th:field="*{envioImediato}"/> Envio imediato</label>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" type="reset">Cancelar</button>
+        <button class="btn btn-primary" type="submit">Criar campanha</button>
+      </div>
+    </form>
+
+    <section class="card mt-6 table-responsive">
+      <div class="between mb-12">
+        <div>
+          <h2 class="section-title">Historico</h2>
+          <p class="section-subtitle">Ultimas campanhas criadas.</p>
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Template</th>
+            <th>Status</th>
+            <th>Agendamento</th>
+            <th>Criada em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="c : ${campanhas}">
+            <td th:text="${c.nome}">Promo</td>
+            <td th:text="${c.templateKey}">mail/promo</td>
+            <td th:text="${c.status}">SCHEDULED</td>
+            <td th:text="${c.scheduledAt != null ? #dates.format(c.scheduledAt,'dd/MM/yyyy HH:mm') : '-'}">-</td>
+            <td th:text="${#dates.format(c.createdAt,'dd/MM/yyyy HH:mm')}">-</td>
+            <td>
+              <a class="btn btn-ghost btn-sm" th:href="@{|/admin/marketing/emails/campanhas/${c.id}/preview|}" target="_blank" rel="noopener">Preview</a>
+              <form th:action="@{|/admin/marketing/emails/campanhas/${c.id}/cancel|}" method="post" th:if="${c.status != 'CANCELLED'}" class="inline-form">
+                <button class="btn btn-ghost btn-sm" type="submit">Cancelar</button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(campanhas)}">
+            <td colspan="6" class="text-center text-muted">Sem campanhas.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+
+
+
+
+
+

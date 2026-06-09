@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Relatorios de Vendas</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('relatorios')}"></aside>
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Relatorios de vendas</h1>
+        <p class="page-lead">Leia a receita por dia e acompanhe a entrada por dinheiro, PIX, debito e credito.</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn btn-ghost"
+           th:href="@{/admin/relatorios/vendas/export(tipo='csv',mes=${selectedMonth},de=${param.de},ate=${param.ate})}">
+          Exportar CSV
+        </a>
+        <button class="btn btn-ghost" type="button" disabled>PDF (em breve)</button>
+      </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+
+    <nav class="report-tabs">
+      <a class="report-tab is-active" th:href="@{/admin/relatorios/vendas}">Vendas</a>
+      <a class="report-tab" th:href="@{/admin/relatorios/clientes}">Clientes</a>
+      <a class="report-tab" th:href="@{/admin/relatorios/produtos}">Produtos</a>
+    </nav>
+
+    <section class="card">
+      <div class="card-body">
+        <form class="filter-bar" th:action="@{/admin/relatorios/vendas}" method="get">
+          <div class="form-group">
+            <label for="mes">Competencia mensal</label>
+            <input id="mes" class="input" type="month" name="mes" th:value="${selectedMonth}" />
+            <span class="form-hint">O grafico considera pedidos pagos, prontos para retirada, enviados e entregues.</span>
+          </div>
+          <div class="form-actions">
+            <button class="btn" type="submit">Gerar</button>
+            <a class="btn btn-ghost" th:href="@{/admin/relatorios/vendas}">Competencia atual</a>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="stat-grid">
+      <article class="stat-card">
+        <span class="stat-label">Receita total</span>
+        <span class="stat-value" th:text="${#numbers.formatCurrency(sumTotal)}">R$ 0,00</span>
+        <span class="stat-hint" th:text="${periodLabel}">Marco 2026</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Dinheiro</span>
+        <span class="stat-value" th:text="${#numbers.formatCurrency(sumDinheiro)}">R$ 0,00</span>
+        <span class="stat-hint">Entrada fisica do caixa</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">PIX</span>
+        <span class="stat-value" th:text="${#numbers.formatCurrency(sumPix)}">R$ 0,00</span>
+        <span class="stat-hint">Recebimentos via PIX</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Debito</span>
+        <span class="stat-value" th:text="${#numbers.formatCurrency(sumDebito)}">R$ 0,00</span>
+        <span class="stat-hint">Cartao de debito</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Credito</span>
+        <span class="stat-value" th:text="${#numbers.formatCurrency(sumCredito)}">R$ 0,00</span>
+        <span class="stat-hint">Cartao de credito</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Pedidos</span>
+        <span class="stat-value" th:text="${sumQtd ?: 0}">0</span>
+        <span class="stat-hint">Pedidos considerados na receita</span>
+      </article>
+    </section>
+
+    <section class="card card-chart">
+      <div class="card-body">
+        <div class="between">
+          <div>
+            <h2 class="section-title">Evolucao diaria da receita</h2>
+            <p class="section-subtitle">A linha total consolida todas as entradas do periodo. As demais linhas separam os meios principais.</p>
+          </div>
+          <div class="stack gap-4">
+            <strong th:text="${periodLabel}">Marco 2026</strong>
+            <span class="text-muted">Base de clientes: <span th:text="${totalClientes ?: 0}">0</span></span>
+          </div>
+        </div>
+        <div style="position:relative;height:360px">
+          <canvas id="grafico-receita-mensal"
+                  width="720"
+                  height="320"
+                  aria-label="Grafico mensal de receita por forma de pagamento"
+                  role="img"></canvas>
+        </div>
+        <div class="alert alert-info"
+             th:if="${sumOutros != null and sumOutros.signum() > 0}">
+          Outros meios de pagamento somaram
+          <strong th:text="${#numbers.formatCurrency(sumOutros)}">R$ 0,00</strong>
+          no periodo e entram apenas na linha total.
+        </div>
+      </div>
+    </section>
+
+    <section class="card table-responsive">
+      <table class="table" aria-label="Tabela diaria de receita por forma de pagamento">
+        <thead>
+        <tr>
+          <th>Data</th>
+          <th>Pedidos</th>
+          <th>Total</th>
+          <th>Dinheiro</th>
+          <th>PIX</th>
+          <th>Debito</th>
+          <th>Credito</th>
+          <th th:if="${sumOutros != null and sumOutros.signum() > 0}">Outros</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${linhas}">
+          <td th:text="${#temporals.format(r.data, 'dd/MM/yyyy')}">01/03/2026</td>
+          <td th:text="${r.qtd}">0</td>
+          <td th:text="${#numbers.formatCurrency(r.total)}">R$ 0,00</td>
+          <td th:text="${#numbers.formatCurrency(r.dinheiro)}">R$ 0,00</td>
+          <td th:text="${#numbers.formatCurrency(r.pix)}">R$ 0,00</td>
+          <td th:text="${#numbers.formatCurrency(r.debito)}">R$ 0,00</td>
+          <td th:text="${#numbers.formatCurrency(r.credito)}">R$ 0,00</td>
+          <td th:if="${sumOutros != null and sumOutros.signum() > 0}"
+              th:text="${#numbers.formatCurrency(r.outros)}">R$ 0,00</td>
+        </tr>
+        <tr th:if="${linhas == null or #lists.isEmpty(linhas)}">
+          <td class="text-center text-muted"
+              th:attr="colspan=${sumOutros != null and sumOutros.signum() > 0 ? 8 : 7}">
+            Nenhum dado encontrado para a competencia selecionada.
+          </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+          <th>Total</th>
+          <th th:text="${sumQtd}">0</th>
+          <th th:text="${#numbers.formatCurrency(sumTotal)}">R$ 0,00</th>
+          <th th:text="${#numbers.formatCurrency(sumDinheiro)}">R$ 0,00</th>
+          <th th:text="${#numbers.formatCurrency(sumPix)}">R$ 0,00</th>
+          <th th:text="${#numbers.formatCurrency(sumDebito)}">R$ 0,00</th>
+          <th th:text="${#numbers.formatCurrency(sumCredito)}">R$ 0,00</th>
+          <th th:if="${sumOutros != null and sumOutros.signum() > 0}"
+              th:text="${#numbers.formatCurrency(sumOutros)}">R$ 0,00</th>
+        </tr>
+        </tfoot>
+      </table>
+    </section>
+  </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  window.RMF_SALES_REPORT = {
+    labels: /*[[${chartLabels}]]*/ [],
+    total: /*[[${chartTotalData}]]*/ [],
+    dinheiro: /*[[${chartDinheiroData}]]*/ [],
+    pix: /*[[${chartPixData}]]*/ [],
+    debito: /*[[${chartDebitoData}]]*/ [],
+    credito: /*[[${chartCreditoData}]]*/ []
+  };
+  /*]]>*/
+</script>
+<script defer th:src="@{/vendor/chartjs/chart.umd.min.js}"></script>
+<script defer th:src="@{/js/pages/admin/admin-sales-report.js}"></script>
+</body>
+</html>

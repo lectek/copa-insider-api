@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Produtos nao prontos - Admin</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('produtos')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Produtos nao prontos para venda</h1>
+        <p class="page-lead">Visao completa dos itens do estoque fisico que ainda precisam de ajuste para venda online.</p>
+      </div>
+      <div class="page-actions">
+        <form th:action="@{/admin/produtos/nao-prontos/publicar-aptos}" method="post">
+          <input type="hidden" name="q" th:value="${q}" />
+          <input type="hidden" name="validador" value="admin-lote" />
+          <button class="btn btn-primary" type="submit">Publicar aptos em lote</button>
+        </form>
+        <a class="btn btn-ghost" th:href="@{/admin/produtos/novo}">Voltar ao cadastro</a>
+        <a class="btn btn-primary" th:href="@{/admin/produtos}">Ver catalogo completo</a>
+      </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+
+    <form class="filter-bar card p-16 mb-4" th:action="@{/admin/produtos/nao-prontos/todos}" method="get">
+      <input class="input" name="q" type="search" placeholder="Filtrar por nome, EAN ou codigo interno" th:value="${q}" />
+      <select class="select" name="size" aria-label="Itens por pagina">
+        <option value="50" th:selected="${pageSize == 50}">50 por pagina</option>
+        <option value="100" th:selected="${pageSize == 100}">100 por pagina</option>
+        <option value="200" th:selected="${pageSize == 200}">200 por pagina</option>
+      </select>
+      <button class="btn" type="submit">Buscar</button>
+      <a class="btn btn-ghost" th:href="@{/admin/produtos/nao-prontos/todos(size=${pageSize})}">Limpar</a>
+    </form>
+
+    <section class="stat-grid">
+      <article class="stat-card">
+        <span class="stat-label">Total de produtos nao prontos</span>
+        <span class="stat-value" th:text="${pendingTotal}">0</span>
+        <span class="stat-hint">Itens listados nesta pagina: <span th:text="${listedCount}">0</span></span>
+      </article>
+    </section>
+
+    <section class="card table-responsive">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Categoria</th>
+          <th>Codigo de barras</th>
+          <th>Estoque</th>
+          <th>Origem</th>
+          <th>Acoes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${pendingItems}">
+          <td th:text="${item.nome}">Produto</td>
+          <td th:text="${item.categoria}">Categoria</td>
+          <td th:text="${item.codigoBarras} ?: '-'">-</td>
+          <td th:text="${item.estoque} ?: 0">0</td>
+          <td>
+            <span th:if="${item.origem == 'ESTOQUE_FISICO'}" class="badge badge--warning">Estoque fisico</span>
+            <span th:if="${item.origem == 'CATALOGO_PENDENTE'}" class="badge badge--success">Catalogo pendente</span>
+            <span th:if="${item.origem != 'ESTOQUE_FISICO' and item.origem != 'CATALOGO_PENDENTE'}" class="badge">Catalogo</span>
+          </td>
+          <td class="table-actions">
+            <a th:if="${item.id != null}" class="btn btn-ghost" th:href="@{|/admin/produtos/${item.id}/editar|}">Abrir edicao</a>
+            <a th:if="${item.id == null}"
+               class="btn btn-primary"
+               th:href="@{/admin/produtos/novo(legacyId=${item.legacyId},nome=${item.nome},descricao=${item.descricao},categoria=${item.categoria},codigoBarras=${item.codigoBarras},estoque=${item.estoque},fabricante=${item.fabricante},unidade=${item.unidade},origem=${item.origem})}">
+              Cadastrar + imagem
+            </a>
+          </td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(pendingItems)}">
+          <td colspan="6" class="text-center text-muted">Nenhum produto nao pronto encontrado para o filtro informado.</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <nav class="pagination mt-4" th:if="${totalPages > 1}" aria-label="Paginacao">
+      <a class="btn" th:if="${hasPrev}"
+         th:href="@{/admin/produtos/nao-prontos/todos(q=${q},page=${pageNumber-1},size=${pageSize})}">Anterior</a>
+      <button class="btn" type="button" th:unless="${hasPrev}" disabled>Anterior</button>
+
+      <span class="muted">
+        Pagina <span th:text="${pageNumber+1}">1</span> de <span th:text="${totalPages}">1</span>
+      </span>
+
+      <a class="btn" th:if="${hasNext}"
+         th:href="@{/admin/produtos/nao-prontos/todos(q=${q},page=${pageNumber+1},size=${pageSize})}">Proxima</a>
+      <button class="btn" type="button" th:unless="${hasNext}" disabled>Proxima</button>
+    </nav>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

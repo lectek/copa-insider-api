@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Carrinho abandonado</title>
+</head>
+<body style="font-family: sans-serif; color: #222;">
+  <h2 th:text="${headline} ?: 'Você deixou itens no carrinho'">Você deixou itens no carrinho</h2>
+  <p th:text="${message} ?: 'Volte ao site e finalize sua compra antes que os itens se encerrem.'">
+    Volte ao site e finalize sua compra antes que os itens se encerrem.
+  </p>
+  <ul>
+    <li th:each="item : ${items}">
+      <span>Código: <strong th:text="${item.produtoId}">123</strong></span>
+      <span>Quantidade: <strong th:text="${item.quantidade}">1</strong></span>
+    </li>
+  </ul>
+  <p>Última atualização: <span th:text="${updatedAt}">-</span></p>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!-- fragments/forms.html -->
+<section class="form-section" th:fragment="form-produto">
+  <h2 class="form-title">📦 Cadastre seu produto</h2>
+
+  <form th:action="@{/admin/produtos}" method="post" enctype="multipart/form-data" 
+        class="form-embalando" novalidate>
+    
+    <!-- Nome -->
+    <div class="form-group">
+      <label for="nome">Nome do Produto <span aria-hidden="true">*</span></label>
+      <input type="text" id="nome" name="nome" placeholder="Digite o nome do produto" 
+             required aria-required="true" autocomplete="off"/>
+    </div>
+
+    <!-- Descrição -->
+    <div class="form-group">
+      <label for="descricao">Descrição</label>
+      <textarea id="descricao" name="descricao" 
+                placeholder="Breve descrição do produto"
+                rows="4"></textarea>
+    </div>
+
+    <!-- Grid Preço + Categoria -->
+    <div class="form-group-inline">
+      <div class="form-group">
+        <label for="preco">Preço (R$) <span aria-hidden="true">*</span></label>
+        <input type="number" id="preco" name="preco" step="0.01" min="0"
+               placeholder="Ex: 29,90" required aria-required="true"/>
+      </div>
+
+      <div class="form-group">
+        <label for="categoria">Categoria <span aria-hidden="true">*</span></label>
+        <select id="categoria" name="categoria" required aria-required="true">
+          <option value="">Selecione</option>
+          <option value="acessorios">Acessórios</option>
+          <option value="alimentacao">Alimentação</option>
+          <option value="higiene">Higiene</option>
+          <option value="medicamentos">Produtos</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Upload de imagem -->
+    <div class="form-group">
+      <label for="imagem">Imagem do Produto</label>
+      <input type="file" id="imagem" name="imagem" accept="image/*"/>
+    </div>
+
+    <!-- Botão -->
+    <div class="form-actions">
+      <button type="submit" class="btn-form">Cadastrar Produto</button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,122 @@
+<!-- fragments/sidebar.html -->
+<aside class="sidebar"
+       th:fragment="sidebar(active='')"
+       role="complementary"
+       aria-label="Menu lateral"
+       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+  <nav class="sidebar__nav">
+    <div class="sidebar__logo">
+      <a th:href="@{/cliente/conta}" class="sidebar__brand" aria-label="Minha conta">
+        <svg class="sidebar__brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm0 13c5 0 9 2.4 9 5.5V22H3v-1.5C3 17.4 7 15 12 15Z"/></svg>
+        <div class="sidebar__brand-text">
+          <span class="sidebar__brand-title">Area do Cliente</span>
+          <span class="sidebar__brand-sub">Minha conta</span>
+        </div>
+      </a>
+    </div>
+
+    <ul class="sidebar__list">
+      <li>
+        <a th:href="@{/}"
+           class="sidebar__link"
+           th:classappend="${active}=='home' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='home' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 10.5h2V21h6v-6h2v6h6V10.5h2L12 3Z"/></svg>
+          <span>Home</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/cliente/conta}"
+           class="sidebar__link"
+           th:classappend="${active}=='conta' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='conta' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Zm0 13c4.7 0 8.5 2.2 8.5 5V22H3.5v-2c0-2.8 3.8-5 8.5-5Z"/></svg>
+          <span>Minha conta</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/cliente/dados}"
+           class="sidebar__link"
+           th:classappend="${active}=='dados' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='dados' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm2 3v2h10V7H7Zm0 4v2h10v-2H7Zm0 4v2h6v-2H7Z"/></svg>
+          <span>Meus dados</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/cliente/pedidos}"
+           class="sidebar__link"
+           th:classappend="${active}=='pedidos' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='pedidos' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4V5Zm2 2v10h12V7H6Zm2 2h8v2H8V9Zm0 4h5v2H8v-2Z"/></svg>
+          <span>Meus pedidos</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/cliente/senha}"
+           class="sidebar__link"
+           th:classappend="${active}=='senha' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='senha' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a5 5 0 0 1 5 5v2h1a2 2 0 0 1 2 2v9H4v-9a2 2 0 0 1 2-2h1V7a5 5 0 0 1 5-5Zm3 7V7a3 3 0 1 0-6 0v2h6Zm-3 3a2 2 0 0 1 1 3.7V18h-2v-2.3A2 2 0 0 1 12 12Z"/></svg>
+          <span>Alterar senha</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/produtos}"
+           class="sidebar__link"
+           th:classappend="${active}=='produtos' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='produtos' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v4H4V6Zm0 6h10v6H4v-6Zm12 0h4v6h-4v-6Z"/></svg>
+          <span th:text="${uiNavCatalogLabel} ?: 'Catalogo'">Catalogo</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/carrinho}"
+           class="sidebar__link"
+           th:classappend="${active}=='carrinho' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='carrinho' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h15l-1.4 7.2a2 2 0 0 1-2 1.6H9.2L8.6 18h10.9v2H8.1a1.8 1.8 0 0 1-1.8-2.2L8 9H5V7h2l.5-2.2H3V3h5.2L9 6Zm3.3 16a1.6 1.6 0 1 1 0-3.2 1.6 1.6 0 0 1 0 3.2Zm7 0a1.6 1.6 0 1 1 0-3.2 1.6 1.6 0 0 1 0 3.2Z"/></svg>
+          <span>Meu carrinho</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/sobre}"
+           class="sidebar__link"
+           th:classappend="${active}=='sobre' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='sobre' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm1 5h-2v2h2V7Zm0 4h-2v6h2v-6Z"/></svg>
+          <span>Sobre nos</span>
+        </a>
+      </li>
+      <li>
+        <a th:href="@{/alysson}"
+           class="sidebar__link"
+           th:classappend="${active}=='alysson' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='alysson' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A3.5 3.5 0 0 1 7.5 3h9A3.5 3.5 0 0 1 20 6.5v6A3.5 3.5 0 0 1 16.5 16H10l-4.3 3.4A1 1 0 0 1 4 18.6V16.2A3.5 3.5 0 0 1 2 13V6.5h2Zm3.5-1.5A1.5 1.5 0 0 0 6 6.5V14h.7a1 1 0 0 1 .6.2l2.9 2.3V15a1 1 0 0 1 1-1h5.3A1.5 1.5 0 0 0 18 12.5v-6A1.5 1.5 0 0 0 16.5 5h-9ZM8 8h8v2H8V8Zm0 3h5v2H8v-2Z"/></svg>
+          <span th:text="${'Falar com ' + (aiAssistantName ?: 'Alysson')}">Falar com Alysson</span>
+        </a>
+      </li>
+
+      <li class="sidebar__admin-link" sec:authorize="hasRole('ADMIN') or hasRole('DEV')">
+        <a th:href="@{/admin}"
+           class="sidebar__link sidebar__link--muted"
+           th:classappend="${active}=='admin' ? ' is-active' : ''"
+           th:attr="aria-current=${active}=='admin' ? 'page' : null">
+          <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 7v6c0 5 4.3 8.7 9 9 4.7-.3 9-4 9-9V7l-9-5Zm0 3.2 6 3.3v4.5c0 3.6-2.8 6.6-6 7.4-3.2-.8-6-3.8-6-7.4V8.5l6-3.3Z"/></svg>
+          <span>Entrar como admin</span>
+        </a>
+      </li>
+
+      <li class="sidebar__admin-link" sec:authorize="isAuthenticated()">
+        <form class="sidebar__logout-form" th:action="@{/logout}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <button type="submit" class="sidebar__link sidebar__link--muted sidebar__logout-button">
+            <svg class="sidebar__item-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6 1.4-1.4L7.8 13H20v-2H7.8l3.6-3.6L10 6Z"/></svg>
+            <span>Sair</span>
+          </button>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</aside>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Minha conta - Embalando Soluções em Enbalagens e Bomboniere</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+</head>
+<body class="body-flex cliente-conta-page">
+  <header th:replace="~{fragments/header :: header}"></header>
+
+  <div class="layout layout--with-sidebar">
+    <aside th:replace="~{fragments/sidebar :: sidebar('conta')}"></aside>
+
+    <main id="main-content" class="container stack mt-4 mb-8 cliente-dashboard cliente-dashboard--home" role="main">
+      <header class="cliente-dashboard__header">
+        <p class="cliente-dashboard__eyebrow">Painel do cliente</p>
+        <h1 class="cliente-dashboard__title">Minha conta</h1>
+        <p class="cliente-dashboard__lead">
+          Organize seus dados, acompanhe seus pedidos e mantenha sua conta protegida.
+        </p>
+      </header>
+
+      <div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
+      <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+      <section class="cliente-overview-strip" aria-label="Resumo da conta">
+        <article class="cliente-overview-card">
+          <div class="cliente-overview-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.8 12.5l1.4-1.4 2.3 2.3 7.3-7.3 1.4 1.4-8.7 8.7Z"/></svg>
+          </div>
+          <div class="cliente-overview-card__content">
+            <strong>Perfil pronto</strong>
+            <p>Seus dados e foto podem ser atualizados em segundos.</p>
+          </div>
+        </article>
+        <article class="cliente-overview-card">
+          <div class="cliente-overview-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4V6Zm2 2v8h12V8H6Zm1 9h10v2H7v-2Zm2-7h6v2H9V10Zm0 3h4v2H9v-2Z"/></svg>
+          </div>
+          <div class="cliente-overview-card__content">
+            <strong>Pedidos sob controle</strong>
+            <p>Acesse o historico completo e acompanhe cada entrega.</p>
+          </div>
+        </article>
+        <article class="cliente-overview-card">
+          <div class="cliente-overview-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 1 5 5v2h1.2a1.8 1.8 0 0 1 1.8 1.8v8.4a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 19.2v-8.4A1.8 1.8 0 0 1 5.8 9H7V7a5 5 0 0 1 5-5Zm3 7V7a3 3 0 1 0-6 0v2h6Zm-3 3a2 2 0 0 1 1 3.7V18h-2v-2.3A2 2 0 0 1 12 12Z"/></svg>
+          </div>
+          <div class="cliente-overview-card__content">
+            <strong>Conta protegida</strong>
+            <p>Revise sua senha e mantenha sua conta sempre segura.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="card cliente-card cliente-card--profile"
+               th:with="displayNome=${avatarNome != null and !#strings.isEmpty(avatarNome) ? avatarNome : 'Cliente'}">
+        <h2 class="title cliente-card__title">Perfil</h2>
+        <div class="cliente-profile-summary">
+          <div class="cliente-profile-summary__media">
+            <img th:if="${avatarUrl != null and !#strings.isEmpty(avatarUrl)}"
+                 th:src="${avatarUrl}"
+                 class="cliente-avatar"
+                 alt="Foto de perfil"
+                 loading="lazy"
+                 decoding="async"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';"/>
+            <div class="cliente-avatar cliente-avatar--fallback"
+                 th:style="${avatarUrl != null and !#strings.isEmpty(avatarUrl)} ? 'display:none;' : ''">
+              <strong th:text="${avatarNome != null and !#strings.isEmpty(avatarNome) ? avatarNome.substring(0,1) : 'U'}">U</strong>
+            </div>
+          </div>
+          <div class="cliente-profile-summary__identity">
+            <h3 th:text="${displayNome}">Cliente</h3>
+            <div class="cliente-profile-summary__badges">
+              <span class="cliente-badge">Conta ativa</span>
+              <span class="cliente-badge cliente-badge--soft">Area segura</span>
+            </div>
+            <p>Gerencie seus dados, pedidos e seguranca da conta em um unico lugar.</p>
+            <a class="btn btn--primary" th:href="@{/cliente/dados}">Atualizar foto</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card cliente-card cliente-card--form">
+        <h2 class="title cliente-card__title">Acessos rapidos</h2>
+        <div class="cliente-quick-links cliente-quick-links--tiles">
+          <a class="cliente-quick-tile cliente-quick-tile--primary" th:href="@{/cliente/dados}">
+            <span class="cliente-quick-tile__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.4 0-8 2-8 4.5V20h16v-1.5C20 16 16.4 14 12 14Z"/></svg>
+            </span>
+            <span class="cliente-quick-tile__text">
+              <strong>Meus dados</strong>
+              <small>Atualize nome, contato e avatar.</small>
+            </span>
+            <span class="cliente-quick-tile__arrow" aria-hidden="true">&rsaquo;</span>
+          </a>
+          <a class="cliente-quick-tile" th:href="@{/cliente/pedidos}">
+            <span class="cliente-quick-tile__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4V5Zm2 2v10h12V7H6Zm2 2h8v2H8V9Zm0 4h5v2H8v-2Z"/></svg>
+            </span>
+            <span class="cliente-quick-tile__text">
+              <strong>Meus pedidos</strong>
+              <small>Veja status, historico e detalhes.</small>
+            </span>
+            <span class="cliente-quick-tile__arrow" aria-hidden="true">&rsaquo;</span>
+          </a>
+          <a class="cliente-quick-tile" th:href="@{/cliente/senha}">
+            <span class="cliente-quick-tile__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 1 5 5v2h1a2 2 0 0 1 2 2v9H4v-9a2 2 0 0 1 2-2h1V7a5 5 0 0 1 5-5Zm3 7V7a3 3 0 1 0-6 0v2h6Zm-3 3a2 2 0 0 1 1 3.7V18h-2v-2.3A2 2 0 0 1 12 12Z"/></svg>
+            </span>
+            <span class="cliente-quick-tile__text">
+              <strong>Alterar senha</strong>
+              <small>Reforce a seguranca da conta.</small>
+            </span>
+            <span class="cliente-quick-tile__arrow" aria-hidden="true">&rsaquo;</span>
+          </a>
+          <a class="cliente-quick-tile" th:href="@{/carrinho}">
+            <span class="cliente-quick-tile__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.5h7.9a2 2 0 0 0 2-1.6L22 7H7.1l-.3-1.4A2 2 0 0 0 4.9 4H3Zm6 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>
+            </span>
+            <span class="cliente-quick-tile__text">
+              <strong>Meu carrinho</strong>
+              <small>Retome seus itens e finalize rapido.</small>
+            </span>
+            <span class="cliente-quick-tile__arrow" aria-hidden="true">&rsaquo;</span>
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer th:replace="~{fragments/footer-client :: footer}"></footer>
+</body>
+</html>

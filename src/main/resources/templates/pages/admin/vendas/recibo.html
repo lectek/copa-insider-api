@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Recibo venda</title>
+  <style>
+    :root { --w: 80mm; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; width: var(--w); }
+    h1 { font-size: 16px; margin: 0 0 6px; text-align: center; }
+    .meta, .total { font-size: 12px; margin: 6px 0; }
+    .items { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .items th, .items td { padding: 4px 0; border-bottom: 1px dashed #ccc; }
+    .items th { text-align: left; }
+    .right { text-align: right; }
+    .total { font-weight: 700; text-align: right; }
+    .divider { border-top: 1px dashed #ccc; margin: 8px 0; }
+    .center { text-align: center; font-size: 11px; }
+    @media print {
+      body { width: var(--w); }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Recibo de venda</h1>
+  <div class="meta">Pedido: <span th:text="${pedido.id}">0</span></div>
+  <div class="meta">Data: <span th:text="${pedido.data}">--</span></div>
+  <div class="meta">Pagamento: <span th:text="${pedido.tipoPagamento}">PIX</span></div>
+
+  <div class="divider"></div>
+  <table class="items">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th class="right">Qtd</th>
+        <th class="right">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="it : ${pedido.itens}">
+        <td th:text="${it.produto != null ? it.produto.nome : 'Produto'}">Produto</td>
+        <td class="right" th:text="${it.quantidade}">1</td>
+        <td class="right" th:text="${it.subtotal}">0.00</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="total">Total: <span th:text="${pedido.total}">0.00</span></div>
+
+  <div class="divider"></div>
+  <div class="center">Obrigado pela preferência</div>
+
+  <div class="no-print center">
+    <button onclick="window.print()">Imprimir</button>
+  </div>
+
+  <script>
+    window.addEventListener("load", () => {
+      if (window.opener) {
+        window.print();
+      }
+    });
+  </script>
+</body>
+</html>

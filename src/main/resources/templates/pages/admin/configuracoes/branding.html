@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Configuracoes a Branding/Design</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+  <style>
+    .branding-assets {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .branding-asset-list {
+      display: grid;
+      gap: 0.875rem;
+    }
+
+    .branding-asset-item {
+      display: grid;
+      gap: 0.625rem;
+      padding: 1rem;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 1rem;
+      background: #fff;
+    }
+
+    .branding-asset-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .branding-asset-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .branding-asset-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(37, 99, 235, 0.1);
+      color: #1d4ed8;
+    }
+
+    .branding-asset-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 110px;
+      padding: 1rem;
+      border-radius: 0.875rem;
+      background:
+        linear-gradient(135deg, rgba(30, 64, 175, 0.08), rgba(220, 38, 38, 0.08)),
+        repeating-linear-gradient(
+          45deg,
+          rgba(148, 163, 184, 0.08),
+          rgba(148, 163, 184, 0.08) 12px,
+          rgba(255, 255, 255, 0.65) 12px,
+          rgba(255, 255, 255, 0.65) 24px
+        );
+      overflow: hidden;
+    }
+
+    .branding-asset-preview img {
+      max-width: 100%;
+      max-height: 84px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .branding-asset-empty {
+      font-size: 0.9rem;
+      color: #64748b;
+      text-align: center;
+    }
+
+    .branding-asset-meta {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .branding-asset-path {
+      display: block;
+      overflow-wrap: anywhere;
+      padding: 0.65rem 0.8rem;
+      border-radius: 0.75rem;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 0.78rem;
+    }
+
+    .branding-asset-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    @media (min-width: 960px) {
+      .branding-assets {
+        grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+        align-items: start;
+      }
+    }
+  </style>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('configuracoes')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Branding & Design</h1>
+        <p class="page-lead">Personalize logo, paleta institucional e ativos visuais da marca.</p>
+        <p class="form-hint" th:if="${tenantScoped}">
+          Editando tenant: <strong th:text="${tenantContextId}">tenant-a</strong>
+        </p>
+        <p class="form-hint" th:if="${!tenantScoped}">
+          Editando configuracao global (fallback para todos os tenants sem customizacao).
+        </p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary" type="submit" form="branding-form">Salvar</button>
+      </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+    <nav th:replace="~{fragments/admin-config-nav :: adminConfigNav('branding')}"></nav>
+
+    <div class="alert alert-info">
+      Hero da home, leitura em modo claro/escuro e tipografia principal do frontend cliente agora ficam em
+      <strong>Area do cliente</strong>.
+    </div>
+
+    <form id="branding-form" class="form-grid card"
+          th:action="${tenantScoped} ? @{/admin/configuracoes/branding(tenantId=${tenantContextId})} : @{/admin/configuracoes/branding}"
+          method="post"
+          enctype="multipart/form-data"
+          th:object="${branding}">
+      <input type="hidden" name="tenantId" th:value="${tenantContextId}" />
+      <fieldset class="fieldset">
+        <legend>Logos e icones</legend>
+        <div class="media-grid">
+          <div class="media-card">
+            <div class="form-group">
+              <label for="logoArquivo">Upload (SVG/PNG)</label>
+              <input id="logoArquivo" class="input" type="file" name="logoFile" accept=".svg,.png" />
+            </div>
+            <div class="form-group">
+              <label for="logoUrl">URL da logo</label>
+              <input id="logoUrl" class="input" type="url" th:field="*{logoUrl}" placeholder="https://..." />
+            </div>
+            <div class="form-group">
+              <label for="logoUrlDark">Logo para fundo escuro (URL)</label>
+              <input id="logoUrlDark" class="input" type="url" th:field="*{logoUrlDark}" placeholder="https://..." />
+            </div>
+            <div class="form-group">
+              <label for="logoSize">Tamanho da logo</label>
+              <select id="logoSize" class="select" th:field="*{logoSize}">
+                <option value="small">Compacto (32px)</option>
+                <option value="medium">Padrão (56px)</option>
+                <option value="large">Maior (80px)</option>
+              </select>
+              <p class="form-hint">Ajusta altura/margem do logo para caber em cabeçalhos estreitos ou mais ricos.</p>
+            </div>
+            <div class="form-group">
+              <label for="faviconUrl">Favicon (URL)</label>
+              <input id="faviconUrl" class="input" type="url" th:field="*{faviconUrl}" placeholder="https://..." />
+            </div>
+          </div>
+          <div class="media-preview">
+            <img th:if="${brandingAssets[0].resolvedUrl != null}"
+                 th:src="${brandingAssets[0].resolvedUrl}"
+                 alt="Preview da logo atual" />
+            <div class="branding-asset-empty" th:if="${brandingAssets[0].resolvedUrl == null}">
+              Nenhuma logo configurada no momento.
+            </div>
+            <div>
+              <strong>Preview</strong>
+              <p class="form-hint">A logo aparece no header do cliente e no painel admin.</p>
+            </div>
+          </div>
+        </div>
+        <div class="branding-assets">
+          <div class="card">
+            <h3 class="section-title">Arquivos em uso agora</h3>
+            <p class="form-hint">
+              Veja exatamente qual imagem esta ativa hoje, se veio de upload local, URL externa ou arquivo padrao interno.
+            </p>
+            <div class="branding-asset-list">
+              <article class="branding-asset-item" th:each="asset : ${brandingAssets}">
+                <div class="branding-asset-top">
+                  <div class="branding-asset-label" th:text="${asset.label}">Logo ativa</div>
+                  <span class="branding-asset-tag" th:text="${asset.resolvedUrl == null ? 'Sem arquivo' : 'Arquivo ativo'}">Arquivo ativo</span>
+                </div>
+                <div class="branding-asset-preview">
+                  <img th:if="${asset.resolvedUrl != null}" th:src="${asset.resolvedUrl}" th:alt="${asset.label}" />
+                  <div class="branding-asset-empty" th:if="${asset.resolvedUrl == null}">
+                    Nenhum arquivo configurado.
+                  </div>
+                </div>
+                <div class="branding-asset-meta">
+                  <p class="form-hint" th:text="${asset.sourceDescription}">
+                    Upload local salvo na API.
+                  </p>
+                  <code class="branding-asset-path" th:text="${asset.resolvedUrl == null ? 'Sem caminho resolvido' : asset.resolvedUrl}">
+                    /media/branding/logo.png
+                  </code>
+                </div>
+                <div class="branding-asset-actions" th:if="${asset.resolvedUrl != null}">
+                  <a class="btn btn-secondary btn-sm"
+                     th:href="${asset.resolvedUrl}"
+                     target="_blank"
+                     rel="noopener noreferrer">
+                    Abrir imagem
+                  </a>
+                </div>
+              </article>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="section-title">Como decidir o local correto</h3>
+            <p class="form-hint">
+              Use <strong>upload local</strong> quando a imagem precisar permanecer dentro da API e ser servida por
+              <code>/media/branding/...</code>.
+            </p>
+            <p class="form-hint">
+              Use <strong>URL externa</strong> apenas se a imagem estiver hospedada de forma estavel fora da aplicacao.
+            </p>
+            <p class="form-hint">
+              Se o bloco indicar <strong>arquivo padrao interno</strong>, a tela ainda esta usando o asset nativo do sistema.
+            </p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Cores (tokens)</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="corPrimaria">Primaria</label>
+            <input id="corPrimaria" class="input" type="color" th:field="*{corPrimaria}" />
+          </div>
+          <div class="form-group">
+            <label for="corSecundaria">Secundaria</label>
+            <input id="corSecundaria" class="input" type="color" th:field="*{corSecundaria}" />
+          </div>
+          <div class="form-group">
+            <label for="corAcento">Acento</label>
+            <input id="corAcento" class="input" type="color" th:field="*{corAcento}" />
+          </div>
+        </div>
+        <p class="text-sm text-muted">Esses valores podem alimentar seu <code>tokens.css</code> automaticamente.</p>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Banner institucional</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bannerPromocao">Banner de promocao (URL)</label>
+            <input id="bannerPromocao" class="input" type="url" th:field="*{bannerPromocao}" placeholder="https://.../promo.jpg" />
+            <p class="form-hint">Use imagens leves (JPG/WebP) para apoiar vitrines e campanhas secundarias.</p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Fonte & Tema</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fontFamily">Font-family</label>
+            <input id="fontFamily" class="input" th:field="*{fontFamily}" placeholder="Inter, Arial, sans-serif" />
+          </div>
+          <div class="form-group">
+            <label for="tema">Tema</label>
+            <select id="tema" class="select" th:field="*{tema}">
+              <option value="auto">Automatico</option>
+              <option value="light">Claro</option>
+              <option value="dark">Escuro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="radius">Raio de borda (px)</label>
+            <input id="radius" class="input" th:field="*{radius}" placeholder="12" />
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button class="btn btn-ghost" type="reset">Cancelar</button>
+        <button class="btn btn-primary" type="submit">Salvar</button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+
+
+
+
+
+

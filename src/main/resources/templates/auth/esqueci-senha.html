@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:with="headExtras=~{::forgotHeadExtras}">
+<head th:replace="~{fragments/layout :: commonHead}"></head>
+<body class="body-flex auth-page">
+  <header th:replace="~{fragments/header :: header}"></header>
+
+  <main id="main-content" class="form-container" tabindex="-1">
+    <section class="form-card" aria-labelledby="titulo-esqueci-senha">
+      <h1 id="titulo-esqueci-senha" class="form-title">Esqueci minha senha</h1>
+      <p class="text-muted" style="margin-bottom: 0.5rem;">
+        Informe o e-mail cadastrado e enviaremos um codigo para redefinir sua senha.
+      </p>
+
+      <output id="alert" class="alert" aria-live="polite" hidden></output>
+
+      <form id="esqueciSenhaForm"
+            th:action="@{/auth/esqueci-senha}"
+            method="post"
+            class="form-grid"
+            autocomplete="on"
+            novalidate>
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <noscript>
+          <p class="help" style="margin-bottom:0;">
+            JavaScript desativado: ao enviar este formulario voce recebera um link por e-mail.
+          </p>
+        </noscript>
+
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input id="email"
+                 name="identificador"
+                 type="email"
+                 class="input"
+                 placeholder="voce@dominio.com"
+                 autocomplete="email"
+                 required />
+          <p class="help" style="margin-bottom:0;">Voce recebera um codigo temporario neste e-mail.</p>
+        </div>
+
+        <button id="enviarBtn" type="submit" class="btn btn--primary">Enviar codigo</button>
+
+        <p class="mt-6" style="text-align:center">
+          Ja possui conta? <a th:href="@{/auth/login}">Entrar</a>
+        </p>
+      </form>
+    </section>
+  </main>
+
+  <footer th:replace="~{fragments/footer-client :: footer}"></footer>
+
+  <dialog id="otpDialog" aria-labelledby="otpTitle" aria-describedby="otpDesc" aria-modal="true">
+    <form method="dialog" class="otp-card" id="otpForm">
+      <h2 id="otpTitle">Verificar seu codigo</h2>
+      <p id="otpDesc">Enviamos um codigo para <strong id="otpDestino"></strong>. Digite abaixo:</p>
+
+      <fieldset class="otp-grid">
+        <legend class="visually-hidden">Codigo de 6 digitos</legend>
+        <input inputmode="numeric" pattern="\d*" maxlength="1" class="otp" aria-label="Digito 1" autocomplete="one-time-code" />
+        <input inputmode="numeric" pattern="\d*" maxlength="1" class="otp" aria-label="Digito 2" autocomplete="one-time-code" />
+        <input inputmode="numeric" pattern="\d*" maxlength="1" class="otp" aria-label="Digito 3" autocomplete="one-time-code" />
+        <input inputmode="numeric" pattern="\d*" maxlength="1" class="otp" aria-label="Digito 4" autocomplete="one-time-code" />
+        <input inputmode="numeric" pattern="\d*" maxlength="1" class="otp" aria-label="Digito 5" autocomplete="one-time-code" />
+        <input inputmode="numeric" pattern="\d*" maxlength="1" class="otp" aria-label="Digito 6" autocomplete="one-time-code" />
+      </fieldset>
+
+      <p id="otpError" class="error-message" aria-live="polite"></p>
+
+      <div class="otp-actions">
+        <button id="otpConfirmBtn" class="btn btn--primary" type="submit" value="confirm">Confirmar</button>
+        <button id="otpResendBtn" class="btn btn--ghost" type="button">Reenviar codigo</button>
+        <button class="btn btn--ghost" value="cancel">Cancelar</button>
+      </div>
+
+      <div class="otp-secondary">
+        <small id="otpTimer" class="help" aria-live="polite"></small>
+      </div>
+    </form>
+  </dialog>
+
+  <script defer th:src="@{/js/layout.js}"></script>
+  <script defer th:src="@{/js/esqueci-senha.js}"></script>
+
+  <th:block th:fragment="forgotHeadExtras">
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}"/>
+  </th:block>
+</body>
+</html>

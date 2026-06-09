@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Usuarios - Admin</title><link rel="stylesheet" th:href="@{/css/main.css}"/></head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('usuarios')}"></aside>
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="between">
+      <h1 class="page-title">Usuarios</h1>
+      <a class="btn btn-primary" th:href="@{/admin/usuarios/novo}">Novo Usuario</a>
+    </div>
+    <form class="form-row mb-4" th:action="@{/admin/usuarios}" method="get">
+      <input class="input" type="search" name="q" placeholder="Buscar por nome, e-mail, CPF" th:value="${param.q}"/>
+      <select class="select" name="papel" th:value="${param.papel}">
+        <option value="">Todos os papeis</option>
+        <option>ADMIN</option><option>FARMACEUTICO</option><option>CAIXA</option><option>CLIENTE_VIP</option>
+      </select>
+      <button class="btn">Filtrar</button>
+    </form>
+    <section class="card table-responsive">
+      <table class="table">
+        <thead><tr><th>Nome</th><th>E-mail</th><th>Papel</th><th>Status</th><th>Acoes</th></tr></thead>
+        <tbody>
+          <tr th:each="u : ${Usuarios}">
+            <td th:text="${u.nome}">Fulano</td>
+            <td th:text="${u.email}">fulano@ex.com</td>
+            <td th:text="${u.papel}">ADMIN</td>
+            <td><span class="badge" th:text="${u.ativo} ? 'Ativo' : 'Inativo'">Ativo</span></td>
+            <td class="actions">
+              <a class="btn btn-ghost" th:href="@{|/admin/usuarios/${u.id}|}">Perfil</a>
+              <a class="btn btn-ghost" th:href="@{|/admin/usuarios/${u.id}/editar|}">Editar</a>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(Usuarios)}"><td colspan="5" class="text-center text-muted">Nenhum Usuario.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body></html>
+
+
+
+
+
+

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meus dados - Embalando Soluções em Enbalagens e Bomboniere</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+  <script defer th:src="@{/js/pages/cliente/dados.js}"></script>
+</head>
+<body class="body-flex cliente-conta-page">
+  <header th:replace="~{fragments/header :: header}"></header>
+
+  <div class="layout layout--with-sidebar">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dados')}"></aside>
+
+    <main id="main-content" class="container stack mt-4 mb-8 cliente-dashboard" role="main">
+      <header class="cliente-dashboard__header">
+        <h1 class="cliente-dashboard__title">Minha conta</h1>
+        <p class="cliente-dashboard__lead">
+          Bem-vindo ao seu painel de cliente. Aqui voce gerencia sua conta e seus pedidos.
+        </p>
+      </header>
+
+      <div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
+      <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+      <section class="card cliente-card cliente-card--profile"
+               th:with="displayNome=${form != null and form.nome != null and !#strings.isEmpty(form.nome) ? form.nome : (avatarNome != null and !#strings.isEmpty(avatarNome) ? avatarNome : 'Cliente')},
+                        displayEmail=${form != null and form.email != null and !#strings.isEmpty(form.email) ? form.email : ''}">
+        <h2 class="title cliente-card__title">Foto de perfil</h2>
+        <div class="cliente-profile-summary">
+          <div class="cliente-profile-summary__media">
+            <img th:if="${avatarUrl != null and !#strings.isEmpty(avatarUrl)}"
+                 th:src="${avatarUrl}"
+                 class="cliente-avatar"
+                 alt="Foto de perfil"
+                 loading="lazy"
+                 decoding="async"/>
+            <div th:if="${avatarUrl == null or #strings.isEmpty(avatarUrl)}"
+                 class="cliente-avatar cliente-avatar--fallback">
+              <strong th:text="${avatarNome != null ? avatarNome.substring(0,1) : 'U'}">U</strong>
+            </div>
+          </div>
+          <div class="cliente-profile-summary__identity">
+            <h3 th:text="${displayNome}">Cliente</h3>
+            <p th:if="${!#strings.isEmpty(displayEmail)}" th:text="${displayEmail}">cliente@email.com</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cliente-grid-2">
+        <article class="card cliente-card">
+          <h2 class="title cliente-card__title">Atualizar foto</h2>
+          <form class="stack cliente-upload-form" th:action="@{/cliente/avatar}" method="post" enctype="multipart/form-data">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input id="clienteAvatarFile"
+                   class="cliente-upload-form__input"
+                   type="file"
+                   name="file"
+                   accept="image/png,image/jpeg,image/webp"
+                   required
+                   data-avatar-file-input="true"/>
+            <label for="clienteAvatarFile" class="btn btn--ghost cliente-upload-form__picker">
+              Escolher foto
+            </label>
+            <div class="cliente-upload-form__preview">
+              <img th:src="${avatarUrl != null and !#strings.isEmpty(avatarUrl)} ? ${avatarUrl} : @{/images/mascote-login.png}"
+                   src="/images/mascote-login.png"
+                   alt="Preview da foto do perfil"
+                   data-avatar-preview="true"
+                   loading="lazy"
+                   decoding="async" />
+              <span class="cliente-upload-form__name" data-avatar-file-name="true">
+                Nenhum arquivo selecionado.
+              </span>
+            </div>
+            <small class="text-muted">Aceita JPG, PNG ou WEBP ate 2MB.</small>
+            <button class="btn btn--primary cliente-upload-form__submit" type="submit">Enviar foto</button>
+          </form>
+        </article>
+
+        <article class="card cliente-card">
+          <h2 class="title cliente-card__title">Acessos rapidos</h2>
+          <div class="cliente-quick-links">
+            <a class="btn btn--primary cliente-quick-link cliente-quick-link--primary" th:href="@{/cliente/dados}">Meus dados</a>
+            <a class="btn cliente-quick-link" th:href="@{/cliente/pedidos}">Meus pedidos</a>
+            <a class="btn cliente-quick-link" th:href="@{/cliente/conta}">Minha conta</a>
+            <a class="btn cliente-quick-link" th:href="@{/cliente/senha}">Alterar senha</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="card cliente-card cliente-card--form">
+        <h2 class="title cliente-card__title">Dados cadastrais</h2>
+
+        <form class="form-grid cliente-form-grid" th:action="@{/cliente/dados}" method="post" th:object="${form}" novalidate>
+          <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+          <label class="stack">
+            <span>Nome completo</span>
+            <input class="input" type="text" th:field="*{nome}" required maxlength="120"/>
+            <p class="error-message" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+          </label>
+
+          <label class="stack">
+            <span>E-mail</span>
+            <input class="input" type="email" th:field="*{email}" required maxlength="150" autocomplete="email"/>
+            <p class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+          </label>
+
+          <label class="stack">
+            <span>CPF</span>
+            <input class="input" type="text" th:field="*{cpf}" readonly aria-readonly="true"/>
+          </label>
+
+          <label class="stack">
+            <span>Telefone</span>
+            <input class="input" type="tel" th:field="*{telefone}" maxlength="25" autocomplete="tel"/>
+            <p class="error-message" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></p>
+          </label>
+
+          <label class="stack">
+            <span>Endereco</span>
+            <input class="input" type="text" th:field="*{endereco}" maxlength="200" autocomplete="street-address"/>
+            <p class="error-message" th:if="${#fields.hasErrors('endereco')}" th:errors="*{endereco}"></p>
+          </label>
+
+          <div class="form-actions">
+            <button class="btn btn--primary" type="submit">Salvar dados</button>
+            <a class="btn btn--ghost" th:href="@{/cliente/conta}">Voltar</a>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <footer th:replace="~{fragments/footer-client :: footer}"></footer>
+</body>
+</html>

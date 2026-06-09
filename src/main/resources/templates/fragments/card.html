@@ -1,0 +1,21 @@
+<!-- fragments/cards.html -->
+<div class="card-produto" th:fragment="card(produto)">
+  <div class="card-imagem">
+    <img th:src="${produto.imagem}" th:alt="'Imagem de ' + ${produto.nome}" loading="lazy" />
+  </div>
+
+  <div class="card-conteudo">
+    <h2 class="card-titulo" th:text="${produto.nome}">Nome do Produto</h2>
+    <p class="card-descricao" th:text="${produto.descricao}">Descrição curta do produto</p>
+
+    <div class="card-preco-acao">
+      <span class="card-preco" th:text="'R$ ' + ${#numbers.formatDecimal(produto.preco, 2, 'COMMA')}">R$ 00,00</span>
+      <a th:href="@{'/produtos/' + ${produto.id}}" class="btn-detalhes">Ver detalhes</a>
+    </div>
+  </div>
+</div>
+
+<div class="card" th:fragment="kpi(titulo, valor)">
+  <h3 class="card-title" th:text="${titulo}">Titulo</h3>
+  <p class="card-kpi-value" th:text="${valor != null ? valor : 0}">0</p>
+</div>

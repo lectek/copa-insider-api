@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title th:text="${pageTitle}">Financeiro - Pagamentos</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('financeiro')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="row between center mb-3">
+      <div class="stack gap-1">
+        <h1 class="page-title">Pagamentos</h1>
+        <p class="text-muted m-0">Visao operacional dos pedidos com informacoes de pagamento.</p>
+      </div>
+
+      <form class="form-inline" th:action="@{/admin/financeiro/pagamentos}" method="get">
+        <input class="input" type="search" name="q" placeholder="Buscar pedido, cliente ou email"
+               th:value="${q}" />
+        <select class="select" name="status">
+          <option value="">Todos os status</option>
+          <option th:each="opt : ${statusOptions}"
+                  th:value="${opt.name()}"
+                  th:text="${opt.name()}"
+                  th:selected="${status == opt.name()}">PAGO</option>
+        </select>
+        <select class="select" name="metodo">
+          <option value="">Todos os metodos</option>
+          <option th:each="opt : ${paymentTypeOptions}"
+                  th:value="${opt.name()}"
+                  th:text="${opt.name()}"
+                  th:selected="${metodo == opt.name()}">PIX</option>
+        </select>
+        <button class="btn" type="submit">Filtrar</button>
+        <a class="btn btn-ghost" th:href="@{/admin/financeiro/pagamentos}">Limpar</a>
+      </form>
+    </div>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-16">
+      <article th:replace="~{fragments/card :: kpi('Recebido no filtro', ${resumo.recebido})}"></article>
+      <article th:replace="~{fragments/card :: kpi('Pendente', ${resumo.pendentes})}"></article>
+      <article th:replace="~{fragments/card :: kpi('Cancelados', ${resumo.cancelados})}"></article>
+    </section>
+
+    <section class="card mt-6 table-responsive">
+      <header class="card-header">
+        <h2 class="card-title">Pagamentos recentes</h2>
+      </header>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Pedido</th>
+            <th>Cliente</th>
+            <th>Metodo</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="t : ${transacoes}">
+            <td th:text="${t.id}">1</td>
+            <td><a th:href="@{|/admin/pedidos/${t.pedidoId}|}" th:text="${t.pedidoNumero}">#0001</a></td>
+            <td th:text="${t.clienteNome}">Fulano</td>
+            <td>
+              <div class="stack gap-4">
+                <strong th:text="${t.metodo}">PIX</strong>
+                <span class="text-muted"
+                      th:if="${t.pagamentoDivergente}"
+                      th:text="${'Solicitado: ' + t.metodoSolicitado}">
+                  Solicitado: PIX
+                </span>
+                <span class="text-muted"
+                      th:if="${t.avaliacaoCliente != null}"
+                      th:text="${'Cliente: ' + t.avaliacaoCliente + '/5'}">
+                  Cliente: 5/5
+                </span>
+              </div>
+            </td>
+            <td th:text="${#numbers.formatCurrency(t.valor)}">R$ 0,00</td>
+            <td>
+              <span class="badge"
+                    th:classappend="${' ' + t.badgeClass}"
+                    th:text="${t.statusLabel}">Pago</span>
+            </td>
+            <td th:text="${#temporals.format(t.data,'dd/MM/yyyy HH:mm')}">10/10/2025</td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(transacoes)}">
+            <td colspan="7" class="text-center text-muted">Nenhum pagamento encontrado.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Configuracoes gerais</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('configuracoes')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6 config-geral">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Configuracoes gerais</h1>
+        <p class="page-lead">Dados operacionais da loja, atendimento e regras que afetam o fluxo da operacao.</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn btn-ghost" th:href="@{/admin/settings}">Configs avancadas</a>
+        <button class="btn btn-primary" type="submit" form="config-geral-form" name="section" value="">Salvar tudo</button>
+      </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+    <nav th:replace="~{fragments/admin-config-nav :: adminConfigNav('geral')}"></nav>
+
+    <div class="alert alert-info">
+      Logo, cores e favicon ficam em <strong>Branding</strong>. Home, hero e estilo do frontend cliente ficam em
+      <strong>Area do cliente</strong>.
+    </div>
+
+    <form id="config-geral-form" class="stack" th:action="@{/admin/configuracoes/geral}"
+          method="post" th:object="${cfg}">
+      <!-- Nome e identidade -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="section-title">Identidade da loja</h2>
+            <p class="section-subtitle">Defina o nome publico, fantasia e a mensagem principal da empresa.</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nomeSistema">Nome do Sistema <span class="form-hint">(obrigatorio)</span></label>
+              <input id="nomeSistema" class="input" th:field="*{nomeSistema}" placeholder="Embalando Soluções em Enbalagens e Bomboniere" required aria-required="true"/>
+            </div>
+            <div class="form-group">
+              <label for="nomeFantasia">Nome Fantasia</label>
+              <input id="nomeFantasia" class="input" th:field="*{nomeFantasia}" placeholder="Embalando Soluções em Enbalagens e Bomboniere"/>
+            </div>
+            <div class="form-group">
+              <label for="razaoSocial">Razao Social</label>
+              <input id="razaoSocial" class="input" th:field="*{razaoSocial}" placeholder="Embalando Soluções em Enbalagens e Bomboniere LTDA"/>
+            </div>
+            <div class="form-group">
+              <label for="nomeLojaSite">Nome exibido no site</label>
+              <input id="nomeLojaSite" class="input" th:field="*{nomeLojaSite}" placeholder="Embalando Soluções em Enbalagens e Bomboniere"/>
+              <span class="form-hint">Esse nome aparece no header, rodape e meta tags.</span>
+            </div>
+            <div class="form-group">
+              <label for="sloganLoja">Slogan/Frase curta</label>
+              <input id="sloganLoja" class="input" th:field="*{sloganLoja}" placeholder="Embalagens, descartaveis e bomboniere para seu negocio"/>
+            </div>
+          </div>
+          <div class="form-actions form-actions--section">
+            <button class="btn btn-ghost" type="submit" name="section" value="identidade">Salvar identidade</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="section-title">Frontend publico</h2>
+            <p class="section-subtitle">Os ajustes visuais agora ficam organizados por escopo para evitar conflito entre home e site inteiro.</p>
+          </div>
+        </div>
+        <div class="card-body customer-config-hub__grid">
+            <a class="customer-config-hub__item" th:href="@{/admin/configuracoes/cliente}">
+              <strong>Area do cliente</strong>
+              <span>Hero da home, video, enquadramento da arte, fontes e cores do modo claro/escuro.</span>
+            </a>
+            <a class="customer-config-hub__item" th:href="@{/admin/configuracoes/branding}">
+              <strong>Branding</strong>
+              <span>Logo, favicon, paleta principal e ativos institucionais usados no site.</span>
+            </a>
+            <a class="customer-config-hub__item" th:href="@{/admin/configuracoes/design}">
+              <strong>Design</strong>
+              <span>Raio, espacamento, tema base e regras compartilhadas de layout.</span>
+            </a>
+            <div class="media-card" hidden>
+              <div class="form-group">
+                <label for="homeHeroImagem">Imagem do index do cliente</label>
+                <input id="homeHeroImagem" class="input" type="file" name="homeHeroImagem" accept=".png,.jpg,.jpeg,.webp"
+                       aria-describedby="homeHeroImagemHint"/>
+                <span id="homeHeroImagemHint" class="form-hint" aria-live="polite"></span>
+                <span class="form-hint">Imagem principal do topo da home.</span>
+              </div>
+              <div class="form-group">
+                <label for="homeHeroImagemUrl">Imagem do index (URL)</label>
+                <input id="homeHeroImagemUrl" class="input" type="url" th:field="*{homeHeroImagemUrl}" placeholder="https://.../banner-home.jpg"/>
+              </div>
+              <div class="form-group">
+                <label for="homeHeroTexto">Titulo do destaque</label>
+                <input id="homeHeroTexto" class="input" th:field="*{homeHeroTexto}" placeholder="Promocoes do dia"/>
+              </div>
+              <div class="form-group">
+                <label for="homeHeroVideoUrl">Loop em vídeo (URL)</label>
+                <input id="homeHeroVideoUrl" class="input" type="url" th:field="*{homeHeroVideoUrl}"
+                       placeholder="https://.../hero-loop.webm"/>
+                <span class="form-hint">Suporta WebM/MP4 com canal alfa; o vídeo será reproduzido automaticamente sem áudio.</span>
+              </div>
+            </div>
+            <div class="media-preview media-preview--geral" hidden>
+              <div class="preview-block">
+                <span class="form-hint">Logo atual</span>
+                <img id="logoInicialPreview" th:if="${cfg.logoInicialUrl}" th:src="${cfg.logoInicialUrl}" alt="Logo atual"/>
+                <img th:if="${cfg.logoInicialUrl == null or cfg.logoInicialUrl == ''}" src="/img/placeholder.png" alt="Logo placeholder"/>
+              </div>
+              <div class="preview-block">
+                <span class="form-hint">Hero atual</span>
+                <img id="homeHeroPreview" th:if="${cfg.homeHeroImagemUrl}" th:src="${cfg.homeHeroImagemUrl}" alt="Hero atual"/>
+                <img th:if="${cfg.homeHeroImagemUrl == null or cfg.homeHeroImagemUrl == ''}" src="/img/placeholder.png" alt="Hero placeholder"/>
+              </div>
+              <div class="preview-block">
+                <strong>Preview rapido</strong>
+                <p class="form-hint">Nome exibido: <span th:text="${cfg.nomeLojaSite}">RedeMais Farma</span></p>
+                <p class="form-hint">Slogan: <span th:text="${cfg.sloganLoja}">Solucoes em embalagens para seu negocio</span></p>
+              </div>
+            </div>
+          </div>
+          <div class="form-actions form-actions--section" hidden>
+            <button class="btn btn-ghost" type="submit" name="section" value="identidade">Salvar bloco legado</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contatos -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="section-title">Contato</h2>
+            <p class="section-subtitle">Canais exibidos para clientes e para integracoes.</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">E-mail principal <span class="form-hint">(obrigatorio)</span></label>
+              <input id="email" type="email" class="input" th:field="*{email}" placeholder="contato@embalandosolucoes.com.br" required aria-required="true"/>
+            </div>
+            <div class="form-group">
+              <label for="telefone">Telefone</label>
+              <input id="telefone" type="tel" class="input" th:field="*{telefone}" placeholder="(83) 99999-9999"/>
+            </div>
+            <div class="form-group">
+              <label for="whatsapp">WhatsApp</label>
+              <input id="whatsapp" type="tel" class="input" th:field="*{whatsapp}" placeholder="(83) 98888-8888"/>
+            </div>
+            <div class="form-group">
+              <label for="instagram">Instagram</label>
+              <input id="instagram" class="input" th:field="*{instagram}" placeholder="@embalandosolucoes"/>
+            </div>
+            <div class="form-group">
+              <label for="siteUrl">Site oficial</label>
+              <input id="siteUrl" class="input" type="url" th:field="*{siteUrl}" placeholder="https://www.embalandosolucoes.com.br"/>
+            </div>
+          </div>
+          <div class="form-actions form-actions--section">
+            <button class="btn btn-ghost" type="submit" name="section" value="contato">Salvar contato</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Endereco -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="section-title">Endereco</h2>
+            <p class="section-subtitle">Dados usados no checkout, notas e rodape do site.</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="endereco">Endereco</label>
+              <input id="endereco" class="input" th:field="*{endereco}" placeholder="Rua Exemplo, 123"/>
+            </div>
+            <div class="form-group">
+              <label for="cidade">Cidade</label>
+              <input id="cidade" class="input" th:field="*{cidade}" placeholder="Missao Velha"/>
+            </div>
+            <div class="form-group">
+              <label for="estado">Estado</label>
+              <input id="estado" class="input" th:field="*{estado}" placeholder="CE"/>
+            </div>
+            <div class="form-group">
+              <label for="cep">CEP</label>
+              <input id="cep" class="input" th:field="*{cep}" placeholder="58000-000"/>
+            </div>
+            <div class="form-group">
+              <label for="bairro">Bairro</label>
+              <input id="bairro" class="input" th:field="*{bairro}" placeholder="Centro"/>
+            </div>
+          </div>
+          <div class="form-actions form-actions--section">
+            <button class="btn btn-ghost" type="submit" name="section" value="endereco">Salvar endereco</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="section-title">Entrega e horario</h2>
+            <p class="section-subtitle">Politica de entrega e horario informado ao cliente.</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="horarioAtendimento">Horario de atendimento</label>
+              <input id="horarioAtendimento" class="input" th:field="*{horarioAtendimento}" placeholder="Seg a Sab, 08h as 20h"/>
+            </div>
+            <div class="form-group">
+              <label for="taxaEntrega">Taxa de entrega</label>
+              <input id="taxaEntrega" class="input" th:field="*{taxaEntrega}" placeholder="R$ 5,00"/>
+            </div>
+            <div class="form-group">
+              <label for="pedidoMinimo">Pedido minimo</label>
+              <input id="pedidoMinimo" class="input" th:field="*{pedidoMinimo}" placeholder="R$ 20,00"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="checkbox"><input type="checkbox" th:field="*{retiradaAtiva}"/> Habilitar retirada na loja</label>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="retiradaHorario">Horario de retirada</label>
+              <input id="retiradaHorario" class="input" th:field="*{retiradaHorario}" placeholder="Seg a Sab, 08h as 18h"/>
+            </div>
+            <div class="form-group">
+              <label for="retiradaInstrucoes">Instrucoes para retirada</label>
+              <input id="retiradaInstrucoes" class="input" th:field="*{retiradaInstrucoes}" placeholder="Apresente o numero do pedido no balcao"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rotaHorarioSaida">Horario de saida do motoboy</label>
+              <input id="rotaHorarioSaida" class="input" th:field="*{rotaHorarioSaida}" placeholder="09:00"/>
+              <span class="form-hint">Usado para calcular o inicio da rota otimizada exibida ao cliente.</span>
+            </div>
+            <div class="form-group">
+              <label for="rotaVelocidadeMediaKmh">Velocidade media da rota (km/h)</label>
+              <input id="rotaVelocidadeMediaKmh" class="input" th:field="*{rotaVelocidadeMediaKmh}" type="number" min="5" placeholder="28"/>
+            </div>
+            <div class="form-group">
+              <label for="rotaMinutosPorParada">Minutos por parada</label>
+              <input id="rotaMinutosPorParada" class="input" th:field="*{rotaMinutosPorParada}" type="number" min="1" placeholder="6"/>
+            </div>
+            <div class="form-group">
+              <label for="rotaMaxParadas">Limite de entregas na rota</label>
+              <input id="rotaMaxParadas" class="input" th:field="*{rotaMaxParadas}" type="number" min="1" placeholder="12"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="freteGratisKm">Km gratis da entrega</label>
+              <input id="freteGratisKm" class="input" th:field="*{freteGratisKm}" type="number" min="0" step="0.01" placeholder="5.00"/>
+              <span class="form-hint">Dentro desse raio o cliente nao paga frete.</span>
+            </div>
+            <div class="form-group">
+              <label for="freteValorKmExcedente">Valor por km excedente</label>
+              <input id="freteValorKmExcedente" class="input" th:field="*{freteValorKmExcedente}" type="number" min="0" step="0.01" placeholder="2.00"/>
+              <span class="form-hint">Aplicado apenas acima do raio gratis.</span>
+            </div>
+            <div class="form-group">
+              <label for="fretePrioritarioAcrescimo">Acrescimo do frete prioritario</label>
+              <input id="fretePrioritarioAcrescimo" class="input" th:field="*{fretePrioritarioAcrescimo}" type="number" min="0" step="0.01" placeholder="20.00"/>
+              <span class="form-hint">Somado ao frete padrao quando o cliente escolher prioridade.</span>
+            </div>
+          </div>
+          <div class="form-actions form-actions--section">
+            <button class="btn btn-ghost" type="submit" name="section" value="entrega">Salvar entrega</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- preferencias -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="section-title">Preferencias</h2>
+            <p class="section-subtitle">Ative recursos que impactam a experiencia do cliente.</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <label class="checkbox"><input type="checkbox" th:field="*{habilitarCadastrorapido}"/> Cadastro rapido de cliente</label>
+            <label class="checkbox"><input type="checkbox" th:field="*{habilitarAssinaturas}"/> Assinaturas ativas</label>
+            <label class="checkbox"><input type="checkbox" th:field="*{habilitarNotificacoes}"/> Notificacoes Automaticas</label>
+            <label class="checkbox"><input type="checkbox" th:field="*{exibirDestaquesHome}"/> Exibir destaques na home</label>
+          </div>
+          <div class="form-actions form-actions--section">
+            <button class="btn btn-ghost" type="submit" name="section" value="preferencias">Salvar preferencias</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="section-title">Alertas de estoque</h2>
+            <p class="section-subtitle">Controle o envio automatico de avisos de estoque baixo.</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <label class="checkbox"><input type="checkbox" th:field="*{alertaEstoqueAtivo}"/> Ativar alertas</label>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="alertaEstoqueLimite">Limite de estoque</label>
+              <input id="alertaEstoqueLimite" class="input" th:field="*{alertaEstoqueLimite}" type="number" min="2" placeholder="2"/>
+              <span class="form-hint">Dispara quando o saldo estiver acima de 0 e abaixo do limite.</span>
+            </div>
+            <div class="form-group">
+              <label for="alertaEstoqueCooldown">Cooldown (minutos)</label>
+              <input id="alertaEstoqueCooldown" class="input" th:field="*{alertaEstoqueCooldown}" type="number" min="0" placeholder="60"/>
+              <span class="form-hint">Evita repeticao de alertas em curto periodo.</span>
+            </div>
+            <div class="form-group">
+              <label for="alertaEstoqueCron">Cron do job</label>
+              <input id="alertaEstoqueCron" class="input" th:field="*{alertaEstoqueCron}" placeholder="0 */30 * * * *"/>
+              <span class="form-hint">Padrao: a cada 30 minutos.</span>
+            </div>
+          </div>
+          <div class="form-actions form-actions--section">
+            <button class="btn btn-ghost" type="submit" name="section" value="alertas">Salvar alertas</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Botao salvar -->
+      <div class="form-actions form-actions--footer">
+        <button class="btn btn-ghost" type="reset">Cancelar</button>
+        <button class="btn btn-primary" type="submit" name="section" value="">Salvar tudo</button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+
+
+
+
+
+

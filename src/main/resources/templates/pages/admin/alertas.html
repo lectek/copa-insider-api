@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Alertas - Dashboard</title>
+
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('alertas')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="between">
+      <h1 class="page-title">Alertas</h1>
+      <a class="btn btn-ghost" th:href="@{/admin/dashboard}">Voltar ao dashboard</a>
+    </div>
+
+    <section class="card">
+      <h2 class="card-title">Avisos ativos</h2>
+
+      <div class="flex gap-8 mt-3">
+        <a class="btn btn-ghost"
+           th:classappend="${tipoSelecionado == ''} ? ' is-active' : ''"
+           th:href="@{/admin/alertas}">Todos</a>
+        <a class="btn btn-ghost"
+           th:each="t : ${tiposDisponiveis}"
+           th:text="${t}"
+           th:classappend="${t == tipoSelecionado} ? ' is-active' : ''"
+           th:href="@{/admin/alertas(tipo=${t})}">Tipo</a>
+      </div>
+
+      <ul class="mt-4"
+          th:if="${alertasFiltrados != null and !alertasFiltrados.isEmpty()}">
+        <li th:each="a : ${alertasFiltrados}">
+          <strong th:text="${a.tipo}">Tipo</strong>
+          <span th:text="${a.mensagem}">Alerta</span>
+        </li>
+      </ul>
+      <p class="muted" th:if="${alertasFiltrados == null or alertasFiltrados.isEmpty()}">
+        Nenhum alerta no momento.
+      </p>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

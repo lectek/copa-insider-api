@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Guia de conexao Mercado Pago</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+  <style>
+    .mp-public-shell {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .mp-public-hero {
+      display: grid;
+      gap: 24px;
+      padding: 32px 0 12px;
+    }
+    .mp-public-grid {
+      display: grid;
+      gap: 20px;
+    }
+    .mp-public-card {
+      background: rgba(255, 255, 255, .92);
+      border: 1px solid rgba(15, 23, 42, .08);
+      border-radius: 18px;
+      padding: 24px;
+    }
+    .mp-public-copy {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+    }
+    .mp-public-copy-feedback {
+      font-size: .85rem;
+      color: var(--color-muted, #64748b);
+      min-height: 1.2rem;
+    }
+    .mp-public-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .mp-public-list li + li {
+      margin-top: 8px;
+    }
+    @media (max-width: 720px) {
+      .mp-public-copy {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="body-flex">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main id="main-content" class="container mt-4 mb-6 mp-public-shell">
+  <section class="mp-public-hero">
+    <div>
+      <p class="catalog-eyebrow">Guia publico</p>
+      <h1 class="catalog-title">Como conectar a loja ao Mercado Pago</h1>
+      <p class="catalog-subtitle">
+        Esta pagina existe para facilitar a configuracao tecnica do app Mercado Pago.
+        Credenciais continuam sendo preenchidas somente no painel admin.
+      </p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn--primary" th:href="${mercadoPagoAdminAssistantLoginPath}">Entrar no assistente admin</a>
+      <a class="btn btn--ghost" th:href="@{/produtos}">Voltar para a loja</a>
+    </div>
+  </section>
+
+  <section class="mp-public-grid">
+    <article class="mp-public-card">
+      <h2>1. Antes de tudo</h2>
+      <ol class="mp-public-list">
+        <li>A conta bancaria que recebe os repasses e configurada no proprio Mercado Pago.</li>
+        <li>No sistema da farmacia, o admin conecta a conta Mercado Pago por OAuth.</li>
+        <li>As URLs abaixo sao as que precisam ser cadastradas no app do Mercado Pago.</li>
+      </ol>
+    </article>
+
+    <article class="mp-public-card">
+      <h2>2. URLs prontas para copiar</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="publicBaseUrl">Base publica da aplicacao</label>
+          <div class="mp-public-copy">
+            <input id="publicBaseUrl" class="input" type="text" readonly th:value="${mercadoPagoBaseUrlPreview}" />
+            <button class="btn btn--ghost" type="button" data-copy-target="publicBaseUrl">Copiar</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="publicRedirectUri">Redirect URI</label>
+          <div class="mp-public-copy">
+            <input id="publicRedirectUri" class="input" type="text" readonly th:value="${mercadoPagoRedirectUriPreview}" />
+            <button class="btn btn--ghost" type="button" data-copy-target="publicRedirectUri">Copiar</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="publicWebhookUrl">Webhook URL</label>
+          <div class="mp-public-copy">
+            <input id="publicWebhookUrl"
+                   class="input"
+                   type="text"
+                   readonly
+                   th:value="${mercadoPagoNotificationUrlPreview != null and !mercadoPagoNotificationUrlPreview.isBlank() ? mercadoPagoNotificationUrlPreview : 'O webhook automatico ainda nao esta disponivel porque falta uma base publica HTTPS.'}" />
+            <button class="btn btn--ghost"
+                    type="button"
+                    data-copy-target="publicWebhookUrl"
+                    th:disabled="${mercadoPagoNotificationUrlPreview == null or mercadoPagoNotificationUrlPreview.isBlank()}">
+              Copiar
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mp-public-copy-feedback" aria-live="polite"></div>
+    </article>
+
+    <article class="mp-public-card">
+      <h2>3. O que preencher no Mercado Pago</h2>
+      <ol class="mp-public-list">
+        <li>Crie ou abra o aplicativo da loja no painel de desenvolvedores do Mercado Pago.</li>
+        <li>Cadastre a `Redirect URI` exatamente como mostrada nesta pagina.</li>
+        <li>Se usar notificacao manual no app, confira tambem a `Webhook URL`.</li>
+        <li>Copie `Client ID` e `Client Secret` e leve esses valores para o assistente admin.</li>
+      </ol>
+    </article>
+
+    <article class="mp-public-card">
+      <h2>4. O que preencher no admin</h2>
+      <ol class="mp-public-list">
+        <li>Entre no assistente admin do Mercado Pago.</li>
+        <li>Preencha `Client ID`, `Client Secret`, `Redirect URI` e o `owner reference` da loja.</li>
+        <li>Clique em `Salvar e conectar agora`.</li>
+        <li>Ao voltar do Mercado Pago, rode o `Testar checkout` e finalize um pagamento real de teste.</li>
+      </ol>
+    </article>
+
+    <article class="mp-public-card">
+      <h2>5. Quando considerar pronto</h2>
+      <p class="m-0">A integracao deve ser considerada pronta somente quando o admin confirmar os quatro itens abaixo no assistente:</p>
+      <ul class="mp-public-list">
+        <li>Credenciais OAuth configuradas</li>
+        <li>Conta conectada</li>
+        <li>Checkout testado</li>
+        <li>Webhook real confirmado</li>
+      </ul>
+    </article>
+  </section>
+</main>
+
+<footer th:replace="~{fragments/footer-client :: footer}"></footer>
+<script>
+  (function () {
+    const feedback = document.querySelector('.mp-public-copy-feedback');
+    document.querySelectorAll('[data-copy-target]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const input = document.getElementById(button.dataset.copyTarget);
+        if (!input || !input.value) {
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(input.value);
+          if (feedback) {
+            feedback.textContent = 'Valor copiado.';
+          }
+        } catch (error) {
+          if (feedback) {
+            feedback.textContent = 'Nao foi possivel copiar automaticamente.';
+          }
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

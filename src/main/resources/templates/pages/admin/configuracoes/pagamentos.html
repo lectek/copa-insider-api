@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <title>Configuracoes de pagamentos</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+  <style>
+    .payment-field-error {
+      color: var(--color-error, #ef4444);
+      font-size: .8rem;
+      line-height: 1.2;
+      min-height: 1.1rem;
+      display: block;
+      margin-top: 4px;
+    }
+    .input.is-invalid,
+    .select.is-invalid {
+      border-color: var(--color-error, #ef4444) !important;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, .16);
+    }
+  </style>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('configuracoes')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Pagamentos</h1>
+        <p class="page-lead">Ative formas de pagamento e defina taxas por canal.</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn btn--ghost" th:href="@{/admin/configuracoes/pagamentos/mercadopago/assistente}">Assistente Mercado Pago</a>
+        <a class="btn btn--ghost" th:href="@{/mercadopago/guia}" target="_blank" rel="noopener noreferrer">Guia publico</a>
+        <button class="btn btn--primary" type="submit" form="pagamentos-form">Salvar</button>
+      </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+    <nav th:replace="~{fragments/admin-config-nav :: adminConfigNav('pagamentos')}"></nav>
+
+    <section class="card stack gap-12">
+      <div>
+        <h2 class="section-title">Status Mercado Pago</h2>
+        <p class="section-subtitle">Use este quadro para validar se o checkout online esta pronto antes de publicar.</p>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gateway ativo</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.gatewaySelected}" class="badge badge--success">Mercado Pago ativo</span>
+            <span th:if="${!mercadoPagoOperationalStatus.gatewaySelected}" class="badge badge--neutral">Outro gateway selecionado</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Credenciais OAuth</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.oauthConfigured}" class="badge badge--success">Configuradas</span>
+            <span th:if="${!mercadoPagoOperationalStatus.oauthConfigured}" class="badge badge--neutral">Pendentes</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Webhook do checkout</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.webhookConfigured}" class="badge badge--success">Disponivel</span>
+            <span th:if="${!mercadoPagoOperationalStatus.webhookConfigured}" class="badge badge--warning">Nao configurado</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Owner reference padrao</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.ownerReferenceConfigured}"
+                  th:text="${mercadoPagoOperationalStatus.ownerReference}"
+                  class="badge badge--neutral">loja-centro</span>
+            <span th:if="${!mercadoPagoOperationalStatus.ownerReferenceConfigured}" class="badge badge--warning">Nao informado</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Conta padrao conectada</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.ownerReferenceConnected}" class="badge badge--success">Conectada</span>
+            <span th:if="${!mercadoPagoOperationalStatus.ownerReferenceConnected}" class="badge badge--warning">Pendente</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Webhook real da conta padrao</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.webhookReceived}" class="badge badge--success">Confirmado</span>
+            <span th:if="${!mercadoPagoOperationalStatus.webhookReceived and mercadoPagoOperationalStatus.ownerReferenceConnected}" class="badge badge--warning">Aguardando notificacao real</span>
+            <span th:if="${!mercadoPagoOperationalStatus.webhookReceived and !mercadoPagoOperationalStatus.ownerReferenceConnected}" class="badge badge--neutral">Sem conta ativa</span>
+          </div>
+          <small class="help"
+                 th:if="${mercadoPagoOperationalStatus.webhookReceived}"
+                 th:text="${'Ultimo webhook em ' + mercadoPagoOperationalStatus.lastWebhookReceivedAtLabel}">Ultimo webhook em 18/03/2026 10:00</small>
+        </div>
+        <div class="form-group">
+          <label>Mapa por tenant</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.tenantMappingConfigured}" class="badge badge--success">Configurado</span>
+            <span th:if="${!mercadoPagoOperationalStatus.tenantMappingConfigured}" class="badge badge--neutral">Nao usado</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <span th:if="${mercadoPagoOperationalStatus.readyForCheckout}" class="badge badge--success">Checkout online pronto para smoke test</span>
+        <span th:if="${!mercadoPagoOperationalStatus.readyForCheckout}" class="badge badge--warning">Ainda faltam pre-requisitos para o checkout online</span>
+        <span th:if="${mercadoPagoOperationalStatus.endToEndValidated}" class="badge badge--success">Webhook real confirmado para a conta padrao</span>
+      </div>
+    </section>
+
+    <section class="card stack gap-12" th:if="${!mercadoPagoOperationalStatus.endToEndValidated}">
+      <div>
+        <h2 class="section-title">Checklist de homologacao</h2>
+        <p class="section-subtitle">Siga este roteiro ate o badge de webhook real ficar confirmado.</p>
+      </div>
+      <ol class="stack gap-8 m-0 pl-20">
+        <li>
+          <span th:if="${mercadoPagoOperationalStatus.oauthConfigured}" class="badge badge--success">OK</span>
+          <span th:if="${!mercadoPagoOperationalStatus.oauthConfigured}" class="badge badge--warning">Pendente</span>
+          Configure `Client ID`, `Client Secret` e `Redirect URI` do app Mercado Pago.
+        </li>
+        <li>
+          <span th:if="${mercadoPagoOperationalStatus.gatewaySelected}" class="badge badge--success">OK</span>
+          <span th:if="${!mercadoPagoOperationalStatus.gatewaySelected}" class="badge badge--warning">Pendente</span>
+          Selecione `Mercado Pago` como gateway ativo.
+        </li>
+        <li>
+          <span th:if="${mercadoPagoOperationalStatus.ownerReferenceConnected}" class="badge badge--success">OK</span>
+          <span th:if="${!mercadoPagoOperationalStatus.ownerReferenceConnected}" class="badge badge--warning">Pendente</span>
+          Conecte a conta da loja usando o `owner reference` correto.
+        </li>
+        <li>
+          <span th:if="${mercadoPagoOperationalStatus.webhookConfigured}" class="badge badge--success">OK</span>
+          <span th:if="${!mercadoPagoOperationalStatus.webhookConfigured}" class="badge badge--warning">Pendente</span>
+          Garanta uma URL publica em HTTPS para o webhook.
+          <div class="text-muted"
+               th:if="${mercadoPagoNotificationUrlPreview != null and !mercadoPagoNotificationUrlPreview.isBlank()}"
+               th:text="${'Webhook efetivo: ' + mercadoPagoNotificationUrlPreview}">
+            Webhook efetivo: https://api.exemplo.com/webhooks/mercadopago
+          </div>
+          <div class="text-muted"
+               th:if="${mercadoPagoNotificationUrlPreview == null or mercadoPagoNotificationUrlPreview.isBlank()}">
+            O sistema ainda nao conseguiu montar uma URL de webhook. Revise `pg.webhook_url` ou a `app.web.base-url` em HTTPS.
+          </div>
+        </li>
+        <li>
+          <span th:if="${mercadoPagoOperationalStatus.readyForCheckout}" class="badge badge--success">OK</span>
+          <span th:if="${!mercadoPagoOperationalStatus.readyForCheckout}" class="badge badge--warning">Pendente</span>
+          Rode o botao `Testar checkout` em uma conta conectada e abra a URL gerada.
+        </li>
+        <li>
+          <span th:if="${mercadoPagoOperationalStatus.webhookReceived}" class="badge badge--success">OK</span>
+          <span th:if="${!mercadoPagoOperationalStatus.webhookReceived}" class="badge badge--warning">Pendente</span>
+          Conclua um pagamento de teste e volte para confirmar o recebimento do webhook real.
+        </li>
+      </ol>
+    </section>
+
+    <section class="card stack gap-12" th:if="${mercadoPagoSmokeTest != null}">
+      <div>
+        <h2 class="section-title">Ultimo Smoke Test</h2>
+        <p class="section-subtitle">Esse teste cria uma preferencia real de R$ 1,00 no Mercado Pago, sem gerar pedido local.</p>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Owner reference</label>
+          <div th:text="${mercadoPagoSmokeTest.ownerReference}">loja-centro</div>
+        </div>
+        <div class="form-group">
+          <label>Seller</label>
+          <div th:text="${mercadoPagoSmokeTest.sellerUserId}">123456789</div>
+        </div>
+        <div class="form-group">
+          <label>Ambiente</label>
+          <div th:text="${mercadoPagoSmokeTest.liveMode ? 'Producao' : 'Teste'}">Teste</div>
+        </div>
+        <div class="form-group">
+          <label>Preference ID</label>
+          <div th:text="${mercadoPagoSmokeTest.preferenceId}">pref-123</div>
+        </div>
+        <div class="form-group">
+          <label>Webhook</label>
+          <div>
+            <span th:if="${mercadoPagoSmokeTest.webhookConfigured()}" class="badge badge--success">Ativo</span>
+            <span th:if="${!mercadoPagoSmokeTest.webhookConfigured()}" class="badge badge--warning">Nao enviado ao Mercado Pago</span>
+          </div>
+        </div>
+      </div>
+      <div class="stack gap-8">
+        <label>Checkout URL</label>
+        <a th:href="${mercadoPagoSmokeTest.checkoutUrl}"
+           th:text="${mercadoPagoSmokeTest.checkoutUrl}"
+           target="_blank"
+           rel="noopener noreferrer">https://mercadopago.com/pay</a>
+      </div>
+    </section>
+
+    <form id="pagamentos-form" class="form-grid card" th:action="@{/admin/configuracoes/pagamentos}" method="post" th:object="${cfg}">
+      <fieldset class="fieldset">
+        <legend>Metodos principais</legend>
+        <div class="form-row">
+          <label class="checkbox"><input type="checkbox" th:field="*{pixAtivo}"/> PIX</label>
+          <label class="checkbox"><input type="checkbox" th:field="*{cartaoAtivo}"/> Cartao</label>
+          <label class="checkbox"><input type="checkbox" th:field="*{boletoAtivo}"/> Boleto</label>
+          <label class="checkbox"><input type="checkbox" th:field="*{dinheiroAtivo}"/> Dinheiro</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Taxas e parcelamento</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taxacartao">Taxa cartao (%)</label>
+            <input id="taxacartao" class="input" type="number" step="0.01" th:field="*{taxacartao}" placeholder="2.99" />
+          </div>
+          <div class="form-group">
+            <label for="maxParcelas">Max. parcelas</label>
+            <input id="maxParcelas" class="input" type="number" min="1" max="12" th:field="*{maxParcelas}" placeholder="6" />
+          </div>
+          <div class="form-group">
+            <label for="parcelaMin">Parcela minima (R$)</label>
+            <input id="parcelaMin" class="input" type="number" step="0.01" th:field="*{parcelaMin}" placeholder="20.00" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>PIX</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pixTipo">Tipo de chave</label>
+            <select id="pixTipo" class="select" th:field="*{pixTipo}">
+              <option value="aleatoria">Aleatoria</option>
+              <option value="cpf">CPF</option>
+              <option value="cnpj">CNPJ</option>
+              <option value="email">E-mail</option>
+              <option value="telefone">Telefone</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pixChave">Chave PIX</label>
+            <input id="pixChave" class="input" type="text" th:field="*{pixChave}" placeholder="Informe a chave PIX" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Dinheiro</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dinheiroMin">Valor minimo (R$)</label>
+            <input id="dinheiroMin" class="input" type="number" step="0.01" th:field="*{dinheiroMinimo}" placeholder="0.00" />
+          </div>
+          <div class="form-group">
+            <label for="dinheiroTrocoMax">Troco maximo (R$)</label>
+            <input id="dinheiroTrocoMax" class="input" type="number" step="0.01" th:field="*{dinheiroTrocoMax}" placeholder="100.00" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Credenciais do Gateway</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="gateway">Fornecedor</label>
+            <select id="gateway" class="select" th:field="*{gateway}">
+              <option value="pagarme">pagar.me</option>
+              <option value="pagseguro">PagSeguro</option>
+              <option value="mercadopago">Mercado Pago</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pubKey">Public Key</label>
+            <input id="pubKey" class="input" type="text" th:field="*{publicKey}" />
+          </div>
+          <div class="form-group">
+            <label for="secKey">Secret Key</label>
+            <input id="secKey" class="input" type="password" th:field="*{secretKey}" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label for="webhook">Webhook URL</label>
+            <input id="webhook" class="input" type="url" th:field="*{webhookUrl}" placeholder="https://.../webhooks/pagamentos" />
+            <small class="help" th:if="${webhookConfigured}">Webhook configurado.</small>
+            <small class="help" th:if="${!webhookConfigured}">Webhook nao configurado.</small>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Mercado Pago OAuth</legend>
+        <div class="stack gap-8 mb-12">
+          <p class="m-0 text-muted">
+            Use este bloco para permitir que cada loja conecte a propria conta Mercado Pago por OAuth.
+          </p>
+          <p class="m-0 text-muted">
+            Configure a URL de callback exatamente como cadastrada no app do Mercado Pago.
+          </p>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mercadoPagoClientId">Client ID</label>
+            <input id="mercadoPagoClientId"
+                   class="input"
+                   type="text"
+                   th:field="*{mercadoPagoClientId}"
+                   placeholder="APP_USR-..." />
+          </div>
+          <div class="form-group">
+            <label for="mercadoPagoClientSecret">Client Secret</label>
+            <input id="mercadoPagoClientSecret"
+                   class="input"
+                   type="password"
+                   th:field="*{mercadoPagoClientSecret}"
+                   autocomplete="new-password"
+                   placeholder="Client secret do app" />
+          </div>
+          <div class="form-group">
+            <label for="mercadoPagoRedirectUri">Redirect URI</label>
+            <input id="mercadoPagoRedirectUri"
+                   class="input"
+                   type="url"
+                   th:field="*{mercadoPagoRedirectUri}"
+                   placeholder="https://sua-api.com/admin/configuracoes/pagamentos/mercadopago/oauth/callback" />
+            <small class="help" th:if="${mercadoPagoOauthConfigured}">
+              OAuth do Mercado Pago pronto para novas conexoes.
+            </small>
+            <small class="help" th:if="${!mercadoPagoOauthConfigured}">
+              Preencha Client ID, Client Secret e Redirect URI para habilitar o OAuth.
+            </small>
+          </div>
+          <div class="form-group">
+            <label for="mercadoPagoOwnerReferenceDefault">Owner reference padrao</label>
+            <input id="mercadoPagoOwnerReferenceDefault"
+                   class="input"
+                   type="text"
+                   th:field="*{mercadoPagoOwnerReferenceDefault}"
+                   maxlength="120"
+                   placeholder="Ex.: loja-centro" />
+            <small class="help">
+              Esse identificador sera usado no checkout online ate existir selecao por loja ou tenant.
+            </small>
+          </div>
+          <div class="form-group">
+            <label for="mercadoPagoOwnerReferenceByTenant">Mapa tenant -> owner reference</label>
+            <textarea id="mercadoPagoOwnerReferenceByTenant"
+                      class="input"
+                      th:field="*{mercadoPagoOwnerReferenceByTenant}"
+                      rows="5"
+                      placeholder="rede-mais-farma=loja-centro&#10;tenant-bairro=loja-bairro"></textarea>
+            <small class="help">
+              Use uma linha por tenant no formato <code>tenantId=ownerReference</code>. Comentarios com <code>#</code> sao ignorados.
+            </small>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Maquineta (POS)</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="checkbox" for="posEnabled">
+              <input id="posEnabled" type="checkbox" />
+              Integracao ativa
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="posMode">Modo</label>
+            <select id="posMode" class="select">
+              <option value="mock">Mock (teste local)</option>
+              <option value="webhook">Webhook (n8n/bridge)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="posProvider">Provedor</label>
+            <input id="posProvider" class="input" type="text" maxlength="80"
+                   placeholder="Ex.: stone, cielo, getnet" />
+          </div>
+          <div class="form-group">
+            <label for="posEndpointUrl">Endpoint webhook</label>
+            <input id="posEndpointUrl" class="input" type="url" maxlength="512"
+                   placeholder="https://.../maquineta/autorizar" />
+          </div>
+          <div class="form-group">
+            <label for="posTerminalId">Terminal ID</label>
+            <input id="posTerminalId" class="input" type="text" maxlength="120"
+                   placeholder="Terminal fisico" />
+          </div>
+          <div class="form-group">
+            <label for="posMerchantId">Merchant ID</label>
+            <input id="posMerchantId" class="input" type="text" maxlength="120"
+                   placeholder="Codigo da loja no adquirente" />
+          </div>
+          <div class="form-group">
+            <label for="posTimeoutMs">Timeout (ms)</label>
+            <input id="posTimeoutMs" class="input" type="number" min="1000" max="30000"
+                   step="100" value="10000" />
+          </div>
+          <div class="form-group">
+            <label for="posSecret">Token de autenticacao</label>
+            <input id="posSecret" class="input" type="password" maxlength="255"
+                   autocomplete="new-password" placeholder="Opcional" />
+            <small id="posSecretHint" class="help"></small>
+            <label class="checkbox mt-8" for="posClearSecret">
+              <input id="posClearSecret" type="checkbox" />
+              Limpar token salvo
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="posTestAmount">Valor para teste (R$)</label>
+            <input id="posTestAmount" class="input" type="number" min="0.01" step="0.01" value="1.00" />
+          </div>
+          <div class="form-group">
+            <label for="posTestMethod">Metodo de teste</label>
+            <select id="posTestMethod" class="select">
+              <option value="credito">Cartao credito</option>
+              <option value="debito">Cartao debito</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button id="posSaveBtn" class="btn btn--ghost" type="button">Salvar maquineta</button>
+          <button id="posTestBtn" class="btn btn--primary" type="button">Testar maquineta</button>
+          <span id="posFeedback" class="muted" aria-live="polite"></span>
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button class="btn btn--ghost" type="reset">Cancelar</button>
+        <button class="btn btn--primary" type="submit">Salvar</button>
+      </div>
+    </form>
+
+    <section class="card stack gap-16">
+      <div class="between center">
+        <div>
+          <h2 class="section-title">Conectar contas Mercado Pago</h2>
+          <p class="section-subtitle">
+            Cada conta conectada recebe os pagamentos na propria carteira Mercado Pago.
+          </p>
+        </div>
+      </div>
+
+      <form class="form-grid"
+            th:action="@{/admin/configuracoes/pagamentos/mercadopago/oauth/conectar}"
+            method="get">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ownerReference">Identificador interno</label>
+            <input id="ownerReference"
+                   class="input"
+                   type="text"
+                   name="ownerReference"
+                   maxlength="120"
+                   placeholder="Ex.: loja-centro, tenant-001, cliente-acme" />
+            <small class="help">
+              Esse identificador eh salvo na API para relacionar a conta conectada com a sua loja ou tenant.
+            </small>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn--primary" type="submit">Conectar com Mercado Pago</button>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table" aria-label="Contas Mercado Pago conectadas">
+          <thead>
+            <tr>
+              <th>Identificador</th>
+              <th>Seller</th>
+              <th>Ambiente</th>
+              <th>Status</th>
+              <th>Conectado em</th>
+              <th>Expira em</th>
+              <th>Webhook real</th>
+              <th>Atualizado em</th>
+              <th>Acoes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="conn : ${mercadoPagoConnections}">
+              <td th:text="${conn.ownerReference}">loja-centro</td>
+              <td th:text="${conn.sellerUserId}">123456789</td>
+              <td th:text="${conn.environment}">Producao</td>
+              <td th:text="${conn.statusLabel}">Conectada</td>
+              <td th:text="${conn.connectedAtLabel}">14/03/2026 10:00</td>
+              <td th:text="${conn.expiresAtLabel}">14/03/2026 16:00</td>
+              <td>
+                <span th:if="${conn.webhookReceived}" class="badge badge--success">OK</span>
+                <span th:if="${!conn.webhookReceived}" class="badge badge--warning">Pendente</span>
+                <div class="text-muted" th:text="${conn.lastWebhookReceivedAtLabel}">-</div>
+              </td>
+              <td th:text="${conn.updatedAtLabel}">14/03/2026 10:02</td>
+              <td class="table-actions">
+                <form th:action="@{/admin/configuracoes/pagamentos/mercadopago/conexoes/testar}"
+                      method="post"
+                      class="inline">
+                  <input type="hidden" name="ownerReference" th:value="${conn.ownerReference}" />
+                  <button class="btn btn--primary" type="submit">Testar checkout</button>
+                </form>
+                <form th:action="@{|/admin/configuracoes/pagamentos/mercadopago/conexoes/${conn.id}/remover|}"
+                      method="post"
+                      class="inline">
+                  <button class="btn btn--ghost" type="submit">Desconectar</button>
+                </form>
+              </td>
+            </tr>
+            <tr th:if="${mercadoPagoConnections == null or #lists.isEmpty(mercadoPagoConnections)}">
+              <td colspan="9" class="text-center text-muted">
+                Nenhuma conta Mercado Pago conectada.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card table-responsive">
+      <div class="between mb-12">
+        <div>
+          <h2 class="section-title">Metodos personalizados</h2>
+          <p class="section-subtitle">Adicione metodos alem de PIX, cartao e boleto.</p>
+        </div>
+      </div>
+      <div id="custom-methods-feedback" class="muted mb-12" aria-live="polite"></div>
+      <table class="table" aria-label="Metodos personalizados">
+        <thead>
+          <tr>
+            <th>Metodo</th>
+            <th>Tipo</th>
+            <th>Taxa</th>
+            <th>Status</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody id="custom-methods-body">
+          <tr th:each="m : ${customMethods}">
+            <td th:text="${m.nome}">Convenio</td>
+            <td th:text="${m.tipo}">offline</td>
+            <td th:text="${m.taxa != null ? m.taxa + '%' : '-'}">0.00%</td>
+            <td>
+              <span th:if="${m.ativo}" class="badge badge--success">Ativo</span>
+              <span th:if="${!m.ativo}" class="badge badge--neutral">Inativo</span>
+            </td>
+            <td class="table-actions">
+              <form th:action="@{|/admin/configuracoes/pagamentos/metodos/${m.id}/remover|}" method="post" class="inline">
+                <button class="btn btn--ghost" type="submit">Remover</button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${customMethods == null or #lists.isEmpty(customMethods)}">
+            <td colspan="5" class="text-center text-muted">Nenhum metodo adicional cadastrado.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <form id="pagamentos-metodo-form" class="form-grid card" th:action="@{/admin/configuracoes/pagamentos/metodos}"
+          method="post" th:object="${novoMetodo}">
+      <fieldset class="fieldset">
+        <legend>Adicionar metodo de pagamento</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="novoMetodoNome">Nome do metodo</label>
+            <input id="novoMetodoNome" class="input" maxlength="120" th:field="*{nome}" placeholder="Ex.: Vale, Convenio, Link de pagamento" />
+            <small id="novoMetodoNomeError" class="payment-field-error" aria-live="polite"></small>
+          </div>
+          <div class="form-group">
+            <label for="novoMetodoTipo">Tipo</label>
+            <select id="novoMetodoTipo" class="select" th:field="*{tipo}">
+              <option value="">Selecione</option>
+              <option value="offline">Offline (na entrega)</option>
+              <option value="online">Online (gateway)</option>
+              <option value="pos">POS (maquineta)</option>
+              <option value="custom">Personalizado</option>
+            </select>
+            <small id="novoMetodoTipoError" class="payment-field-error" aria-live="polite"></small>
+          </div>
+          <div class="form-group">
+            <label for="novoMetodoTaxa">Taxa (%)</label>
+            <input id="novoMetodoTaxa" class="input" type="number" min="0" step="0.01" th:field="*{taxa}" placeholder="0.00" />
+            <small id="novoMetodoTaxaError" class="payment-field-error" aria-live="polite"></small>
+          </div>
+          <div class="form-group">
+            <label for="novoMetodoAtivo">Status</label>
+            <select id="novoMetodoAtivo" class="select" th:field="*{ativo}">
+              <option value="true">Ativo</option>
+              <option value="false">Inativo</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn--primary" type="submit">Adicionar metodo</button>
+        </div>
+      </fieldset>
+    </form>
+  </main>
+</div>
+
+<section id="modal-metodo-editar"
+         class="modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="modal-metodo-editar-title"
+         hidden>
+  <div class="modal-backdrop" data-close-edit-modal></div>
+  <div class="modal-content" role="document">
+    <header class="modal-header">
+      <h2 id="modal-metodo-editar-title">Editar metodo de pagamento</h2>
+      <button class="modal-close" type="button" aria-label="Fechar" data-close-edit-modal>&times;</button>
+    </header>
+    <form id="pagamentos-metodo-edit-form">
+      <div class="modal-body">
+        <input id="editMetodoId" type="hidden" />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editMetodoNome">Nome do metodo</label>
+            <input id="editMetodoNome" class="input" maxlength="120" placeholder="Ex.: Convenio Empresa X" />
+            <small id="editMetodoNomeError" class="payment-field-error" aria-live="polite"></small>
+          </div>
+          <div class="form-group">
+            <label for="editMetodoTipo">Tipo</label>
+            <select id="editMetodoTipo" class="select">
+              <option value="offline">Offline (na entrega)</option>
+              <option value="online">Online (gateway)</option>
+              <option value="pos">POS (maquineta)</option>
+              <option value="custom">Personalizado</option>
+            </select>
+            <small id="editMetodoTipoError" class="payment-field-error" aria-live="polite"></small>
+          </div>
+          <div class="form-group">
+            <label for="editMetodoTaxa">Taxa (%)</label>
+            <input id="editMetodoTaxa" class="input" type="number" min="0" step="0.01" placeholder="0.00" />
+            <small id="editMetodoTaxaError" class="payment-field-error" aria-live="polite"></small>
+          </div>
+          <div class="form-group">
+            <label for="editMetodoAtivo">Status</label>
+            <select id="editMetodoAtivo" class="select">
+              <option value="true">Ativo</option>
+              <option value="false">Inativo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="pagamentos-metodo-edit-cancel" class="btn btn--ghost" type="button">Cancelar</button>
+        <button class="btn btn--primary" type="submit">Salvar alteracoes</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:src="@{/js/pages/admin/pagamentos-config.js}" defer></script>
+</body>
+</html>
+
+
+
+
+
+

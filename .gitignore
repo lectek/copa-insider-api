@@ -1,4 +1,13 @@
 # ========================
+# Cache de sessão / temporários do Claude/curl
+# ========================
+.tmp_*
+.tmp/
+.tmp-*
+.m2tmp/
+*.tmp
+
+# ========================
 # Maven / Java
 # ========================
 target/

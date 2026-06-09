@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Assistente Mercado Pago</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+  <style>
+    .mp-guide-grid {
+      display: grid;
+      gap: 16px;
+    }
+    .mp-copy-row {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+    }
+    .mp-copy-feedback {
+      font-size: .85rem;
+      color: var(--color-muted, #64748b);
+      min-height: 1.2rem;
+    }
+    .mp-step-card {
+      border: 1px solid rgba(15, 23, 42, .08);
+      border-radius: 16px;
+      padding: 20px;
+      background: rgba(255, 255, 255, .85);
+    }
+    .mp-step-card h2,
+    .mp-step-card h3 {
+      margin-bottom: 8px;
+    }
+    .mp-step-card p {
+      margin-top: 0;
+    }
+    .mp-help-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .mp-help-list li + li {
+      margin-top: 8px;
+    }
+    @media (max-width: 720px) {
+      .mp-copy-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('configuracoes')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Assistente Mercado Pago</h1>
+        <p class="page-lead">Fluxo guiado para salvar credenciais, conectar a conta e validar o checkout online.</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn btn--ghost" th:href="@{/admin/configuracoes/pagamentos}">Voltar para pagamentos</a>
+        <a class="btn btn--ghost" th:href="${mercadoPagoPublicGuidePath}" target="_blank" rel="noopener noreferrer">Abrir guia publico</a>
+      </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+    <nav th:replace="~{fragments/admin-config-nav :: adminConfigNav('pagamentos')}"></nav>
+
+    <section class="card stack gap-12">
+      <div>
+        <h2 class="section-title">Resumo rapido</h2>
+        <p class="section-subtitle">O assistente considera a integracao pronta quando credenciais, conexao, checkout e webhook real estiverem validados.</p>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gateway</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.gatewaySelected}" class="badge badge--success">Mercado Pago ativo</span>
+            <span th:if="${!mercadoPagoOperationalStatus.gatewaySelected}" class="badge badge--warning">Ative Mercado Pago</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Credenciais</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.oauthConfigured}" class="badge badge--success">Configuradas</span>
+            <span th:if="${!mercadoPagoOperationalStatus.oauthConfigured}" class="badge badge--warning">Pendentes</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Conta padrao</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.ownerReferenceConnected}" class="badge badge--success">Conectada</span>
+            <span th:if="${!mercadoPagoOperationalStatus.ownerReferenceConnected}" class="badge badge--warning">Nao conectada</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Webhook real</label>
+          <div>
+            <span th:if="${mercadoPagoOperationalStatus.webhookReceived}" class="badge badge--success">Confirmado</span>
+            <span th:if="${!mercadoPagoOperationalStatus.webhookReceived}" class="badge badge--neutral">Aguardando teste real</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <span th:if="${mercadoPagoOperationalStatus.endToEndValidated}" class="badge badge--success">Integracao validada de ponta a ponta</span>
+        <span th:if="${!mercadoPagoOperationalStatus.endToEndValidated}" class="badge badge--warning">Ainda faltam etapas para homologar</span>
+      </div>
+    </section>
+
+    <section class="mp-guide-grid">
+      <article class="mp-step-card">
+        <h2>1. Copie as URLs prontas</h2>
+        <p>Use estes valores no app do Mercado Pago. A conta bancaria continua sendo configurada dentro do proprio Mercado Pago.</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mpBaseUrlPreview">Base publica da aplicacao</label>
+            <div class="mp-copy-row">
+              <input id="mpBaseUrlPreview" class="input" type="text" readonly th:value="${mercadoPagoBaseUrlPreview}" />
+              <button class="btn btn--ghost" type="button" data-copy-target="mpBaseUrlPreview">Copiar</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mpRedirectUrlPreview">Redirect URI</label>
+            <div class="mp-copy-row">
+              <input id="mpRedirectUrlPreview" class="input" type="text" readonly th:value="${mercadoPagoRedirectUrlPreview}" />
+              <button class="btn btn--ghost" type="button" data-copy-target="mpRedirectUrlPreview">Copiar</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mpWebhookUrlPreview">Webhook URL</label>
+            <div class="mp-copy-row">
+              <input id="mpWebhookUrlPreview"
+                     class="input"
+                     type="text"
+                     readonly
+                     th:value="${mercadoPagoNotificationUrlPreview != null and !mercadoPagoNotificationUrlPreview.isBlank() ? mercadoPagoNotificationUrlPreview : 'Configure APP_WEB_BASE_URL em HTTPS ou informe um webhook manual.'}" />
+              <button class="btn btn--ghost"
+                      type="button"
+                      data-copy-target="mpWebhookUrlPreview"
+                      th:disabled="${mercadoPagoNotificationUrlPreview == null or mercadoPagoNotificationUrlPreview.isBlank()}">
+                Copiar
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="mp-copy-feedback" aria-live="polite"></div>
+      </article>
+
+      <article class="mp-step-card">
+        <h2>2. Salve as credenciais</h2>
+        <p>Este formulario guarda apenas o necessario para o OAuth e ja força o gateway ativo para Mercado Pago.</p>
+
+        <form id="mp-assistente-form"
+              class="form-grid"
+              th:action="@{/admin/configuracoes/pagamentos/mercadopago/assistente}"
+              method="post"
+              th:object="${assistente}">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="clientId">Client ID</label>
+              <input id="clientId" class="input" type="text" th:field="*{clientId}" placeholder="APP_USR-..." />
+            </div>
+            <div class="form-group">
+              <label for="clientSecret">Client Secret</label>
+              <input id="clientSecret" class="input" type="password" th:field="*{clientSecret}" autocomplete="new-password" placeholder="Cole o secret do app" />
+            </div>
+            <div class="form-group">
+              <label for="redirectUri">Redirect URI</label>
+              <input id="redirectUri" class="input" type="url" th:field="*{redirectUri}" />
+              <small class="help">Se voce deixar em branco, o assistente usa a URL pronta acima.</small>
+            </div>
+            <div class="form-group">
+              <label for="webhookUrl">Webhook manual</label>
+              <input id="webhookUrl" class="input" type="url" th:field="*{webhookUrl}" placeholder="Opcional. Deixe vazio para usar o webhook automatico." />
+            </div>
+            <div class="form-group">
+              <label for="ownerReferenceDefault">Owner reference padrao</label>
+              <input id="ownerReferenceDefault" class="input" type="text" th:field="*{ownerReferenceDefault}" placeholder="Ex.: loja-centro" />
+            </div>
+            <div class="form-group">
+              <label for="ownerReferenceToConnect">Owner reference para conectar agora</label>
+              <input id="ownerReferenceToConnect" class="input" type="text" th:field="*{ownerReferenceToConnect}" placeholder="Use o mesmo owner reference da loja" />
+            </div>
+            <div class="form-group">
+              <label for="ownerReferenceByTenant">Mapa tenant -> owner reference</label>
+              <textarea id="ownerReferenceByTenant"
+                        class="input"
+                        th:field="*{ownerReferenceByTenant}"
+                        rows="5"
+                        placeholder="tenant-a=loja-centro&#10;tenant-b=loja-bairro"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn--ghost" type="submit">Salvar</button>
+            <button class="btn btn--primary"
+                    type="submit"
+                    formaction="/admin/configuracoes/pagamentos/mercadopago/assistente/conectar">
+              Salvar e conectar agora
+            </button>
+          </div>
+        </form>
+      </article>
+
+      <article class="mp-step-card">
+        <h2>3. Teste a conexao</h2>
+        <p>Depois da autorizacao, rode um smoke test para gerar uma preferencia real e abrir o checkout do Mercado Pago.</p>
+
+        <div class="form-actions">
+          <form th:if="${mercadoPagoOperationalStatus.ownerReferenceConfigured}"
+                th:action="@{/admin/configuracoes/pagamentos/mercadopago/conexoes/testar}"
+                method="post"
+                class="inline">
+            <input type="hidden" name="ownerReference" th:value="${mercadoPagoOperationalStatus.ownerReference}" />
+            <input type="hidden" name="redirectTo" value="assistant" />
+            <button class="btn btn--primary" type="submit">Testar checkout da conta padrao</button>
+          </form>
+          <span th:if="${!mercadoPagoOperationalStatus.ownerReferenceConfigured}" class="badge badge--warning">
+            Informe o owner reference padrao antes de testar.
+          </span>
+        </div>
+
+        <div class="stack gap-8" th:if="${mercadoPagoSmokeTest != null}">
+          <label>Ultima URL de checkout gerada</label>
+          <a th:href="${mercadoPagoSmokeTest.checkoutUrl}"
+             th:text="${mercadoPagoSmokeTest.checkoutUrl}"
+             target="_blank"
+             rel="noopener noreferrer">https://mercadopago.com/pay</a>
+          <small class="help" th:text="${'Webhook enviado: ' + (mercadoPagoSmokeTest.webhookConfigured() ? 'sim' : 'nao')}">Webhook enviado: sim</small>
+        </div>
+      </article>
+
+      <article class="mp-step-card">
+        <h2>4. Contas conectadas</h2>
+        <p>Use a lista abaixo para testar ou desconectar contas ja vinculadas.</p>
+
+        <div class="table-responsive">
+          <table class="table" aria-label="Contas conectadas do Mercado Pago">
+            <thead>
+            <tr>
+              <th>Owner reference</th>
+              <th>Seller</th>
+              <th>Ambiente</th>
+              <th>Status</th>
+              <th>Webhook</th>
+              <th>Acoes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="conn : ${mercadoPagoConnections}">
+              <td th:text="${conn.ownerReference}">loja-centro</td>
+              <td th:text="${conn.sellerUserId}">123456789</td>
+              <td th:text="${conn.environment}">Producao</td>
+              <td th:text="${conn.statusLabel}">Conectada</td>
+              <td>
+                <span th:if="${conn.webhookReceived}" class="badge badge--success">Recebido</span>
+                <span th:if="${!conn.webhookReceived}" class="badge badge--warning">Pendente</span>
+                <div class="text-muted" th:text="${conn.lastWebhookReceivedAtLabel}">-</div>
+              </td>
+              <td class="table-actions">
+                <form th:action="@{/admin/configuracoes/pagamentos/mercadopago/conexoes/testar}" method="post" class="inline">
+                  <input type="hidden" name="ownerReference" th:value="${conn.ownerReference}" />
+                  <input type="hidden" name="redirectTo" value="assistant" />
+                  <button class="btn btn--ghost" type="submit">Testar</button>
+                </form>
+                <form th:action="@{|/admin/configuracoes/pagamentos/mercadopago/conexoes/${conn.id}/remover|}" method="post" class="inline">
+                  <input type="hidden" name="redirectTo" value="assistant" />
+                  <button class="btn btn--ghost" type="submit">Desconectar</button>
+                </form>
+              </td>
+            </tr>
+            <tr th:if="${mercadoPagoConnections == null or #lists.isEmpty(mercadoPagoConnections)}">
+              <td colspan="6" class="text-center text-muted">Nenhuma conta conectada ainda.</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="mp-step-card">
+        <h2>5. FAQ rapido</h2>
+        <ol class="mp-help-list">
+          <li>A conta bancaria para receber os valores e configurada dentro do Mercado Pago, nao aqui na API.</li>
+          <li>Se o webhook estiver vazio, configure `APP_WEB_BASE_URL` em HTTPS ou preencha um webhook manual.</li>
+          <li>Se houver mais de uma loja, mantenha um `owner reference` por conta e use o mapa `tenant -> owner reference`.</li>
+          <li>Depois do primeiro pagamento real de teste, este assistente passa a mostrar o webhook como confirmado.</li>
+        </ol>
+      </article>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script>
+  (function () {
+    const feedback = document.querySelector('.mp-copy-feedback');
+    document.querySelectorAll('[data-copy-target]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const input = document.getElementById(button.dataset.copyTarget);
+        if (!input || !input.value) {
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(input.value);
+          if (feedback) {
+            feedback.textContent = 'Valor copiado.';
+          }
+        } catch (error) {
+          if (feedback) {
+            feedback.textContent = 'Nao foi possivel copiar automaticamente.';
+          }
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

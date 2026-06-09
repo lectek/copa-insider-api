@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Configurações do Sistema</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+  <header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+  <div class="layout layout--with-sidebar">
+    <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('configuracoes')}"></aside>
+
+    <main id="main-content" class="container stack mt-4 mb-6">
+      <header class="page__header">
+        <div>
+          <h1 class="page__title">Configurações do Sistema</h1>
+          <p class="u-color-muted">Gerencie chaves globais e atalhos para as configuracoes principais.</p>
+        </div>
+        <div class="page__actions">
+          <a th:href="@{/admin/settings/new}" class="btn btn--primary">Nova configuração</a>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="card__body">
+          <div class="form__row">
+            <a th:href="@{/admin/configuracoes/geral}" class="btn">Geral</a>
+            <a th:href="@{/admin/configuracoes/branding}" class="btn">Branding</a>
+            <a th:href="@{/admin/configuracoes/email}" class="btn">Email</a>
+            <a th:href="@{/admin/configuracoes/integracoes}" class="btn">Integracoes</a>
+            <a th:href="@{/admin/home/produto-principal}" class="btn">Produto principal</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__body">
+          <form class="form form--inline" th:action="@{/admin/settings}" method="get">
+            <div class="form__row">
+              <input class="input" type="text" name="q" placeholder="Buscar por chave ou descricao"
+                     th:value="${q}"/>
+              <select class="select" name="size" aria-label="Itens por página">
+                <option th:selected="${size == 10}" th:value="10">10</option>
+                <option th:selected="${size == 20}" th:value="20">20</option>
+                <option th:selected="${size == 50}" th:value="50">50</option>
+              </select>
+              <button class="btn" type="submit">Filtrar</button>
+              <a th:href="@{/admin/settings}" class="btn btn--ghost">Limpar</a>
+            </div>
+          </form>
+          <p class="u-color-muted">
+            Total de registros: <strong th:text="${pageData.totalElements}">0</strong>
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__body">
+          <table class="table table--striped">
+            <thead>
+              <tr>
+                <th>Chave</th>
+                <th>Valor</th>
+                <th>Descrição</th>
+                <th>Atualizado</th>
+                <th class="u-text-right">Acoes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="it : ${pageData.content}">
+                <td><span class="text--mono" th:text="${it.settingKey}">carrinho.min_valor</span></td>
+                <td><span class="text--mono" th:text="${it.settingValue}">R$ 99,90</span></td>
+                <td th:text="${it.description}">Descrição</td>
+                <td th:text="${it.updatedAt != null ? #temporals.format(it.updatedAt, 'dd/MM/yyyy HH:mm') : '--'}">--</td>
+                <td class="u-text-right">
+                  <a th:href="@{|/admin/settings/edit/${it.id}|}" class="btn btn--sm">Editar</a>
+                  <form th:action="@{|/admin/settings/delete/${it.id}|}" method="post" class="form form--inline">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button class="btn btn--danger btn--sm" type="submit"
+                            onclick="return confirm('Excluir esta configuração?')">Excluir</button>
+                  </form>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(pageData.content)}">
+                <td colspan="5" class="u-text-center u-color-muted">
+                  Nenhum registro. <a th:href="@{/admin/settings/new}">Crie a primeira configuração</a>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card__footer" th:if="${pageData.totalPages > 1}">
+          <nav class="Pagination">
+            <a class="Pagination__prev btn"
+               th:classappend="${pageData.first} ? 'is-disabled'"
+               th:href="@{/admin/settings(page=${pageData.number-1}, size=${size}, q=${q})}">Anterior</a>
+
+            <span class="Pagination__info">
+              Pagina <span th:text="${pageData.number + 1}">1</span>
+              de <span th:text="${pageData.totalPages}">1</span>
+              a <span th:text="${pageData.totalElements}">0</span> itens
+            </span>
+
+            <a class="Pagination__next btn"
+               th:classappend="${pageData.last} ? 'is-disabled'"
+               th:href="@{/admin/settings(page=${pageData.number+1}, size=${size}, q=${q})}">Proxima</a>
+          </nav>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+
+
+
+
+
+

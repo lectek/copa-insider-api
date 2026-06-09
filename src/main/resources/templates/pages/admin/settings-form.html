@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title th:text="${form.id} != null ? 'Editar configuração' : 'Nova configuração'">Config</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+  <header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+  <div class="layout layout--with-sidebar">
+    <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('configuracoes')}"></aside>
+
+    <main id="main-content" class="container stack mt-4 mb-6">
+      <header class="page__header">
+        <h1 class="page__title" th:text="${form.id} != null ? 'Editar configuração' : 'Nova configuração'">Config</h1>
+        <div class="page__actions">
+          <a th:href="@{/admin/settings}" class="btn">Voltar</a>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="card__body">
+          <form class="form form--vertical" th:action="${form.id} != null ? @{|/admin/settings/${form.id}|} : @{/admin/settings}"
+                th:object="${form}" method="post" autocomplete="off">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="form-group">
+              <label for="settingKey">Chave</label>
+              <input id="settingKey" class="input" th:field="*{settingKey}" placeholder="ex.: checkout.min_valor" required />
+              <p class="error-message" th:if="${#fields.hasErrors('settingKey')}" th:errors="*{settingKey}"></p>
+            </div>
+
+            <div class="form-group">
+              <label for="settingValue">Valor</label>
+              <input id="settingValue" class="input" th:field="*{settingValue}" placeholder="ex.: 99.90" required />
+              <p class="error-message" th:if="${#fields.hasErrors('settingValue')}" th:errors="*{settingValue}"></p>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Descrição</label>
+              <textarea id="description" class="input" th:field="*{description}" rows="3"
+                        placeholder="Como essa configuração é usada?"></textarea>
+              <p class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+            </div>
+
+            <div class="form__actions">
+              <button class="btn btn--primary" type="submit">Salvar</button>
+              <a th:href="@{/admin/settings}" class="btn">Cancelar</a>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Categorias a Produtos</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+<div class="layout layout--with-sidebar">
+<aside th:replace="~{fragments/admin-sidebar :: adminSidebar('produtos')}"></aside>
+<main id="main-content" class="container stack mt-4 mb-6">
+  <h1 class="page-title">Categorias</h1>
+
+  <form class="form-row mb-4" th:action="@{/admin/produtos/categorias}" method="post" th:object="${categoria}">
+    <input class="input" th:field="*{nome}" placeholder="Nova categoria" required/>
+    <button class="btn">Adicionar</button>
+  </form>
+
+  <section class="card">
+    <ul class="list" th:each="c : ${categorias}">
+      <li class="between">
+        <form class="form-row" th:action="@{|/admin/produtos/categorias/${c.id}/atualizar|}" method="post">
+          <input class="input" name="nome" th:value="${c.nome}" required/>
+          <button class="btn" type="submit">Salvar</button>
+        </form>
+        <form th:action="@{|/admin/produtos/categorias/${c.id}/remover|}" method="post">
+          <button class="btn btn-ghost" type="submit">Remover</button>
+        </form>
+      </li>
+    </ul>
+    <p th:if="${#lists.isEmpty(categorias)}" class="text-muted">Nenhuma categoria.</p>
+  </section>
+</main></div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,252 @@
+<!-- src/main/resources/templates/pages/admin/dashboard.html -->
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dashboard a Admin</title>
+
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('dashboard')}"></aside>
+
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <h1 class="page-title">Dashboard</h1>
+    <section th:replace="~{fragments/flash :: flash}"></section>
+
+    <!-- KPIs -->
+    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-16">
+      <article th:replace="~{fragments/card :: kpi('Produtos na vitrine', ${painelAdmin.qtdProdutos})}"></article>
+      <article th:replace="~{fragments/card :: kpi('Pedidos (total)', ${painelAdmin.totalPedidos})}"></article>
+      <article th:replace="~{fragments/card :: kpi('Clientes ativos', ${painelAdmin.clientesAtivos})}"></article>
+      <article th:replace="~{fragments/card :: kpi('Pendentes', ${painelAdmin.qtdPedidosPendentes})}"></article>
+    </section>
+
+    <!-- Ultimos pedidos -->
+    <section class="mt-6">
+      <article class="card">
+        <h2 class="card-title">Ultimos pedidos</h2>
+        <div class="table-responsive">
+          <table class="table" aria-label="Tabela de ultimos pedidos">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Data</th>
+                <th scope="col">Itens</th>
+                <th scope="col">Total</th>
+                <th scope="col">Status</th>
+                <th scope="col">Acoes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="p : ${ultimosPedidos}">
+                <td th:text="${p.id}">0001</td>
+                <td th:text="${p.clienteNome}">Cliente exemplo</td>
+                <td th:text="${#temporals.format(p.data, 'dd/MM/yyyy HH:mm')}">15/11/2025</td>
+                <td th:text="${p.totalItens}">3</td>
+                <td th:text="${#numbers.formatCurrency(p.total)}">R$ 129,90</td>
+                <td><span class="badge" th:classappend="' ' + ${p.statusClass}" th:text="${p.statusLabel}">Pago</span></td>
+                <td class="actions">
+                  <a class="btn btn-ghost" th:href="@{|/admin/pedidos/${p.id}|}">Detalhes</a>
+                </td>
+              </tr>
+              <tr th:if="${ultimosPedidos == null or #lists.isEmpty(ultimosPedidos)}">
+                <td colspan="7" class="muted text-center">
+                  Nenhum pedido encontrado.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <!-- Meta de vendas -->
+    <section class="mt-6">
+      <article class="card">
+        <div class="between">
+          <div>
+            <h2 class="card-title">Meta diaria de vendas</h2>
+            <p class="muted">Ajuste a meta do dia e acompanhe quanto faltou ou quanto passamos.</p>
+          </div>
+          <span class="badge"
+                th:classappend="' ' + ${metaVendaPainel.badgeClass}"
+                th:text="${metaVendaPainel.badgeLabel}">
+            Meta batida
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-16 mt-4">
+          <div class="card">
+            <p class="muted">Meta configurada</p>
+            <strong th:text="${#numbers.formatCurrency(metaVendaPainel.metaDiaria)}">R$ 2.000,00</strong>
+          </div>
+          <div class="card">
+            <p class="muted">Vendas de hoje</p>
+            <strong th:text="${#numbers.formatCurrency(metaVendaPainel.vendasHoje)}">R$ 0,00</strong>
+          </div>
+          <div class="card">
+            <p class="muted"
+               th:text="${metaVendaPainel.metaBatidaHoje ? 'Quanto passamos' : 'Quanto faltou'}">Quanto faltou</p>
+            <strong th:text="${#numbers.formatCurrency(metaVendaPainel.diferencaHoje)}">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <div class="alert alert-info mt-4">
+          <strong th:text="${metaVendaPainel.tituloMensagem}">Boa, voce bateu a meta.</strong>
+          <span th:text="${metaVendaPainel.mensagem}">Passamos R$ 100,00 acima da meta diaria.</span>
+        </div>
+
+        <form class="mt-4"
+              th:action="@{/admin/dashboard/meta-diaria}"
+              method="post">
+          <input type="hidden"
+                 th:if="${_csrf != null}"
+                 th:name="${_csrf.parameterName}"
+                 th:value="${_csrf.token}"/>
+          <input type="hidden" name="returnTo" value="dashboard"/>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+            <div>
+              <label for="meta-diaria-dashboard">Meta diaria</label>
+              <input id="meta-diaria-dashboard"
+                     class="input"
+                     type="number"
+                     name="valor"
+                     min="0.01"
+                     step="0.01"
+                     th:value="${metaVendaPainel.metaDiaria}"
+                     required/>
+            </div>
+            <div class="flex items-end">
+              <button class="btn btn-primary" type="submit">Salvar meta</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="table-responsive mt-4">
+          <table class="table" aria-label="Comparativo da meta de vendas dos ultimos dias">
+            <thead>
+            <tr>
+              <th scope="col">Dia</th>
+              <th scope="col">Meta</th>
+              <th scope="col">Vendas</th>
+              <th scope="col">Resultado</th>
+              <th scope="col">Mensagem</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="dia : ${metaVendaPainel.comparativo}">
+              <td th:text="${#temporals.format(dia.dia, 'dd/MM/yyyy')}">12/03/2026</td>
+              <td th:text="${#numbers.formatCurrency(dia.metaDiaria)}">R$ 2.000,00</td>
+              <td th:text="${#numbers.formatCurrency(dia.vendas)}">R$ 1.850,00</td>
+              <td>
+                <span class="badge"
+                      th:classappend="' ' + ${dia.badgeClass}"
+                      th:text="${dia.metaBatida ? 'Passou ' + #numbers.formatCurrency(dia.diferencaAbsoluta) : 'Faltou ' + #numbers.formatCurrency(dia.diferencaAbsoluta)}">
+                  Faltou R$ 150,00
+                </span>
+              </td>
+              <td th:text="${dia.mensagem}">Quase la, faltou R$ 150,00.</td>
+            </tr>
+            <tr th:if="${metaVendaPainel.comparativo == null or #lists.isEmpty(metaVendaPainel.comparativo)}">
+              <td colspan="5" class="muted text-center">Sem historico suficiente para comparacao.</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <!-- Acoes rapidas -->
+    <section class="mt-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-16">
+        <a class="card card-link" th:href="@{/admin/produtos}">
+          <h2 class="card-title">Produtos</h2>
+          <p class="muted">Gerencie Catalogo, estoque e destaques.</p>
+        </a>
+        <a class="card card-link" th:href="@{/admin/pedidos}">
+          <h2 class="card-title">Pedidos</h2>
+          <p class="muted">Atualize status e acompanhe entregas.</p>
+        </a>
+        <a class="card card-link" th:href="@{/admin/clientes}">
+          <h2 class="card-title">Clientes</h2>
+          <p class="muted">Consulte historico e dados do cliente.</p>
+        </a>
+        <a class="card card-link" th:href="@{/admin/configuracoes/geral}">
+          <h2 class="card-title">Configuracoes</h2>
+          <p class="muted">Frete, Horario, Integracoes e avisos.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Filtros rapidos -->
+    <section class="mt-6">
+      <div class="card">
+        <h2 class="card-title">Filtros rapidos</h2>
+        <div class="flex gap-8">
+          <a class="btn btn-ghost" th:href="@{/admin/dashboard}">Todos</a>
+          <a class="btn btn-ghost" th:href="@{/admin/dashboard(period='today')}">Hoje</a>
+          <a class="btn btn-ghost" th:href="@{/admin/dashboard(period='week')}">7 dias</a>
+          <a class="btn btn-ghost" th:href="@{/admin/dashboard(period='month')}">30 dias</a>
+        </div>
+      </div>
+    </section>
+    <!-- Grafico -->
+    <section class="mt-6">
+      <article class="card card-chart">
+        <h2 class="card-title">Pedidos por status</h2>
+
+        <div style="position:relative;height:320px">
+          <canvas id="grafico-vendas-dia" width="600" height="240"
+                  aria-label="DistribuiAAo de pedidos por status" role="img"></canvas>
+        </div>
+
+        <!-- Injeta dados do controller -->
+        <script th:inline="javascript">
+          /*<![CDATA[*/
+          window.RMF_CHART_STATUS = {
+            labels: /*[[${chartStatusLabels}]]*/ [],
+            data:   /*[[${chartStatusData}]]*/ []
+          };
+          /*]]>*/
+        </script>
+      </article>
+    </section>
+
+    <!-- Alertas -->
+    <section class="mt-6">
+      <article class="card">
+        <div class="between">
+          <h2 class="card-title">Alertas</h2>
+          <a class="btn btn-ghost" th:href="@{/admin/alertas}">Ver todos</a>
+        </div>
+        <ul th:if="${painelAdmin.alertas != null and !painelAdmin.alertas.isEmpty()}">
+          <li th:each="a : ${painelAdmin.alertas}">
+            <strong th:text="${a.tipo}">Tipo</strong>
+            <span th:text="${a.mensagem}">Alerta</span>
+          </li>
+        </ul>
+        <p class="muted" th:if="${painelAdmin.alertas == null or painelAdmin.alertas.isEmpty()}">Sem alertas no momento.</p>
+      </article>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<!-- Chart.js -->
+<script defer th:src="@{/vendor/chartjs/chart.umd.min.js}"></script>
+<!-- JS do dashboard -->
+<script defer th:src="@{/js/pages/admin/admin-dashboard.js}"></script>
+</body>
+</html>
+
+
+
+
+

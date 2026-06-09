@@ -1,0 +1,46 @@
+<!-- templates/fragments/admin-header.html -->
+<header class="site-header" role="banner" th:fragment="adminHeader">
+  <a class="skip-link" href="#main-content">Pular para o conteudo</a>
+
+  <div class="header-inner container-fluid">
+    <a th:href="@{/admin/dashboard}" class="logo" aria-label="Dashboard admin">
+      <img class="admin-logo-image" th:src="${#strings.isEmpty(brandingLogoUrl) or #strings.containsIgnoreCase(brandingLogoUrl, 'logofarma.png') or #strings.containsIgnoreCase(brandingLogoUrl, 'logo-redemaisfarma.png') or #strings.containsIgnoreCase(brandingLogoUrl, 'novalogo.webp')} ? @{/images/logonova.png} : ${brandingLogoUrl}" alt="Embalando Soluções em Enbalagens e Bomboniere" height="40" />
+    </a>
+    <button class="sidebar-toggle" type="button" data-sidebar-toggle aria-label="Abrir o menu lateral">
+      <span class="menu-icon" aria-hidden="true"></span>
+    </button>
+
+    <nav id="primary-nav" class="primary-nav" aria-label="Menu admin">
+      <ul class="nav-list">
+        <li><a th:href="@{/admin/dashboard}" class="menu-button">Dashboard</a></li>
+        <li><a th:href="@{/admin/produtos}"  class="menu-button">Produtos</a></li>
+        <li><a th:href="@{/admin/pedidos}"   class="menu-button">Pedidos</a></li>
+        <li><a th:href="@{/admin/entregas}"  class="menu-button">Entregas</a></li>
+        <li><a th:href="@{/admin/clientes}"  class="menu-button">Clientes</a></li>
+        <li><a th:href="@{/admin/relatorios/vendas}" class="menu-button">Relatorios</a></li>
+        <li><a th:href="@{/admin/configuracoes/geral}" class="menu-button">Configuracoes</a></li>
+
+        <li>
+          <form th:action="@{/logout}" method="post" class="inline-form">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="menu-button">Sair</button>
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <button class="theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-pressed="false"
+            aria-label="Ativar modo escuro"
+            title="Alternar tema">
+      <span class="theme-toggle__icon" aria-hidden="true">☾</span>
+      <span class="theme-toggle__label">Tema</span>
+    </button>
+  </div>
+  <script defer th:src="@{/js/theme-toggle.js}"></script>
+  <script defer th:src="@{/js/header.js(v=${#dates.createNow().time})}"></script>
+  <script defer th:src="@{/js/sidebar.js(v=${#dates.createNow().time})}"></script>
+  <script defer th:src="@{/js/admin-shortcuts.js(v=${#dates.createNow().time})}"></script>
+</header>

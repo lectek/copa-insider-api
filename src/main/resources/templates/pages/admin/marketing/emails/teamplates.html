@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Templates de e-mail</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body class="body-flex admin-page">
+<header th:replace="~{fragments/admin-header :: adminHeader}"></header>
+
+<div class="layout layout--with-sidebar">
+  <aside th:replace="~{fragments/admin-sidebar :: adminSidebar('marketing')}"></aside>
+  <main id="main-content" class="container stack mt-4 mb-6">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Templates de e-mail</h1>
+        <p class="page-lead">Gerencie os modelos usados em campanhas.</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn btn-primary" th:href="@{/admin/marketing/emails/editor}">Novo template</a>
+      </div>
+    </div>
+
+    <section th:replace="~{fragments/flash :: flash}"></section>
+
+    <section class="card table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Assunto</th>
+            <th>Ultima atualizacao</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="t : ${templates}">
+            <td th:text="${t.nome}">Boas-vindas</td>
+            <td th:text="${t.assunto}">Bem-vindo</td>
+            <td th:text="${t.updatedAt != null ? #dates.format(t.updatedAt,'dd/MM/yyyy HH:mm') : '-'}">-</td>
+            <td class="actions">
+              <a class="btn btn-ghost" th:href="@{|/admin/marketing/emails/editor?id=${t.id}|}">Editar</a>
+              <a class="btn btn-ghost" th:href="@{|/admin/marketing/emails/campanhas?template=${t.id}|}">Campanhas</a>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(templates)}">
+            <td colspan="4" class="text-center text-muted">Nenhum template.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+
+
+
+
+
+
