@@ -109,6 +109,12 @@
     color: #93c5fd;
 }
 
+.ci-flash--success {
+    background: #0a1e0f;
+    border-left-color: #22c55e;
+    color: #86efac;
+}
+
 /* ── Form ───────────────────────────────────────────── */
 .ci-form {
     display: flex;

@@ -6,7 +6,10 @@
 <div class="ci-auth-page">
     <div class="ci-auth-card">
         <div class="ci-auth-card__brand">
-            <img th:src="@{/img/logo.svg}" alt="Copa Insider" class="ci-auth-card__logo"/>
+            <a href="/" class="ci-brand-link">
+                <span class="ci-brand-badge">CI</span>
+                <span class="ci-brand-name">Copa Insider</span>
+            </a>
         </div>
         <h1 class="ci-auth-card__title">Criar conta</h1>
         <p class="ci-auth-card__sub">Grátis. Entre no jogo agora.</p>
@@ -48,7 +51,7 @@
         </form>
 
         <p class="ci-auth-card__switch">
-            Já tem conta? <a th:href="@{/login}">Entrar</a>
+            Já tem conta? <a th:href="@{/auth/login}">Entrar</a>
         </p>
     </div>
 </div>
