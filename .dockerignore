@@ -9,3 +9,10 @@ node_modules
 **/logs
 thread-dump.txt
 mappings_raw.json
+.env
+.env.*
+docs/
+infra/
+*.mp4
+*.mp3
+.deploy_fix*
