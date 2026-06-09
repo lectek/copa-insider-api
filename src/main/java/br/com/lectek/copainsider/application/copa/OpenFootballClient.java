@@ -2,6 +2,7 @@ package br.com.lectek.copainsider.application.copa;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -18,14 +19,18 @@ public class OpenFootballClient {
             "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json";
 
     private final RestTemplate rest;
+    private final ObjectMapper mapper;
 
-    public OpenFootballClient(RestTemplateBuilder builder) {
-        this.rest = builder.build();
+    public OpenFootballClient(RestTemplateBuilder builder, ObjectMapper mapper) {
+        this.rest   = builder.build();
+        this.mapper = mapper;
     }
 
     public List<OFMatch> fetchMatches() {
         try {
-            OFResponse resp = rest.getForObject(URL, OFResponse.class);
+            // GitHub raw devolve text/plain — busca como String e desserializa manualmente
+            String json = rest.getForObject(URL, String.class);
+            OFResponse resp = mapper.readValue(json, OFResponse.class);
             return (resp != null && resp.matches() != null) ? resp.matches() : List.of();
         } catch (Exception e) {
             log.warn("Falha ao buscar dados openfootball: {}", e.getMessage());
