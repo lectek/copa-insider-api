@@ -20,9 +20,10 @@
         </a>
         <ul class="nav__links">
             <li><a href="#guias" class="nav__link">Guias</a></li>
-            <li><a href="#o-que-recebes" class="nav__link">O que recebes</a></li>
-            <li><a href="#como-funciona" class="nav__link">Como funciona</a></li>
-            <li><a href="#antes-do-jogo" class="nav__link">Antes do jogo</a></li>
+            <li><a th:href="@{/calendario}" class="nav__link">Calendário</a></li>
+            <li><a th:href="@{/selecoes}" class="nav__link">Seleções</a></li>
+            <li><a th:href="@{/rivalidades}" class="nav__link">Rivalidades</a></li>
+            <li><a th:href="@{/ranking}" class="nav__link">Ranking</a></li>
         </ul>
         <a href="#guias" class="nav__cta">Ver guias</a>
         <button class="nav__toggle" onclick="this.closest('nav').classList.toggle('nav--open')">&#9776;</button>
@@ -44,7 +45,7 @@
                 </div>
                 <h2 class="card__title">A história completa da tua seleção nas Copas</h2>
                 <p class="card__desc">Todas as participações, melhores campanhas, jogos inesquecíveis, goleadores, deceções, recordes e curiosidades num guia simples de guardar.</p>
-                <a href="#" class="card__btn card__btn--gold">Comprar agora</a>
+                <a th:href="@{/selecoes}" class="card__btn card__btn--gold">Explorar seleções</a>
             </div>
 
             <!-- CARD PRE-JOGO -->
@@ -55,7 +56,7 @@
                 </div>
                 <h2 class="card__title">Histórico entre duas seleções</h2>
                 <p class="card__desc">O saldo do confronto, resultados antigos, jogos mais importantes, contexto e factos rápidos para leres antes do apito inicial.</p>
-                <a href="#" class="card__btn">Comprar agora</a>
+                <a th:href="@{/rivalidades}" class="card__btn">Ver rivalidades</a>
             </div>
 
             <!-- CARD CURIOSIDADES -->
@@ -66,7 +67,7 @@
                 </div>
                 <h2 class="card__title">20 factos para surpreender os teus amigos</h2>
                 <p class="card__desc">Curiosidades, recordes e pequenas histórias que fazem qualquer conversa sobre a Copa ficar melhor.</p>
-                <a href="#" class="card__btn">Comprar agora</a>
+                <a th:href="@{/ranking}" class="card__btn">Ver ranking</a>
             </div>
 
             <!-- CARD COMPLETO -->
@@ -77,7 +78,7 @@
                 </div>
                 <h2 class="card__title">Dossier completo do jogo</h2>
                 <p class="card__desc">A melhor escolha para grandes jogos: histórico das equipas, comparações, estatísticas, linhas do tempo, curiosidades e jogadores-chave.</p>
-                <a href="#" class="card__btn">Comprar agora</a>
+                <a th:href="@{/calendario}" class="card__btn">Ver calendário</a>
             </div>
 
         </div>
@@ -113,36 +114,36 @@
     <div class="content-types__inner">
         <h2 class="content-types__title">Tudo o que a Copa tem para te dar</h2>
         <div class="content-types__grid">
-            <div class="content-types__item">
+            <a th:href="@{/calendario}" class="content-types__item content-types__item--link">
                 <span class="content-types__icon">📅</span>
                 <h3>Calendário completo</h3>
                 <p>Todas as datas, grupos, fases e jogos da Copa 2026.</p>
-            </div>
-            <div class="content-types__item">
+            </a>
+            <a th:href="@{/selecoes}" class="content-types__item content-types__item--link">
                 <span class="content-types__icon">🏆</span>
                 <h3>Histórico de seleções</h3>
                 <p>Cada país com a sua história completa nas Copas do Mundo.</p>
-            </div>
-            <div class="content-types__item">
+            </a>
+            <a th:href="@{/rivalidades}" class="content-types__item content-types__item--link">
                 <span class="content-types__icon">⚔️</span>
                 <h3>Grandes rivalidades</h3>
                 <p>Os clássicos mais intensos e o que está em jogo em cada confronto.</p>
-            </div>
-            <div class="content-types__item">
+            </a>
+            <a th:href="@{/calendario}" class="content-types__item content-types__item--link">
                 <span class="content-types__icon">📋</span>
                 <h3>Escalações</h3>
                 <p>As prováveis escalações para cada jogo com contexto tático.</p>
-            </div>
-            <div class="content-types__item">
+            </a>
+            <a th:href="@{/ranking}" class="content-types__item content-types__item--link">
                 <span class="content-types__icon">⭐</span>
                 <h3>Ranking de jogadores</h3>
                 <p>Os melhores jogadores da Copa com base em estatísticas reais.</p>
-            </div>
-            <div class="content-types__item">
+            </a>
+            <a th:href="@{/rivalidades}" class="content-types__item content-types__item--link">
                 <span class="content-types__icon">🔥</span>
                 <h3>Head-to-head</h3>
                 <p>Histórico completo entre duas seleções: quem leva a melhor?</p>
-            </div>
+            </a>
         </div>
     </div>
 </section>

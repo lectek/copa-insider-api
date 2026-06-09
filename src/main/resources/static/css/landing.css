@@ -321,6 +321,18 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.content-types__item--link {
+    transition: border-color .2s, transform .15s;
+    cursor: pointer;
+}
+
+.content-types__item--link:hover {
+    border-color: rgba(232, 185, 48, .4);
+    transform: translateY(-2px);
 }
 
 .content-types__icon {
