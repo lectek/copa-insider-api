@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Comparar Seleções — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0a0f; color: #e8e8f0; font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+        /* ── Navbar ── */
+        .navbar { display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 2rem; background: rgba(10,10,15,.95);
+            border-bottom: 1px solid rgba(255,255,255,.07); position: sticky; top: 0; z-index: 100; }
+        .brand { display: flex; align-items: center; gap: .5rem; text-decoration: none;
+            color: #e8e8f0; font-weight: 800; font-size: 1.1rem; }
+        .brand-badge { background: #f5a623; color: #0a0a0f; padding: .15rem .4rem;
+            border-radius: 4px; font-size: .75rem; font-weight: 800; }
+        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links a { color: #9090a8; text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .2s; }
+        .nav-links a:hover, .nav-links a.active { color: #f5a623; }
+        .cta-btn { background: #f5a623; color: #0a0a0f; padding: .4rem 1rem;
+            border-radius: 6px; text-decoration: none; font-weight: 700; font-size: .85rem; }
+
+        /* ── Hero / formulário ── */
+        .hero { text-align: center; padding: 3rem 2rem 2rem; }
+        .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: .5rem; }
+        .hl { color: #f5a623; }
+        .hero p { color: #9090a8; margin-bottom: 2rem; }
+
+        .form-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px; padding: 2rem; max-width: 680px; margin: 0 auto; }
+        .form-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: end; margin-bottom: 1.25rem; }
+        .form-group { display: flex; flex-direction: column; gap: .4rem; }
+        .form-group label { font-size: .8rem; font-weight: 600; color: #9090a8; text-transform: uppercase; letter-spacing: .05em; }
+        .form-group select {
+            background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+            color: #e8e8f0; padding: .65rem 1rem; border-radius: 8px; font-size: .95rem;
+            font-family: inherit; appearance: none; cursor: pointer; width: 100%;
+        }
+        .form-group select:focus { outline: none; border-color: #f5a623; }
+        .form-group select option { background: #1a1a2e; }
+        .vs-sep { color: #f5a623; font-weight: 800; font-size: 1.1rem; padding-bottom: .65rem; text-align: center; }
+        .btn-comparar { width: 100%; background: #f5a623; color: #0a0a0f; border: none;
+            padding: .75rem; border-radius: 8px; font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: opacity .2s; font-family: inherit; }
+        .btn-comparar:hover { opacity: .9; }
+
+        /* ── Resultado ── */
+        .resultado { max-width: 760px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+
+        .duelo-header { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px; padding: 2rem; text-align: center; margin-bottom: 1.5rem; }
+        .duelo-times { display: flex; align-items: center; justify-content: space-around; gap: 1rem; margin-bottom: 1.5rem; }
+        .duelo-lado { display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+        .duelo-flag { font-size: 3.5rem; line-height: 1; }
+        .duelo-nome { font-size: 1.1rem; font-weight: 700; }
+        .duelo-conf { font-size: .75rem; color: #9090a8; }
+        .duelo-placar { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+        .placar-nums { display: flex; gap: .75rem; align-items: baseline; }
+        .placar-v { font-size: 2.5rem; font-weight: 800; color: #f5a623; }
+        .placar-sep { font-size: 1.5rem; color: #555; }
+        .placar-label { font-size: .75rem; color: #9090a8; }
+        .empates-chip { background: rgba(255,255,255,.08); padding: .2rem .6rem; border-radius: 20px;
+            font-size: .8rem; color: #b0b0c8; margin-top: .25rem; }
+        .gols-row { font-size: .85rem; color: #9090a8; margin-top: .5rem; }
+        .gols-num { color: #e8e8f0; font-weight: 600; }
+
+        /* Barra de domínio */
+        .barra-wrap { margin-top: 1.25rem; }
+        .barra-labels { display: flex; justify-content: space-between; font-size: .78rem; color: #9090a8; margin-bottom: .3rem; }
+        .barra-bg { background: rgba(255,255,255,.08); border-radius: 20px; height: 8px; overflow: hidden; }
+        .barra-fill { height: 100%; background: linear-gradient(90deg, #f5a623, #e8902a); border-radius: 20px; transition: width .6s ease; }
+
+        /* Encontro Copa 2026 */
+        .enc-2026 { background: rgba(245,166,35,.07); border: 1px solid rgba(245,166,35,.2);
+            border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+        .enc-2026-label { font-size: .75rem; font-weight: 700; color: #f5a623; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+        .enc-2026-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+        .enc-time { display: flex; align-items: center; gap: .4rem; font-size: .95rem; font-weight: 600; }
+        .enc-placar { font-size: 1.1rem; font-weight: 800; color: #f5a623; }
+        .enc-info { font-size: .78rem; color: #9090a8; margin-top: .35rem; text-align: center; }
+
+        /* Lista histórica */
+        .historico-title { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #e8e8f0; }
+        .encontro-row { display: flex; align-items: center; justify-content: space-between;
+            padding: .75rem 1rem; border-radius: 8px; margin-bottom: .4rem;
+            background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); }
+        .enc-ano { font-size: .8rem; color: #f5a623; font-weight: 700; min-width: 40px; }
+        .enc-fase { font-size: .75rem; color: #9090a8; min-width: 90px; }
+        .enc-times { display: flex; align-items: center; gap: .5rem; font-size: .9rem; font-weight: 600; flex: 1; justify-content: center; }
+        .enc-score { font-size: 1rem; font-weight: 800; color: #f5a623; min-width: 40px; text-align: center; }
+        .vencedor { color: #4ade80; }
+        .perdedor { color: #9090a8; font-weight: 400; }
+
+        .sem-historico { text-align: center; color: #9090a8; font-size: .9rem; padding: 2rem;
+            background: rgba(255,255,255,.03); border-radius: 12px; border: 1px dashed rgba(255,255,255,.1); }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .vs-sep { padding: 0; }
+            .duelo-times { flex-direction: column; gap: .75rem; }
+            .enc-2026-row { flex-direction: column; gap: .25rem; }
+            .encontro-row { flex-wrap: wrap; gap: .25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}">Calendário</a>
+        <a th:href="@{/selecoes}">Seleções</a>
+        <a th:href="@{/rivalidades}">Rivalidades</a>
+        <a th:href="@{/ranking}">Ranking</a>
+    </div>
+    <a href="/" class="cta-btn">Ver guias</a>
+</nav>
+
+<main>
+
+    <section class="hero">
+        <h1>Comparar <span class="hl">Seleções</span></h1>
+        <p>Histórico de confrontos em Copas do Mundo (2006–2022) + Copa 2026</p>
+
+        <div class="form-card">
+            <form method="get" th:action="@{/comparar}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Seleção 1</label>
+                        <select name="time1" required>
+                            <option value="" disabled th:selected="${time1 == ''}">Escolha uma seleção…</option>
+                            <option th:each="s : ${selecoes}"
+                                    th:value="${s.slug()}"
+                                    th:text="${s.bandeira() + ' ' + s.nome()}"
+                                    th:selected="${s.slug() == time1}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="vs-sep">VS</div>
+                    <div class="form-group">
+                        <label>Seleção 2</label>
+                        <select name="time2" required>
+                            <option value="" disabled th:selected="${time2 == ''}">Escolha uma seleção…</option>
+                            <option th:each="s : ${selecoes}"
+                                    th:value="${s.slug()}"
+                                    th:text="${s.bandeira() + ' ' + s.nome()}"
+                                    th:selected="${s.slug() == time2}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-comparar">Comparar histórico</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ── Resultado da comparação ── -->
+    <section class="resultado" th:if="${resultado != null}">
+
+        <!-- Cabeçalho com placar histórico -->
+        <div class="duelo-header">
+            <div class="duelo-times">
+                <div class="duelo-lado">
+                    <span class="duelo-flag" th:text="${resultado.selecao1().bandeira()}"></span>
+                    <span class="duelo-nome" th:text="${resultado.selecao1().nome()}"></span>
+                    <span class="duelo-conf" th:text="${resultado.selecao1().confederacao()}"></span>
+                </div>
+
+                <div class="duelo-placar">
+                    <div class="placar-nums">
+                        <span class="placar-v" th:text="${resultado.vitorias1()}"></span>
+                        <span class="placar-sep">–</span>
+                        <span class="placar-v" th:text="${resultado.vitorias2()}"></span>
+                    </div>
+                    <span class="placar-label">vitórias em Copas</span>
+                    <span class="empates-chip" th:text="${resultado.empates()} + ' empate(s)'"></span>
+                    <div class="gols-row" th:if="${resultado.temHistorico()}">
+                        <span class="gols-num" th:text="${resultado.golsTotal1()}"></span>
+                        <span> gols × </span>
+                        <span class="gols-num" th:text="${resultado.golsTotal2()}"></span>
+                        <span> gols</span>
+                    </div>
+                </div>
+
+                <div class="duelo-lado">
+                    <span class="duelo-flag" th:text="${resultado.selecao2().bandeira()}"></span>
+                    <span class="duelo-nome" th:text="${resultado.selecao2().nome()}"></span>
+                    <span class="duelo-conf" th:text="${resultado.selecao2().confederacao()}"></span>
+                </div>
+            </div>
+
+            <!-- Barra de domínio -->
+            <div class="barra-wrap" th:if="${resultado.temHistorico()}">
+                <div class="barra-labels">
+                    <span th:text="${resultado.selecao1().nome()}"></span>
+                    <span th:text="${resultado.selecao2().nome()}"></span>
+                </div>
+                <div class="barra-bg">
+                    <div class="barra-fill" th:style="'width:' + ${resultado.pct1()} + '%'"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Encontro na Copa 2026 -->
+        <div class="enc-2026" th:if="${resultado.encontroCopa2026() != null}">
+            <div class="enc-2026-label">Copa 2026 — Grupo <span th:text="${resultado.encontroCopa2026().grupo()}"></span></div>
+            <div class="enc-2026-row">
+                <div class="enc-time">
+                    <span th:text="${resultado.encontroCopa2026().bandeiraCasa()}"></span>
+                    <span th:text="${resultado.encontroCopa2026().selecaoCasa()}"></span>
+                </div>
+                <div>
+                    <span class="enc-placar" th:if="${resultado.encontroCopa2026().temResultado()}"
+                          th:text="${resultado.encontroCopa2026().placar()}"></span>
+                    <span class="enc-placar" th:if="${!resultado.encontroCopa2026().temResultado()}">vs</span>
+                </div>
+                <div class="enc-time">
+                    <span th:text="${resultado.encontroCopa2026().selecaoVisitante()}"></span>
+                    <span th:text="${resultado.encontroCopa2026().bandeiraVisitante()}"></span>
+                </div>
+            </div>
+            <div class="enc-info"
+                 th:text="${#temporals.format(resultado.encontroCopa2026().dataHora(), 'dd MMM yyyy · HH:mm')} + ' · ' + ${resultado.encontroCopa2026().cidade()}">
+            </div>
+        </div>
+
+        <!-- Lista de encontros históricos -->
+        <div th:if="${resultado.temHistorico()}">
+            <div class="historico-title">
+                Encontros em Copas do Mundo
+                <span style="color:#9090a8;font-weight:400;font-size:.85rem;"
+                      th:text="'(' + ${resultado.totalJogos()} + ' jogos)'"></span>
+            </div>
+            <div th:each="e : ${resultado.encontros()}" class="encontro-row">
+                <span class="enc-ano" th:text="${e.ano()}"></span>
+                <span class="enc-fase" th:text="${e.fase()}"></span>
+                <div class="enc-times">
+                    <span th:text="${e.bandeira1()}"></span>
+                    <span th:classappend="${e.gols1() > e.gols2()} ? ' vencedor' : (${e.gols1() < e.gols2()} ? ' perdedor' : '')"
+                          th:text="${e.selecao1()}"></span>
+                    <span class="enc-score" th:text="${e.gols1()} + '–' + ${e.gols2()}"></span>
+                    <span th:classappend="${e.gols2() > e.gols1()} ? ' vencedor' : (${e.gols2() < e.gols1()} ? ' perdedor' : '')"
+                          th:text="${e.selecao2()}"></span>
+                    <span th:text="${e.bandeira2()}"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sem-historico" th:if="${!resultado.temHistorico()}">
+            Nenhum encontro registado entre estas seleções nas Copas de 2006 a 2022.
+        </div>
+
+    </section>
+
+</main>
+
+<footer style="text-align:center;padding:2rem;color:#555;font-size:.85rem;border-top:1px solid rgba(255,255,255,.06);">
+    <p>© 2026 Copa Insider · Dados históricos via <a href="https://github.com/openfootball/worldcup.json" style="color:#f5a623;" target="_blank">openfootball</a></p>
+</footer>
+
+</body>
+</html>

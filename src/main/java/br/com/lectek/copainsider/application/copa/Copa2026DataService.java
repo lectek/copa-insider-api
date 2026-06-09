@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 
 import static br.com.lectek.copainsider.application.copa.PartidaVM.StatusPartida.*;
 
+// Edições históricas a carregar para o comparador
+// Carregadas de forma lazy na primeira comparação
+
 @Service
 public class Copa2026DataService {
 
@@ -88,6 +91,30 @@ public class Copa2026DataService {
         Map.entry("Ghana",                new TeamMeta("Gana",            "gana",            "🇬🇭", "CAF",      "Quartos (2010)", 4)),
         Map.entry("Panama",               new TeamMeta("Panamá",          "panama",          "🇵🇦", "CONCACAF", "Fase de grupos", 2))
     );
+
+    // ── Mapeamento inverso: nome inglês → slug ───────────────────────────────
+
+    private static final Map<String, String> ENGLISH_TO_SLUG;
+    static {
+        Map<String, String> m = new HashMap<>();
+        TEAMS.forEach((english, meta) -> m.put(english.toLowerCase(Locale.ROOT), meta.slug()));
+        // Aliases históricos usados em edições anteriores do openfootball
+        m.put("ivory coast",        "costa-do-marfim");
+        m.put("côte d'ivoire",      "costa-do-marfim");
+        m.put("cote d'ivoire",      "costa-do-marfim");
+        m.put("korea republic",     "coreia-do-sul");
+        m.put("united states",      "eua");
+        m.put("west germany",       "alemanha");
+        m.put("bosnia-herzegovina", "bosnia");
+        ENGLISH_TO_SLUG = Collections.unmodifiableMap(m);
+    }
+
+    // ── Histórico de Copas (lazy-loaded) ─────────────────────────────────────
+
+    private record YearMatch(int ano, OpenFootballClient.OFMatch match) {}
+
+    private static final List<Integer> HISTORICAL_YEARS = List.of(2022, 2018, 2014, 2010, 2006);
+    private volatile List<YearMatch> historicalMatches = null;
 
     // ── Estado dinâmico ──────────────────────────────────────────────────────
 
@@ -185,6 +212,73 @@ public class Copa2026DataService {
     }
 
     public List<RivalidadeVM> listRivalidades() { return rivalidades; }
+
+    // ── Comparador ───────────────────────────────────────────────────────────
+
+    public Optional<ComparadorVM> comparar(String slug1, String slug2) {
+        Optional<SelecaoVM> opt1 = findSelecao(slug1);
+        Optional<SelecaoVM> opt2 = findSelecao(slug2);
+        if (opt1.isEmpty() || opt2.isEmpty()) return Optional.empty();
+
+        SelecaoVM s1 = opt1.get();
+        SelecaoVM s2 = opt2.get();
+        String en1   = englishNameForSlug(slug1);
+        String en2   = englishNameForSlug(slug2);
+
+        ensureHistoricalLoaded();
+
+        List<EncuentroVM> encontros = new ArrayList<>();
+        int v1 = 0, emp = 0, v2 = 0, g1 = 0, g2 = 0;
+
+        for (YearMatch ym : historicalMatches) {
+            OpenFootballClient.OFMatch m = ym.match();
+            if (!m.hasScore()) continue;
+
+            boolean m1IsS1 = en1 != null && en1.equalsIgnoreCase(m.team1());
+            boolean m1IsS2 = en2 != null && en2.equalsIgnoreCase(m.team1());
+            boolean m2IsS1 = en1 != null && en1.equalsIgnoreCase(m.team2());
+            boolean m2IsS2 = en2 != null && en2.equalsIgnoreCase(m.team2());
+
+            if (!((m1IsS1 && m2IsS2) || (m1IsS2 && m2IsS1))) continue;
+
+            int gs1 = m1IsS1 ? m.scoreHome() : m.scoreAway();
+            int gs2 = m1IsS1 ? m.scoreAway() : m.scoreHome();
+
+            g1 += gs1; g2 += gs2;
+            if (gs1 > gs2) v1++; else if (gs1 < gs2) v2++; else emp++;
+
+            encontros.add(new EncuentroVM(ym.ano(), extractFase(m.round()),
+                    s1.bandeira(), s1.nome(), gs1, gs2, s2.nome(), s2.bandeira()));
+        }
+
+        encontros.sort(Comparator.comparingInt(EncuentroVM::ano).reversed());
+
+        PartidaVM enc2026 = partidas.stream()
+                .filter(p -> (p.slugCasa().equals(slug1) && p.slugVisitante().equals(slug2))
+                          || (p.slugCasa().equals(slug2) && p.slugVisitante().equals(slug1)))
+                .findFirst().orElse(null);
+
+        return Optional.of(new ComparadorVM(s1, s2, v1, emp, v2, g1, g2, encontros, enc2026));
+    }
+
+    private synchronized void ensureHistoricalLoaded() {
+        if (historicalMatches != null) return;
+        List<YearMatch> all = new ArrayList<>();
+        for (int year : HISTORICAL_YEARS) {
+            for (var m : client.fetchYear(year)) {
+                if (m.hasScore()) all.add(new YearMatch(year, m));
+            }
+        }
+        historicalMatches = Collections.unmodifiableList(all);
+        log.info("Histórico Copa: {} partidas carregadas ({})", historicalMatches.size(), HISTORICAL_YEARS);
+    }
+
+    private String englishNameForSlug(String slug) {
+        return TEAMS.entrySet().stream()
+                .filter(e -> e.getValue().slug().equals(slug))
+                .map(Map.Entry::getKey)
+                .findFirst().orElse(null);
+    }
 
     // ── Construção a partir dos dados da API ─────────────────────────────────
 
