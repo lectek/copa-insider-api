@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
@@ -41,35 +40,10 @@ public class SecurityConfig {
             )
 
             .authorizeHttpRequests(auth -> auth
-
-                .requestMatchers(
-                    "/assets/**", "/css/**", "/js/**", "/images/**",
-                    "/animations/**", "/media/**", "/vendor/**",
-                    "/img/**", "/webjars/**", "/favicon.ico"
-                ).permitAll()
-
-                .requestMatchers(
-                    "/", "/cliente", "/cliente/index",
-                    "/mercadopago/guia", "/suporte", "/alysson", "/sobre",
-                    "/produtos/**", "/buscar",
-                    "/calendario", "/selecoes", "/selecoes/**",
-                    "/comparar", "/rivalidades", "/ranking", "/partida/**",
-                    "/loja", "/produto/**", "/guia/**", "/factos", "/webhooks/**"
-                ).permitAll()
-
-                .requestMatchers(HttpMethod.GET,
-                    LOGIN_URL, "/auth/cliente/cadastro", "/cadastro", "/verificar-email"
-                ).permitAll()
-                .requestMatchers(HttpMethod.POST,
-                    LOGIN_URL, "/auth/cliente/cadastro", "/cadastro", "/verificar-email"
-                ).permitAll()
-
-                .requestMatchers("/api/public/**", "/api/ia/**").permitAll()
-                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-
-                .requestMatchers("/carrinho/**", "/checkout/**", "/pedido/**").authenticated()
+                // Admin continua protegido
                 .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                // Tudo o resto é público — Hotmart trata do checkout e acesso
+                .anyRequest().permitAll()
             )
 
             .formLogin(f -> f
