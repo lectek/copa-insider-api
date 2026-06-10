@@ -154,15 +154,23 @@ public class SecurityMvcConfig {
                         )
                         .hasAnyRole("CLIENTE", "DEVELOPER", "DEV", "ADMIN", "USER");
 
-                // qualquer outra rota exige autenticação
-                // TEMP (2026-03-05): libera acesso sem login para o admin de produtos.
-                auth.requestMatchers("/admin/produtos", "/admin/produtos/**").permitAll();
+                // Copa Insider — todas as páginas públicas sem login
+                auth.requestMatchers(
+                        "/img/**",
+                        "/calendario", "/selecoes", "/selecoes/**",
+                        "/comparar", "/rivalidades", "/ranking", "/partida/**",
+                        "/loja", "/guia/**", "/factos",
+                        "/webhooks/**"
+                ).permitAll();
+
+                // Admin protegido
                 auth.requestMatchers("/admin/vendas/rapida", "/admin/vendas/rapida/**")
                         .hasAnyRole("ADMIN", "CAIXA", "DEV", "DEVELOPER");
                 auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
                 auth.requestMatchers("/admin/**").hasRole("ADMIN");
 
-                auth.anyRequest().authenticated();
+                // Tudo o resto é público — login apenas opcional (ex: comentários futuros)
+                auth.anyRequest().permitAll();
             })
             .formLogin(form -> form
                     .loginPage("/auth/login")
