@@ -98,14 +98,34 @@ public class Copa2026DataService {
     static {
         Map<String, String> m = new HashMap<>();
         TEAMS.forEach((english, meta) -> m.put(english.toLowerCase(Locale.ROOT), meta.slug()));
-        // Aliases históricos usados em edições anteriores do openfootball
-        m.put("ivory coast",        "costa-do-marfim");
-        m.put("côte d'ivoire",      "costa-do-marfim");
-        m.put("cote d'ivoire",      "costa-do-marfim");
-        m.put("korea republic",     "coreia-do-sul");
-        m.put("united states",      "eua");
-        m.put("west germany",       "alemanha");
-        m.put("bosnia-herzegovina", "bosnia");
+        // Aliases históricos — variantes usadas nas edições 2006-2022 do openfootball
+        m.put("ivory coast",          "costa-do-marfim");
+        m.put("côte d'ivoire",        "costa-do-marfim");
+        m.put("cote d'ivoire",        "costa-do-marfim");
+        m.put("korea republic",       "coreia-do-sul");
+        m.put("republic of korea",    "coreia-do-sul");
+        m.put("united states",        "eua");
+        m.put("u.s.a.",               "eua");
+        m.put("west germany",         "alemanha");
+        m.put("bosnia-herzegovina",   "bosnia");
+        m.put("ir iran",              "irao");
+        m.put("england",              "inglaterra");  // openfootball usa "England"
+        m.put("czechia",              "rep-checa");
+        m.put("czech rep.",           "rep-checa");
+        m.put("slovak republic",      "eslováquia");
+        m.put("north ireland",        "irlanda-do-norte");
+        m.put("northern ireland",     "irlanda-do-norte");
+        m.put("trinidad & tobago",    "trinidad-tobago");
+        m.put("trinidad and tobago",  "trinidad-tobago");
+        m.put("republic of ireland",  "irlanda");
+        m.put("dr congo",             "rd-congo");
+        m.put("democratic republic of congo", "rd-congo");
+        m.put("cape verde",           "cabo-verde");
+        m.put("new zealand",          "nova-zelandia");
+        m.put("saudi arabia",         "arabia-saudita");
+        m.put("south africa",         "africa-do-sul");
+        m.put("south korea",          "coreia-do-sul");
+        m.put("costa rica",           "costa-rica");
         ENGLISH_TO_SLUG = Collections.unmodifiableMap(m);
     }
 
@@ -227,8 +247,6 @@ public class Copa2026DataService {
 
         SelecaoVM s1 = opt1.get();
         SelecaoVM s2 = opt2.get();
-        String en1   = englishNameForSlug(slug1);
-        String en2   = englishNameForSlug(slug2);
 
         ensureHistoricalLoaded();
 
@@ -239,10 +257,15 @@ public class Copa2026DataService {
             OpenFootballClient.OFMatch m = ym.match();
             if (!m.hasScore()) continue;
 
-            boolean m1IsS1 = en1 != null && en1.equalsIgnoreCase(m.team1());
-            boolean m1IsS2 = en2 != null && en2.equalsIgnoreCase(m.team1());
-            boolean m2IsS1 = en1 != null && en1.equalsIgnoreCase(m.team2());
-            boolean m2IsS2 = en2 != null && en2.equalsIgnoreCase(m.team2());
+            // Converter nomes do openfootball para slugs (trata aliases históricos)
+            String hSlug1 = resolveSlug(m.team1());
+            String hSlug2 = resolveSlug(m.team2());
+            if (hSlug1 == null || hSlug2 == null) continue;
+
+            boolean m1IsS1 = hSlug1.equals(slug1);
+            boolean m1IsS2 = hSlug1.equals(slug2);
+            boolean m2IsS1 = hSlug2.equals(slug1);
+            boolean m2IsS2 = hSlug2.equals(slug2);
 
             if (!((m1IsS1 && m2IsS2) || (m1IsS2 && m2IsS1))) continue;
 
@@ -276,6 +299,17 @@ public class Copa2026DataService {
         }
         historicalMatches = Collections.unmodifiableList(all);
         log.info("Histórico Copa: {} partidas carregadas ({})", historicalMatches.size(), HISTORICAL_YEARS);
+        // Diagnóstico: nomes sem mapeamento para slug (ajuda a descobrir aliases em falta)
+        all.stream()
+            .flatMap(ym -> java.util.stream.Stream.of(ym.match().team1(), ym.match().team2()))
+            .filter(name -> name != null && ENGLISH_TO_SLUG.get(name.toLowerCase(Locale.ROOT)) == null)
+            .distinct().sorted()
+            .forEach(name -> log.warn("Histórico: sem mapeamento para '{}'", name));
+    }
+
+    private String resolveSlug(String englishName) {
+        if (englishName == null) return null;
+        return ENGLISH_TO_SLUG.get(englishName.toLowerCase(Locale.ROOT));
     }
 
     private String englishNameForSlug(String slug) {
@@ -333,10 +367,20 @@ public class Copa2026DataService {
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private TeamMeta resolve(String englishName) {
-        return TEAMS.getOrDefault(englishName,
-                new TeamMeta(englishName,
-                        englishName.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-"),
-                        "🏳", "—", "—", 0));
+        // Lookup direto
+        TeamMeta meta = TEAMS.get(englishName);
+        if (meta != null) return meta;
+        // Lookup via alias (ex: "Korea Republic" → slug "coreia-do-sul" → TEAMS entry)
+        String slug = ENGLISH_TO_SLUG.get(englishName.toLowerCase(Locale.ROOT));
+        if (slug != null) {
+            for (TeamMeta candidate : TEAMS.values()) {
+                if (candidate.slug().equals(slug)) return candidate;
+            }
+        }
+        // Fallback com slug gerado a partir do nome
+        return new TeamMeta(englishName,
+                englishName.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-"),
+                "🏳", "—", "—", 0);
     }
 
     private String extractGroup(String group) {
