@@ -213,6 +213,11 @@ public class Copa2026DataService {
 
     public List<RivalidadeVM> listRivalidades() { return rivalidades; }
 
+    public List<OpenFootballClient.OFMatch> listHistoricalMatches() {
+        ensureHistoricalLoaded();
+        return historicalMatches.stream().map(YearMatch::match).toList();
+    }
+
     // ── Comparador ───────────────────────────────────────────────────────────
 
     public Optional<ComparadorVM> comparar(String slug1, String slug2) {

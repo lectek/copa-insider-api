@@ -54,7 +54,7 @@ public class SecurityConfig {
                     "/produtos/**", "/buscar",
                     "/calendario", "/selecoes", "/selecoes/**",
                     "/comparar", "/rivalidades", "/ranking", "/partida/**",
-                    "/loja", "/produto/**", "/webhooks/**"
+                    "/loja", "/produto/**", "/guia/**", "/factos", "/webhooks/**"
                 ).permitAll()
 
                 .requestMatchers(HttpMethod.GET,

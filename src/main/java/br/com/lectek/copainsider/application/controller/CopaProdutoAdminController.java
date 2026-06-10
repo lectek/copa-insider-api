@@ -133,7 +133,8 @@ public class CopaProdutoAdminController {
                 p.getSlug(), p.getTipo(), p.getPreco(), precoEur,
                 p.getNomePtBr(), p.getDescPtBr(),
                 p.getHotmartUrl(), p.getImagemUrl(),
-                p.getSlugTime1(), p.getSlugTime2()
+                p.getSlugTime1(), p.getSlugTime2(),
+                false, 1L
         );
     }
 }
