@@ -76,7 +76,9 @@ public class CopaLojaController {
             desc = firstNonEmpty(p.getDescPtBr(), p.getDescEn());
         }
 
-        BigDecimal precoEur = p.getPreco().divide(BigDecimal.valueOf(6.20), 2, RoundingMode.HALF_UP);
+        BigDecimal precoEur = p.getPrecoEur() != null
+                ? p.getPrecoEur()
+                : p.getPreco().divide(BigDecimal.valueOf(6.20), 2, RoundingMode.HALF_UP);
 
         return new CopaProdutoVM(
                 p.getSlug(), p.getTipo(), p.getPreco(), precoEur,

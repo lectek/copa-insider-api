@@ -61,6 +61,9 @@ public class CopaProdutoEntity {
     @Column(nullable = false)
     private int ordem = 0;
 
+    @Column(name = "preco_eur", precision = 8, scale = 2)
+    private BigDecimal precoEur;
+
     public Long getId() { return id; }
     public String getSlug() { return slug; }
     public TipoCopaProduto getTipo() { return tipo; }
@@ -93,6 +96,8 @@ public class CopaProdutoEntity {
     public void setImagemUrl(String v) { this.imagemUrl = v; }
     public void setSlugTime1(String v) { this.slugTime1 = v; }
     public void setSlugTime2(String v) { this.slugTime2 = v; }
+    public BigDecimal getPrecoEur() { return precoEur; }
+    public void setPrecoEur(BigDecimal v) { this.precoEur = v; }
     public void setAtivo(boolean ativo) { this.ativo = ativo; }
     public void setOrdem(int ordem) { this.ordem = ordem; }
 }

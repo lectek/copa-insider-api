@@ -24,6 +24,29 @@
 
 html { scroll-behavior: smooth; }
 
+/* ─── Barra de urgência ─────────────────────────────────────────────────────── */
+.urgency-bar {
+    background: #1a3320;
+    border-bottom: 1px solid #2d6a40;
+    text-align: center;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #b8e0c4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.urgency-bar__cta {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.urgency-bar__cta:hover { text-decoration: underline; }
+
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background: var(--bg);
@@ -309,6 +332,13 @@ body {
 }
 
 .card__btn--gold:hover { background: var(--gold-hover); border-color: var(--gold-hover); }
+
+.card__btn--soon {
+    opacity: .55;
+    cursor: default;
+    pointer-events: none;
+}
+.card__btn--soon:hover { background: var(--btn-dark); transform: none; }
 
 /* ─── Produtos (área escura) ─────────────────────────────────────────────────── */
 .produtos {

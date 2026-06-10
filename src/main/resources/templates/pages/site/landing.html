@@ -11,6 +11,12 @@
 </head>
 <body>
 
+<!-- BARRA DE URGÊNCIA -->
+<div class="urgency-bar">
+    ⚽ A Copa 2026 está ao vivo — guias disponíveis antes de cada jogo
+    <a href="#guias" class="urgency-bar__cta">Ver guias →</a>
+</div>
+
 <!-- NAVBAR -->
 <nav class="nav">
     <div class="nav__inner">
@@ -33,7 +39,7 @@
 <!-- HERO — título + como funciona sobre a imagem -->
 <section class="hero">
     <div class="hero__inner">
-        <h1 class="hero__title">Escolhe o guia certo<br>para o jogo que vais ver.</h1>
+        <h1 class="hero__title">Antes do apito inicial,<br>sabe tudo.</h1>
 
         <div class="hero__steps">
             <div class="hero__step">
@@ -94,16 +100,22 @@
                     <!-- Categoria com múltiplos: explorar lista -->
                     <a th:if="${p.categoriaComMultiplos()}"
                        th:href="@{/loja(tipo=${p.tipo().name()})}"
-                       class="card__btn card__btn--gold">Explorar seleções →</a>
+                       class="card__btn card__btn--gold">
+                        Obter o guia — a partir de €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
+                    </a>
                     <!-- Produto único com URL de compra -->
                     <a th:if="${!p.categoriaComMultiplos() and p.temHotmartUrl()}"
                        th:href="${p.hotmartUrl()}"
                        target="_blank" rel="noopener noreferrer"
-                       class="card__btn card__btn--gold">Comprar agora</a>
-                    <!-- Produto único sem URL -->
+                       class="card__btn card__btn--gold">
+                        Comprar agora — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
+                    </a>
+                    <!-- Produto único sem URL ainda -->
                     <a th:if="${!p.categoriaComMultiplos() and !p.temHotmartUrl()}"
                        th:href="@{/guia/{slug}(slug=${p.slug()})}"
-                       class="card__btn card__btn--gold">Ver detalhes</a>
+                       class="card__btn card__btn--gold card__btn--soon">
+                        Em breve — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
+                    </a>
                 </div>
 
                 <!-- Cards dos outros tipos -->
@@ -121,14 +133,20 @@
                     <p class="card__desc" th:text="${p.descricao()}">Descrição</p>
                     <a th:if="${p.categoriaComMultiplos()}"
                        th:href="@{/loja(tipo=${p.tipo().name()})}"
-                       class="card__btn">Explorar →</a>
+                       class="card__btn">
+                        Obter — a partir de €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">1,99</span>
+                    </a>
                     <a th:if="${!p.categoriaComMultiplos() and p.temHotmartUrl()}"
                        th:href="${p.hotmartUrl()}"
                        target="_blank" rel="noopener noreferrer"
-                       class="card__btn">Comprar agora</a>
+                       class="card__btn">
+                        Comprar — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">1,99</span>
+                    </a>
                     <a th:if="${!p.categoriaComMultiplos() and !p.temHotmartUrl()}"
                        th:href="@{/guia/{slug}(slug=${p.slug()})}"
-                       class="card__btn">Ver detalhes</a>
+                       class="card__btn card__btn--soon">
+                        Em breve — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">1,99</span>
+                    </a>
                 </div>
 
             </th:block>
