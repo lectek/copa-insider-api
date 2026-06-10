@@ -1,4 +1,3 @@
-// src/main/java/br/com/lectek/copainsider/config/SecurityConfig.java
 package br.com.lectek.copainsider.config;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,111 +18,71 @@ import org.springframework.util.StringUtils;
 @Configuration
 public class SecurityConfig {
 
+    private static final String LOGIN_URL = "/auth/login";
+
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // 🔑 Depois de logar:
-        // - Se o usuário tentou acessar algo protegido (ex.: /checkout),
-        //   ele volta para essa URL.
-        // - Se não tiver URL anterior, cai na home "/".
         AuthenticationSuccessHandler successHandler = (request, response, authentication) -> {
             String target = resolvePostLoginTarget(request, response, authentication);
             response.sendRedirect(target);
         };
 
         http
-            // CSRF desabilitado para algumas rotas técnicas / públicas de API
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers(
                     "/actuator/**",
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
-                    "/api/public/**"
+                    "/api/public/**",
+                    "/api/admin/**",
+                    "/webhooks/**"
                 )
             )
 
             .authorizeHttpRequests(auth -> auth
 
-                // 🔹 Recursos estáticos SEMPRE liberados
                 .requestMatchers(
-                    "/assets/**",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**",
-                    "/animations/**",
-                    "/media/**",
-                    "/vendor/**",
-                    "/img/**",
-                    "/webjars/**",
-                    "/favicon.ico"
+                    "/assets/**", "/css/**", "/js/**", "/images/**",
+                    "/animations/**", "/media/**", "/vendor/**",
+                    "/img/**", "/webjars/**", "/favicon.ico"
                 ).permitAll()
 
-                // 🔹 PÁGINAS PÚBLICAS (área cliente / vitrine)
-                // Qualquer pessoa pode navegar na loja:
-                // - Home / (raiz)
-                // - /cliente      (alias da home cliente)
-                // - /cliente/index
-                // - /sobre        (página institucional)
-                // - /produtos/**  (listar/detalhar produtos)
-                // - /buscar       (busca de produtos)
                 .requestMatchers(
-                    "/",
-                    "/cliente",
-                    "/cliente/index",
-                    "/mercadopago/guia",
-                    "/suporte",
-                    "/alysson",
-                    "/sobre",
-                    "/produtos/**",
-                    "/buscar"
+                    "/", "/cliente", "/cliente/index",
+                    "/mercadopago/guia", "/suporte", "/alysson", "/sobre",
+                    "/produtos/**", "/buscar",
+                    "/calendario", "/selecoes", "/selecoes/**",
+                    "/comparar", "/rivalidades", "/ranking", "/partida/**",
+                    "/loja", "/produto/**", "/webhooks/**"
                 ).permitAll()
 
-                // 🔹 Telas de login/cadastro/verificação (GET e POST)
                 .requestMatchers(HttpMethod.GET,
-                    "/auth/login",
-                    "/auth/cliente/cadastro",
-                    "/cadastro",
-                    "/verificar-email"
+                    LOGIN_URL, "/auth/cliente/cadastro", "/cadastro", "/verificar-email"
                 ).permitAll()
                 .requestMatchers(HttpMethod.POST,
-                    "/auth/login",
-                    "/auth/cliente/cadastro",
-                    "/cadastro",
-                    "/verificar-email"
+                    LOGIN_URL, "/auth/cliente/cadastro", "/cadastro", "/verificar-email"
                 ).permitAll()
 
-                // 🔹 APIs públicas e health (para monitoramento, docs, etc.)
                 .requestMatchers("/api/public/**", "/api/ia/**").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
 
-                // 🔸 ROTAS DE COMPRA — exigem cadastro/login
-                // Tudo que mexe com pedido, checkout e carrinho é protegido.
-                .requestMatchers(
-                    "/carrinho/**",
-                    "/checkout/**",
-                    "/pedido/**"
-                ).authenticated()
-
-                // 🔸 ÁREA ADMIN — só para usuários com ROLE_ADMIN
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                // 🔒 Qualquer outra rota que sobrar exige login
+                .requestMatchers("/carrinho/**", "/checkout/**", "/pedido/**").authenticated()
+                .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
 
-            // 🔐 Configuração do login via formulário
             .formLogin(f -> f
-                .loginPage("/auth/login")
-                .loginProcessingUrl("/auth/login")
+                .loginPage(LOGIN_URL)
+                .loginProcessingUrl(LOGIN_URL)
                 .successHandler(successHandler)
                 .failureHandler(loginFailureHandler())
                 .permitAll()
             )
 
-            // 🔓 Logout padrão
             .logout(l -> l
                 .logoutUrl("/auth/logout")
-                .logoutSuccessUrl("/auth/login?logout")
+                .logoutSuccessUrl(LOGIN_URL + "?logout")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()
@@ -135,7 +94,7 @@ public class SecurityConfig {
     private AuthenticationFailureHandler loginFailureHandler() {
         return (request, response, exception) -> {
             String suffix = (exception instanceof DisabledException) ? "?disabled" : "?error";
-            response.sendRedirect("/auth/login" + suffix);
+            response.sendRedirect(LOGIN_URL + suffix);
         };
     }
 
@@ -149,10 +108,10 @@ public class SecurityConfig {
         String roleDefault = isAdmin ? "/admin/dashboard" : "/cliente/conta";
 
         String requested = request.getParameter("redirect");
-        if (StringUtils.hasText(requested) && requested.startsWith("/") && !requested.startsWith("//")) {
-            if (!requested.startsWith("/admin") || isAdmin) {
-                return requested;
-            }
+        if (StringUtils.hasText(requested) && requested.startsWith("/")
+                && !requested.startsWith("//")
+                && (!requested.startsWith("/admin") || isAdmin)) {
+            return requested;
         }
 
         SavedRequest saved = new HttpSessionRequestCache().getRequest(request, response);

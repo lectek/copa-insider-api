@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Minha Conta')}"></head>
+<body class="ci-body">
+<div th:replace="~{fragments/navbar :: public-navbar}"></div>
+<div th:replace="~{fragments/flash :: flash}"></div>
+
+<style>
+  .acc-wrap { max-width: 860px; margin: 2.5rem auto; padding: 0 1.25rem 4rem; }
+  .acc-header { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 2rem; }
+  .acc-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
+      background: #2a2a3e; display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 700; color: #f5a623; flex-shrink: 0; }
+  .acc-avatar img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
+  .acc-title { font-size: 1.4rem; font-weight: 800; }
+  .acc-subtitle { color: #888; font-size: .9rem; }
+  .acc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+  .acc-card { background: var(--ci-card-bg, #fff); border: 1px solid var(--ci-border, #e8e8f0);
+      border-radius: 14px; padding: 1.5rem; text-decoration: none; color: inherit;
+      transition: box-shadow .15s, transform .15s; display: flex; flex-direction: column; gap: .5rem; }
+  .acc-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); transform: translateY(-2px); }
+  .acc-card__icon { font-size: 1.8rem; }
+  .acc-card__title { font-weight: 700; font-size: 1rem; }
+  .acc-card__desc { font-size: .82rem; color: #888; }
+</style>
+
+<main class="ci-main">
+  <div class="acc-wrap">
+
+    <div class="acc-header">
+      <div class="acc-avatar">
+        <img th:if="${avatarUrl != null}" th:src="${avatarUrl}" alt="Avatar"/>
+        <span th:unless="${avatarUrl != null}"
+              th:text="${avatarNome != null ? #strings.substring(avatarNome,0,1).toUpperCase() : '?'}">?</span>
+      </div>
+      <div>
+        <div class="acc-title" th:text="${avatarNome != null ? avatarNome : 'Bem-vindo'}">Bem-vindo</div>
+        <div class="acc-subtitle">Minha Conta</div>
+      </div>
+    </div>
+
+    <div class="acc-grid">
+      <a th:href="@{/cliente/dados}" class="acc-card">
+        <span class="acc-card__icon">👤</span>
+        <div class="acc-card__title">Meus Dados</div>
+        <div class="acc-card__desc">Nome, e-mail, telefone e endereço</div>
+      </a>
+      <a th:href="@{/cliente/senha}" class="acc-card">
+        <span class="acc-card__icon">🔑</span>
+        <div class="acc-card__title">Alterar Senha</div>
+        <div class="acc-card__desc">Redefina sua senha de acesso</div>
+      </a>
+      <a th:href="@{/loja}" class="acc-card">
+        <span class="acc-card__icon">⚽</span>
+        <div class="acc-card__title">Loja Copa</div>
+        <div class="acc-card__desc">Guias, análises e muito mais</div>
+      </a>
+      <a th:href="@{/palpites}" class="acc-card">
+        <span class="acc-card__icon">🏆</span>
+        <div class="acc-card__title">Meus Palpites</div>
+        <div class="acc-card__desc">Acompanhe seus resultados</div>
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

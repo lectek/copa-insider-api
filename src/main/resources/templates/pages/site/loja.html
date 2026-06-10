@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="#{copa.loja.titulo} + ' — Copa Insider'">Loja — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0a0f; color: #e8e8f0; font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+        /* ── Navbar ── */
+        .navbar { display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 2rem; background: rgba(10,10,15,.95);
+            border-bottom: 1px solid rgba(255,255,255,.07); position: sticky; top: 0; z-index: 100;
+            gap: 1rem; }
+        .brand { display: flex; align-items: center; gap: .5rem; text-decoration: none;
+            color: #e8e8f0; font-weight: 800; font-size: 1.1rem; }
+        .brand-badge { background: #f5a623; color: #0a0a0f; padding: .15rem .4rem;
+            border-radius: 4px; font-size: .75rem; font-weight: 800; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: #9090a8; text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .2s; }
+        .nav-links a:hover, .nav-links a.active { color: #f5a623; }
+        .nav-right { display: flex; align-items: center; gap: .75rem; }
+        .cta-btn { background: #f5a623; color: #0a0a0f; padding: .4rem 1rem;
+            border-radius: 6px; text-decoration: none; font-weight: 700; font-size: .85rem; }
+        .lang-switcher { display: flex; gap: .3rem; align-items: center; }
+        .lang-switcher a { font-size: .75rem; font-weight: 600; color: #9090a8; text-decoration: none;
+            padding: .2rem .45rem; border-radius: 4px; border: 1px solid rgba(255,255,255,.1);
+            transition: all .15s; cursor: pointer; }
+        .lang-switcher a:hover, .lang-switcher a.lang-active { color: #f5a623; border-color: rgba(245,166,35,.4); }
+
+        /* ── Hero ── */
+        .hero { text-align: center; padding: 3.5rem 2rem 2rem; }
+        .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: .5rem; }
+        .hl { color: #f5a623; }
+        .hero p { color: #9090a8; font-size: 1rem; max-width: 500px; margin: 0 auto; }
+        .loja-back { display: inline-block; color: #9090a8; font-size: .85rem; font-weight: 600;
+            text-decoration: none; margin-bottom: 1rem; transition: color .15s; }
+        .loja-back:hover { color: #f5a623; }
+
+        /* ── Grid de produtos ── */
+        .produtos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem; max-width: 1100px; margin: 2.5rem auto 4rem; padding: 0 1.5rem; }
+
+        .produto-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px; padding: 1.75rem; display: flex; flex-direction: column; gap: 1rem;
+            transition: border-color .2s, transform .2s; text-decoration: none; color: inherit; }
+        .produto-card:hover { border-color: rgba(245,166,35,.35); transform: translateY(-2px); }
+
+        .produto-header { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; }
+        .tipo-badge { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+            padding: .2rem .55rem; border-radius: 20px; white-space: nowrap; }
+        .badge-COPA_PASS { background: rgba(245,166,35,.2); color: #f5a623; }
+        .badge-GUIA_SELECAO { background: rgba(100,200,255,.15); color: #64c8ff; }
+        .badge-DUELO_HISTORICO { background: rgba(255,80,80,.15); color: #ff6060; }
+        .badge-ANALISE_PREMIUM { background: rgba(180,130,255,.15); color: #b482ff; }
+
+        .digital-tag { font-size: .7rem; color: #9090a8; font-weight: 500; }
+
+        .produto-nome { font-size: 1.05rem; font-weight: 700; line-height: 1.35; }
+        .produto-desc { font-size: .85rem; color: #9090a8; line-height: 1.55; flex: 1; }
+
+        .produto-footer { display: flex; align-items: center; justify-content: space-between; margin-top: .5rem; }
+        .preco-wrap { display: flex; flex-direction: column; gap: .1rem; }
+        .preco { font-size: 1.25rem; font-weight: 800; color: #f5a623; line-height: 1.2; }
+        .preco-simbolo { font-size: .8rem; font-weight: 600; }
+        .preco-alt { font-size: .78rem; color: #6a6a88; font-weight: 500; }
+
+        .btn-comprar { background: #f5a623; color: #0a0a0f; border: none; padding: .5rem 1.1rem;
+            border-radius: 8px; font-size: .85rem; font-weight: 700; cursor: pointer;
+            text-decoration: none; transition: opacity .15s; display: inline-block; }
+        .btn-comprar:hover { opacity: .88; }
+        .btn-em-breve { background: rgba(255,255,255,.08); color: #9090a8; cursor: default; }
+        .btn-em-breve:hover { opacity: 1; }
+
+        .vazio { text-align: center; color: #9090a8; padding: 4rem 2rem; }
+
+        /* ── Destaque Copa Pass ── */
+        .produto-card.destaque { border-color: rgba(245,166,35,.3);
+            background: linear-gradient(135deg, rgba(245,166,35,.06) 0%, rgba(10,10,15,0) 60%); }
+
+        footer { text-align: center; padding: 2rem; color: #555; font-size: .8rem;
+            border-top: 1px solid rgba(255,255,255,.06); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}" th:text="#{copa.nav.calendario}">Calendário</a>
+        <a th:href="@{/selecoes}" th:text="#{copa.nav.selecoes}">Seleções</a>
+        <a th:href="@{/comparar}" th:text="#{copa.nav.comparar}">Comparar</a>
+        <a th:href="@{/loja}" class="active" th:text="#{copa.nav.loja}">Loja</a>
+    </div>
+    <div class="nav-right">
+        <div class="lang-switcher">
+            <a data-lang="pt_BR" th:classappend="${#locale.country == 'BR' ? 'lang-active' : ''}">🇧🇷</a>
+            <a data-lang="pt_PT" th:classappend="${#locale.country == 'PT' ? 'lang-active' : ''}">🇵🇹</a>
+            <a data-lang="en"    th:classappend="${#locale.language == 'en' ? 'lang-active' : ''}">🇺🇸</a>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <section class="hero">
+        <!-- Filtrado por categoria -->
+        <th:block th:if="${tipoFiltro != null}">
+            <a th:href="@{/loja}" class="loja-back">← Todos os guias</a>
+            <h1><span class="hl" th:text="${tipoNome}">Guias de Seleções</span></h1>
+            <h2 style="font-size:1rem;font-weight:400;color:#c0c0d8;margin-top:.3rem;">
+                Escolhe a seleção que queres acompanhar
+            </h2>
+        </th:block>
+        <!-- Loja geral -->
+        <th:block th:if="${tipoFiltro == null}">
+            <h1><span class="hl">Copa</span> <span th:text="#{copa.nav.loja}">Loja</span></h1>
+            <h2 style="font-size:1rem;font-weight:400;color:#c0c0d8;margin-top:.3rem;" th:text="#{copa.loja.subtitulo}">
+                Conteúdo exclusivo para você dominar a Copa do Mundo
+            </h2>
+        </th:block>
+    </section>
+
+    <div class="produtos-grid" th:if="${!produtos.isEmpty()}">
+        <a th:each="p : ${produtos}"
+           th:href="${p.temHotmartUrl()} ? ${p.hotmartUrl()} : @{/guia/{slug}(slug=${p.slug()})}"
+           th:target="${p.temHotmartUrl()} ? '_blank' : '_self'"
+           th:rel="${p.temHotmartUrl()} ? 'noopener noreferrer' : ''"
+           th:classappend="${p.tipo().name() == 'COPA_PASS' ? ' destaque' : ''}"
+           class="produto-card">
+            <div class="produto-header">
+                <span class="tipo-badge"
+                      th:classappend="'badge-' + ${p.tipo().name()}"
+                      th:text="#{|copa.tipo.${p.tipo().name()}|}">Tipo</span>
+                <span class="digital-tag" th:text="#{copa.loja.digital}">Digital</span>
+            </div>
+            <div class="produto-nome" th:text="${p.nome()}">Nome do produto</div>
+            <div class="produto-desc" th:text="${p.descricao()}">Descrição</div>
+            <div class="produto-footer">
+                <div class="preco-wrap">
+                    <div class="preco">
+                        <span class="preco-simbolo">€</span>
+                        <span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">0,00</span>
+                    </div>
+                    <div class="preco-alt">
+                        R$ <span th:text="${#numbers.formatDecimal(p.preco(), 1, 'POINT', 2, 'COMMA')}">0,00</span>
+                    </div>
+                </div>
+                <span class="btn-comprar"
+                      th:classappend="${!p.temHotmartUrl() ? ' btn-em-breve' : ''}"
+                      th:text="${p.temHotmartUrl() ? #{copa.loja.btn_comprar} : 'Em breve'}">
+                    Comprar
+                </span>
+            </div>
+        </a>
+    </div>
+
+    <p class="vazio" th:if="${produtos.isEmpty()}" th:text="#{copa.loja.vazio}">
+        Nenhum produto disponível no momento.
+    </p>
+</main>
+
+<footer>
+    <p>© 2026 Copa Insider · <a th:href="@{/loja}" style="color:#555;text-decoration:none;"
+       th:text="#{copa.loja.todos_os_guias}">Todos os guias</a></p>
+</footer>
+
+<script>
+    document.querySelectorAll('.lang-switcher a[data-lang]').forEach(function(a) {
+        a.addEventListener('click', function() {
+            var p = new URLSearchParams(window.location.search);
+            p.set('lang', a.getAttribute('data-lang'));
+            window.location.search = p.toString();
+        });
+    });
+</script>
+</body>
+</html>

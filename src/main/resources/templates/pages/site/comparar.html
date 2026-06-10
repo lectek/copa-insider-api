@@ -23,6 +23,10 @@
         .nav-links a:hover, .nav-links a.active { color: #f5a623; }
         .cta-btn { background: #f5a623; color: #0a0a0f; padding: .4rem 1rem;
             border-radius: 6px; text-decoration: none; font-weight: 700; font-size: .85rem; }
+        .lang-sw { display:flex; gap:.25rem; align-items:center; }
+        .lf { font-size:1.05rem; cursor:pointer; opacity:.6; text-decoration:none; border:none; background:none;
+              padding:.15rem; border-radius:4px; transition:opacity .15s; }
+        .lf:hover, .lf.lf-on { opacity:1; }
 
         /* ── Hero / formulário ── */
         .hero { text-align: center; padding: 3rem 2rem 2rem; }
@@ -112,13 +116,21 @@
 <nav class="navbar">
     <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
     <div class="nav-links">
-        <a th:href="@{/calendario}">Calendário</a>
-        <a th:href="@{/selecoes}">Seleções</a>
-        <a th:href="@{/rivalidades}">Rivalidades</a>
-        <a th:href="@{/ranking}">Ranking</a>
+        <a th:href="@{/calendario}" th:text="#{copa.nav.calendario}">Calendário</a>
+        <a th:href="@{/selecoes}" th:text="#{copa.nav.selecoes}">Seleções</a>
+        <a th:href="@{/comparar}" class="active" th:text="#{copa.nav.comparar}">Comparar</a>
+        <a th:href="@{/loja}" th:text="#{copa.nav.loja}">Loja</a>
     </div>
-    <a href="/" class="cta-btn">Ver guias</a>
+    <div style="display:flex;align-items:center;gap:.5rem;">
+        <div class="lang-sw">
+            <a class="lf" data-lang="pt_BR" th:classappend="${#locale.country=='BR'?'lf-on':''}">🇧🇷</a>
+            <a class="lf" data-lang="pt_PT" th:classappend="${#locale.country=='PT'?'lf-on':''}">🇵🇹</a>
+            <a class="lf" data-lang="en"    th:classappend="${#locale.language=='en'?'lf-on':''}">🇺🇸</a>
+        </div>
+        <a th:href="@{/loja}" class="cta-btn" th:text="#{copa.nav.ver_guias}">Loja</a>
+    </div>
 </nav>
+<script>document.querySelectorAll('.lf').forEach(function(a){a.addEventListener('click',function(){var p=new URLSearchParams(location.search);p.set('lang',a.dataset.lang);location.search=p.toString();});});</script>
 
 <main>
 

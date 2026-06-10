@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Meus Dados')}"></head>
+<body class="ci-body">
+<div th:replace="~{fragments/navbar :: public-navbar}"></div>
+<div th:replace="~{fragments/flash :: flash}"></div>
+
+<style>
+  .acc-wrap { max-width: 640px; margin: 2.5rem auto; padding: 0 1.25rem 4rem; }
+  .acc-back { display: inline-flex; align-items: center; gap: .35rem; color: #888;
+      text-decoration: none; font-size: .85rem; margin-bottom: 1.5rem; }
+  .acc-back:hover { color: var(--ci-primary, #f5a623); }
+  .acc-section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem; }
+  .acc-form-card { background: var(--ci-card-bg, #fff);
+      border: 1px solid var(--ci-border, #e8e8f0);
+      border-radius: 16px; padding: 2rem; }
+  .acc-form-group { display: flex; flex-direction: column; gap: .35rem; margin-bottom: 1.1rem; }
+  .acc-form-group label { font-size: .8rem; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: .04em; }
+  .acc-form-group input { padding: .65rem .9rem; border-radius: 8px;
+      border: 1px solid var(--ci-border, #d0d0e0); font-size: .95rem; font-family: inherit;
+      background: var(--ci-input-bg, #fafafa); transition: border-color .15s; }
+  .acc-form-group input:focus { outline: none; border-color: var(--ci-primary, #f5a623); }
+  .acc-form-group input[readonly] { background: var(--ci-muted-bg, #f0f0f5); color: #888; cursor: default; }
+  .acc-field-error { color: #e55; font-size: .8rem; }
+  .acc-actions { display: flex; gap: .75rem; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; }
+
+  /* Avatar section */
+  .acc-avatar-section { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.75rem;
+      padding-bottom: 1.5rem; border-bottom: 1px solid var(--ci-border, #e8e8f0); }
+  .acc-avatar-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+      background: #e0e0f0; display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 700; color: #f5a623; flex-shrink: 0; overflow: hidden; }
+  .acc-avatar-img img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
+  .acc-avatar-info { flex: 1; }
+  .acc-avatar-info p { font-size: .82rem; color: #888; margin-top: .2rem; }
+</style>
+
+<main class="ci-main">
+  <div class="acc-wrap">
+    <a th:href="@{/cliente/conta}" class="acc-back">← Minha Conta</a>
+    <h1 class="acc-section-title">Meus Dados</h1>
+
+    <div class="acc-form-card">
+      <!-- Avatar -->
+      <div class="acc-avatar-section">
+        <div class="acc-avatar-img">
+          <img th:if="${avatarUrl != null}" th:src="${avatarUrl}" alt="Avatar"/>
+          <span th:unless="${avatarUrl != null}"
+                th:text="${avatarNome != null ? #strings.substring(avatarNome,0,1).toUpperCase() : '?'}">?</span>
+        </div>
+        <div class="acc-avatar-info">
+          <strong>Foto de perfil</strong>
+          <p>PNG, JPG ou WEBP · Máx 2 MB</p>
+          <form th:action="@{/cliente/avatar}" method="post" enctype="multipart/form-data"
+                style="margin-top:.5rem;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="file" name="file" accept="image/png,image/jpeg,image/webp"
+                   style="font-size:.82rem;" onchange="this.form.submit()"/>
+          </form>
+        </div>
+      </div>
+
+      <!-- Profile form -->
+      <form th:action="@{/cliente/dados}" method="post" th:object="${form}" novalidate>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="acc-form-group">
+          <label for="nome">Nome completo</label>
+          <input id="nome" type="text" th:field="*{nome}" placeholder="Seu nome" maxlength="120"/>
+          <span class="acc-field-error" th:if="${#fields.hasErrors('nome')}"
+                th:errors="*{nome}"></span>
+        </div>
+
+        <div class="acc-form-group">
+          <label for="email">E-mail</label>
+          <input id="email" type="email" th:field="*{email}" placeholder="seuemail@exemplo.com" maxlength="150"/>
+          <span class="acc-field-error" th:if="${#fields.hasErrors('email')}"
+                th:errors="*{email}"></span>
+        </div>
+
+        <div class="acc-form-group">
+          <label for="cpf">CPF</label>
+          <input id="cpf" type="text" th:field="*{cpf}" placeholder="000.000.000-00"
+                 maxlength="14" readonly/>
+        </div>
+
+        <div class="acc-form-group">
+          <label for="telefone">Telefone</label>
+          <input id="telefone" type="tel" th:field="*{telefone}" placeholder="+55 (11) 99999-9999" maxlength="25"/>
+          <span class="acc-field-error" th:if="${#fields.hasErrors('telefone')}"
+                th:errors="*{telefone}"></span>
+        </div>
+
+        <div class="acc-form-group">
+          <label for="endereco">Endereço</label>
+          <input id="endereco" type="text" th:field="*{endereco}" placeholder="Rua, número, bairro, cidade" maxlength="200"/>
+          <span class="acc-field-error" th:if="${#fields.hasErrors('endereco')}"
+                th:errors="*{endereco}"></span>
+        </div>
+
+        <div class="acc-actions">
+          <button type="submit" class="ci-btn ci-btn--primary">Salvar alterações</button>
+          <a th:href="@{/cliente/conta}" class="ci-btn ci-btn--outline">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

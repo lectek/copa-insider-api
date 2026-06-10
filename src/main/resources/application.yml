@@ -206,6 +206,13 @@ app:
   kafka:
     groups:
       pedidos: ${APP_KAFKA_GROUP_PEDIDOS:pedidos-consumer}
+hotmart:
+  hottok: ${HOTMART_HOTTOK:}
+  api:
+    client-id: ${HOTMART_CLIENT_ID:}
+    client-secret: ${HOTMART_CLIENT_SECRET:}
+    basic-token: ${HOTMART_BASIC_TOKEN:}
+
 legacy:
   sync:
     enabled: ${LEGACY_SYNC_ENABLED:false}
@@ -238,6 +245,9 @@ spring:
   mail:
     host: ${SPRING_MAIL_HOST:copainsider-mailpit-dev}
     port: ${SPRING_MAIL_PORT:8025}
+
+hotmart:
+  hottok: ${HOTMART_HOTTOK:}
 
 management:
   server:

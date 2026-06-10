@@ -61,7 +61,7 @@ spring:
   flyway:
     enabled: true
     table: flyway_schema_history
-    locations: classpath:db/migration,classpath:db/migration-mysql,classpath:db/migration/PROD
+    locations: classpath:db/migration,classpath:db/migration-mysql,classpath:db/migration/PROD,classpath:db/migration/USER
     url: ${SPRING_FLYWAY_URL:${SPRING_DATASOURCE_URL:}}
     user: ${SPRING_FLYWAY_USER:${SPRING_DATASOURCE_USERNAME:}}
     password: ${SPRING_FLYWAY_PASSWORD:${SPRING_DATASOURCE_PASSWORD:}}

@@ -30,81 +30,122 @@
     </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero" id="guias">
+<!-- HERO — título + como funciona sobre a imagem -->
+<section class="hero">
     <div class="hero__inner">
         <h1 class="hero__title">Escolhe o guia certo<br>para o jogo que vais ver.</h1>
 
-        <div class="cards" id="o-que-recebes">
-
-            <!-- CARD MAIS PROCURADO -->
-            <div class="card card--highlight">
-                <div class="card__top">
-                    <span class="card__tag">MAIS PROCURADO</span>
-                    <span class="card__price">3,99€</span>
+        <div class="hero__steps">
+            <div class="hero__step">
+                <span class="hero__step-num">1</span>
+                <div class="hero__step-body">
+                    <h3 class="hero__step-title">Escolhes o jogo</h3>
+                    <p class="hero__step-desc">Seleciona a partida que vais ver no calendário da Copa 2026.</p>
                 </div>
-                <h2 class="card__title">A história completa da tua seleção nas Copas</h2>
-                <p class="card__desc">Todas as participações, melhores campanhas, jogos inesquecíveis, goleadores, deceções, recordes e curiosidades num guia simples de guardar.</p>
-                <a th:href="@{/selecoes}" class="card__btn card__btn--gold">Explorar seleções</a>
             </div>
-
-            <!-- CARD PRE-JOGO -->
-            <div class="card">
-                <div class="card__top">
-                    <span class="card__tag">PRÉ-JOGO</span>
-                    <span class="card__price">1,00€</span>
+            <div class="hero__step-divider"></div>
+            <div class="hero__step">
+                <span class="hero__step-num">2</span>
+                <div class="hero__step-body">
+                    <h3 class="hero__step-title">Escolhes o guia</h3>
+                    <p class="hero__step-desc">Pré-jogo rápido, curiosidades, história completa ou dossier total.</p>
                 </div>
-                <h2 class="card__title">Histórico entre duas seleções</h2>
-                <p class="card__desc">O saldo do confronto, resultados antigos, jogos mais importantes, contexto e factos rápidos para leres antes do apito inicial.</p>
-                <a th:href="@{/rivalidades}" class="card__btn">Ver rivalidades</a>
             </div>
-
-            <!-- CARD CURIOSIDADES -->
-            <div class="card">
-                <div class="card__top">
-                    <span class="card__tag">CURIOSIDADES</span>
-                    <span class="card__price">2,49€</span>
+            <div class="hero__step-divider"></div>
+            <div class="hero__step">
+                <span class="hero__step-num">3</span>
+                <div class="hero__step-body">
+                    <h3 class="hero__step-title">Recebes na hora</h3>
+                    <p class="hero__step-desc">Acesso imediato. Lês quando quiseres, onde quiseres.</p>
                 </div>
-                <h2 class="card__title">20 factos para surpreender os teus amigos</h2>
-                <p class="card__desc">Curiosidades, recordes e pequenas histórias que fazem qualquer conversa sobre a Copa ficar melhor.</p>
-                <a th:href="@{/ranking}" class="card__btn">Ver ranking</a>
             </div>
-
-            <!-- CARD COMPLETO -->
-            <div class="card">
-                <div class="card__top">
-                    <span class="card__tag">COMPLETO</span>
-                    <span class="card__price">7,99€</span>
-                </div>
-                <h2 class="card__title">Dossier completo do jogo</h2>
-                <p class="card__desc">A melhor escolha para grandes jogos: histórico das equipas, comparações, estatísticas, linhas do tempo, curiosidades e jogadores-chave.</p>
-                <a th:href="@{/calendario}" class="card__btn">Ver calendário</a>
-            </div>
-
         </div>
+
+        <a href="#guias" class="hero__scroll-cta">Ver os guias ↓</a>
     </div>
 </section>
 
-<!-- COMO FUNCIONA -->
-<section class="how" id="como-funciona">
-    <div class="how__inner">
-        <h2 class="how__title">Como funciona</h2>
-        <div class="how__steps">
-            <div class="how__step">
-                <span class="how__step-num">1</span>
-                <h3 class="how__step-title">Escolhes o jogo</h3>
-                <p class="how__step-desc">Seleciona a partida que vais ver no calendário da Copa 2026.</p>
-            </div>
-            <div class="how__step">
-                <span class="how__step-num">2</span>
-                <h3 class="how__step-title">Escolhes o guia</h3>
-                <p class="how__step-desc">Pré-jogo rápido, curiosidades, história completa ou dossier total. Tu decides.</p>
-            </div>
-            <div class="how__step">
-                <span class="how__step-num">3</span>
-                <h3 class="how__step-title">Recebes na hora</h3>
-                <p class="how__step-desc">Acesso imediato ao conteúdo digital. Lês quando quiseres, onde quiseres.</p>
-            </div>
+<!-- PRODUTOS — área escura -->
+<section class="produtos" id="guias">
+    <div class="produtos__inner">
+        <h2 class="produtos__title">Os nossos guias</h2>
+        <p class="produtos__sub">Conteúdo digital entregue na hora. Escolhe o que precisas para o jogo de hoje.</p>
+
+        <div class="cards">
+
+            <!-- CARDS DINÂMICOS DO DB -->
+            <th:block th:each="p, iter : ${produtos}">
+
+                <!-- Card destacado (primeiro tipo) -->
+                <div th:if="${iter.index == 0}" class="card card--highlight">
+                    <div class="card__top">
+                        <span class="card__tag">MAIS PROCURADO</span>
+                        <span class="card__price"
+                              th:text="'desde €' + ${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}"
+                              th:if="${p.categoriaComMultiplos()}">desde €3,99</span>
+                        <span class="card__price"
+                              th:unless="${p.categoriaComMultiplos()}"
+                              th:text="'€' + ${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">€3,99</span>
+                    </div>
+                    <h2 class="card__title"
+                        th:text="${p.categoriaComMultiplos()} ? 'Guia da Tua Seleção' : ${p.nome()}">Guia da Tua Seleção</h2>
+                    <p class="card__desc"
+                       th:text="${p.categoriaComMultiplos()} ? 'A história completa da tua seleção nas Copas: Portugal, Brasil e mais países disponíveis.' : ${p.descricao()}">Descrição</p>
+                    <!-- Categoria com múltiplos: explorar lista -->
+                    <a th:if="${p.categoriaComMultiplos()}"
+                       th:href="@{/loja(tipo=${p.tipo().name()})}"
+                       class="card__btn card__btn--gold">Explorar seleções →</a>
+                    <!-- Produto único com URL de compra -->
+                    <a th:if="${!p.categoriaComMultiplos() and p.temHotmartUrl()}"
+                       th:href="${p.hotmartUrl()}"
+                       target="_blank" rel="noopener noreferrer"
+                       class="card__btn card__btn--gold">Comprar agora</a>
+                    <!-- Produto único sem URL -->
+                    <a th:if="${!p.categoriaComMultiplos() and !p.temHotmartUrl()}"
+                       th:href="@{/guia/{slug}(slug=${p.slug()})}"
+                       class="card__btn card__btn--gold">Ver detalhes</a>
+                </div>
+
+                <!-- Cards dos outros tipos -->
+                <div th:if="${iter.index > 0}" class="card">
+                    <div class="card__top">
+                        <span class="card__tag"
+                              th:text="${p.tipo().name() == 'DUELO_HISTORICO' ? 'PRÉ-JOGO' :
+                                         p.tipo().name() == 'ANALISE_PREMIUM' ? 'CURIOSIDADES' :
+                                         p.tipo().name() == 'COPA_PASS'       ? 'COMPLETO' :
+                                         p.tipo().name()}">TIPO</span>
+                        <span class="card__price"
+                              th:text="'€' + ${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">€1,99</span>
+                    </div>
+                    <h2 class="card__title" th:text="${p.nome()}">Nome do produto</h2>
+                    <p class="card__desc" th:text="${p.descricao()}">Descrição</p>
+                    <a th:if="${p.categoriaComMultiplos()}"
+                       th:href="@{/loja(tipo=${p.tipo().name()})}"
+                       class="card__btn">Explorar →</a>
+                    <a th:if="${!p.categoriaComMultiplos() and p.temHotmartUrl()}"
+                       th:href="${p.hotmartUrl()}"
+                       target="_blank" rel="noopener noreferrer"
+                       class="card__btn">Comprar agora</a>
+                    <a th:if="${!p.categoriaComMultiplos() and !p.temHotmartUrl()}"
+                       th:href="@{/guia/{slug}(slug=${p.slug()})}"
+                       class="card__btn">Ver detalhes</a>
+                </div>
+
+            </th:block>
+
+            <!-- Fallback se DB vazio -->
+            <th:block th:if="${produtos.isEmpty()}">
+                <div class="card card--highlight">
+                    <div class="card__top">
+                        <span class="card__tag">MAIS PROCURADO</span>
+                        <span class="card__price">3,99€</span>
+                    </div>
+                    <h2 class="card__title">A história completa da tua seleção nas Copas</h2>
+                    <p class="card__desc">Todas as participações, melhores campanhas, jogos inesquecíveis, artilheiros, recordes e curiosidades num guia simples de guardar.</p>
+                    <a th:href="@{/loja}" class="card__btn card__btn--gold">Ver na loja</a>
+                </div>
+            </th:block>
+
         </div>
     </div>
 </section>

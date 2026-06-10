@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Alterar Senha')}"></head>
+<body class="ci-body">
+<div th:replace="~{fragments/navbar :: public-navbar}"></div>
+<div th:replace="~{fragments/flash :: flash}"></div>
+
+<style>
+  .acc-wrap { max-width: 540px; margin: 2.5rem auto; padding: 0 1.25rem 4rem; }
+  .acc-back { display: inline-flex; align-items: center; gap: .35rem; color: #888;
+      text-decoration: none; font-size: .85rem; margin-bottom: 1.5rem; }
+  .acc-back:hover { color: var(--ci-primary, #f5a623); }
+  .acc-section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem; }
+  .acc-form-card { background: var(--ci-card-bg, #fff);
+      border: 1px solid var(--ci-border, #e8e8f0);
+      border-radius: 16px; padding: 2rem; }
+  .acc-form-group { display: flex; flex-direction: column; gap: .35rem; margin-bottom: 1.1rem; }
+  .acc-form-group label { font-size: .8rem; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: .04em; }
+  .acc-form-group input { padding: .65rem .9rem; border-radius: 8px;
+      border: 1px solid var(--ci-border, #d0d0e0); font-size: .95rem; font-family: inherit;
+      background: var(--ci-input-bg, #fafafa); transition: border-color .15s; }
+  .acc-form-group input:focus { outline: none; border-color: var(--ci-primary, #f5a623); }
+  .acc-field-error { color: #e55; font-size: .8rem; }
+  .acc-password-hint { font-size: .78rem; color: #888; margin-top: .2rem;
+      background: var(--ci-muted-bg, #f5f5fa); padding: .6rem .75rem;
+      border-radius: 8px; line-height: 1.5; }
+  .acc-actions { display: flex; gap: .75rem; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; }
+  .acc-recovery { margin-top: 1.25rem; padding-top: 1.25rem;
+      border-top: 1px solid var(--ci-border, #e8e8f0);
+      font-size: .82rem; color: #888; }
+  .acc-recovery a { color: var(--ci-primary, #f5a623); text-decoration: none; }
+</style>
+
+<main class="ci-main">
+  <div class="acc-wrap">
+    <a th:href="@{/cliente/conta}" class="acc-back">← Minha Conta</a>
+    <h1 class="acc-section-title">Alterar Senha</h1>
+
+    <div class="acc-form-card">
+      <form th:action="@{/cliente/senha}" method="post" th:object="${form}" novalidate>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="acc-form-group">
+          <label for="senhaAtual">Senha atual</label>
+          <input id="senhaAtual" type="password" th:field="*{senhaAtual}" placeholder="••••••••" autocomplete="current-password"/>
+          <span class="acc-field-error" th:if="${#fields.hasErrors('senhaAtual')}"
+                th:errors="*{senhaAtual}"></span>
+        </div>
+
+        <div class="acc-form-group">
+          <label for="novaSenha">Nova senha</label>
+          <input id="novaSenha" type="password" th:field="*{novaSenha}" placeholder="••••••••" autocomplete="new-password"/>
+          <span class="acc-field-error" th:if="${#fields.hasErrors('novaSenha')}"
+                th:errors="*{novaSenha}"></span>
+          <div class="acc-password-hint">
+            Mínimo 8 caracteres · maiúscula · minúscula · número · caractere especial
+          </div>
+        </div>
+
+        <div class="acc-form-group">
+          <label for="confirmarNovaSenha">Confirmar nova senha</label>
+          <input id="confirmarNovaSenha" type="password" th:field="*{confirmarNovaSenha}" placeholder="••••••••" autocomplete="new-password"/>
+          <span class="acc-field-error" th:if="${#fields.hasErrors('confirmarNovaSenha')}"
+                th:errors="*{confirmarNovaSenha}"></span>
+        </div>
+
+        <div class="acc-actions">
+          <button type="submit" class="ci-btn ci-btn--primary">Salvar nova senha</button>
+          <a th:href="@{/cliente/conta}" class="ci-btn ci-btn--outline">Cancelar</a>
+        </div>
+      </form>
+
+      <div class="acc-recovery" th:if="${passwordRecoveryAvailable}">
+        Esqueceu a senha?
+        <a th:href="@{/auth/reset?email={e}(e=${passwordRecoveryEmail})}">
+          Recuperar via e-mail (<span th:text="${passwordRecoveryMaskedEmail}">ex***@...</span>)
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

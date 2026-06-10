@@ -151,7 +151,8 @@ public class MySqlDataSourceConfig {
 
         Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
-                .locations("classpath:db/migration", "classpath:db/migration-mysql")
+                .locations("classpath:db/migration", "classpath:db/migration-mysql",
+                        "classpath:db/migration/PROD", "classpath:db/migration/USER")
                 .baselineOnMigrate(true)
                 .outOfOrder(outOfOrder)
                 .load();

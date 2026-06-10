@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compra confirmada — Copa Insider</title>
+  <style>
+    body { margin: 0; padding: 0; background: #0a0a0a; font-family: 'Inter', Arial, sans-serif; color: #ffffff; }
+    .wrap { max-width: 600px; margin: 0 auto; background: #111; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; }
+    .header { background: linear-gradient(135deg, #1a3a22 0%, #0d2016 100%); padding: 40px 32px; text-align: center; }
+    .header-badge { display: inline-block; background: #e8b930; color: #000; font-weight: 800; font-size: 13px; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.06em; margin-bottom: 16px; }
+    .header h1 { margin: 0; font-size: 26px; font-weight: 800; color: #fff; line-height: 1.3; }
+    .body { padding: 32px; }
+    .greeting { font-size: 16px; color: #ccc; margin-bottom: 24px; }
+    .greeting strong { color: #fff; }
+    .card { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+    .card-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #2a2a2a; font-size: 14px; }
+    .card-row:last-child { border-bottom: none; }
+    .card-row .label { color: #888; }
+    .card-row .value { color: #fff; font-weight: 600; text-align: right; max-width: 60%; }
+    .badge-ok { display: inline-block; background: #1a4a2a; color: #4caf50; border: 1px solid #2d7a3a; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .cta-section { text-align: center; margin: 32px 0 24px; }
+    .cta-btn { display: inline-block; background: #e8b930; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 8px; text-decoration: none; }
+    .info-box { background: #0d1a10; border: 1px solid #1e3a22; border-radius: 8px; padding: 16px 20px; font-size: 13px; color: #a0c0a8; line-height: 1.6; margin-bottom: 24px; }
+    .info-box strong { color: #c0e0c8; }
+    .footer { padding: 24px 32px; border-top: 1px solid #2a2a2a; text-align: center; }
+    .footer p { font-size: 12px; color: #555; margin: 4px 0; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-badge">Copa Insider</div>
+    <h1>Sua compra foi confirmada!</h1>
+  </div>
+
+  <div class="body">
+    <p class="greeting">Olá, <strong th:text="${nome}">Comprador</strong>!</p>
+    <p style="color:#aaa; font-size:14px; margin-top:0; margin-bottom:24px;">
+      Recebemos a confirmação do seu pagamento. Abaixo estão os detalhes da sua compra.
+    </p>
+
+    <div class="card">
+      <div class="card-row">
+        <span class="label">Produto</span>
+        <span class="value" th:text="${produto}">Copa Insider</span>
+      </div>
+      <div class="card-row">
+        <span class="label">Transação</span>
+        <span class="value" th:text="${transacao}">HP...</span>
+      </div>
+      <div class="card-row">
+        <span class="label">Valor</span>
+        <span class="value">
+          <span th:text="${moeda == 'BRL' ? 'R$ ' : (moeda == 'EUR' ? '€ ' : moeda + ' ')}">R$ </span><span th:text="${#numbers.formatDecimal(valor, 1, 'POINT', 2, 'COMMA')}">0,00</span>
+        </span>
+      </div>
+      <div class="card-row">
+        <span class="label">Status</span>
+        <span class="value"><span class="badge-ok">✓ Aprovado</span></span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Como acessar seu conteúdo:</strong><br/>
+      Acesse <a href="https://allaboutworldcup2026.com/cliente/conta" style="color:#e8b930;">allaboutworldcup2026.com</a>,
+      faça login com seu e-mail e seu produto estará disponível em <strong>Minha Conta → Meus Palpites / Loja Copa</strong>.
+      Se você ainda não tem cadastro, crie uma conta com este mesmo e-mail.
+    </div>
+
+    <div class="cta-section">
+      <a href="https://allaboutworldcup2026.com/cliente/conta" class="cta-btn">Acessar minha conta</a>
+    </div>
+
+    <p style="font-size:13px; color:#666; text-align:center;">
+      Dúvidas? Fale conosco em
+      <a href="mailto:suporte@allaboutworldcup2026.com" style="color:#e8b930;">suporte@allaboutworldcup2026.com</a>
+    </p>
+  </div>
+
+  <div class="footer">
+    <p>Copa Insider &mdash; Análises e guias da Copa do Mundo 2026</p>
+    <p>Este e-mail foi enviado automaticamente após confirmação de pagamento.</p>
+  </div>
+
+</div>
+</body>
+</html>
