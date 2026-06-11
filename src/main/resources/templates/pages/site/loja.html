@@ -3,56 +3,155 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title th:text="#{copa.loja.titulo} + ' — Copa Insider'">Loja — Copa Insider</title>
+    <title>Guias — Copa Insider</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" th:href="@{/css/landing.css}"/>
     <style>
-        /* Ajustes específicos da loja */
-        .loja-hero {
-            text-align: center;
-            padding: 56px 24px 48px;
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-        }
-        .loja-hero__title { font-size: clamp(26px, 4vw, 40px); font-weight: 800; margin-bottom: 8px; }
-        .loja-hero__sub { font-size: 15px; color: var(--text-muted); }
-        .loja-back {
-            display: inline-flex; align-items: center; gap: 6px;
-            color: var(--text-muted); font-size: 13px; font-weight: 600;
-            text-decoration: none; margin-bottom: 16px; transition: color .15s;
-        }
-        .loja-back:hover { color: var(--gold); }
+        /* ── Loja overrides ── */
+        .loja-wrap { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
 
-        .loja-grid-wrap {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 48px 24px 80px;
-        }
-
-        /* cards grid herdada de landing.css mas com auto-fill para a loja */
-        .loja-grid {
+        /* Featured — Copa Pass */
+        .featured-card {
+            background: linear-gradient(135deg, rgba(245,166,35,.08) 0%, rgba(255,255,255,.03) 100%);
+            border: 1.5px solid rgba(245,166,35,.35);
+            border-radius: 20px;
+            padding: 40px 48px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 16px;
-            align-items: start;
+            grid-template-columns: 1fr auto;
+            gap: 40px;
+            align-items: center;
+            margin-bottom: 48px;
+            position: relative;
+            overflow: hidden;
         }
+        .featured-card::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(245,166,35,.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .featured-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #2a1f08; color: #f5a623;
+            border: 1px solid rgba(245,166,35,.4);
+            border-radius: 20px; padding: 4px 12px;
+            font-size: 11px; font-weight: 800;
+            letter-spacing: .08em; text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .featured-title {
+            font-size: clamp(22px, 3vw, 30px); font-weight: 800;
+            color: #e8e8f0; margin-bottom: 10px; line-height: 1.2;
+        }
+        .featured-desc {
+            font-size: 15px; color: #b8b8d0; line-height: 1.6; margin-bottom: 20px;
+            max-width: 520px;
+        }
+        .featured-perks {
+            list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 0;
+        }
+        .featured-perks li {
+            font-size: 13px; color: #c8c8e0;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .featured-perks li::before { content: '✓'; color: #f5a623; font-weight: 800; }
+        .featured-cta { text-align: center; flex-shrink: 0; }
+        .featured-price {
+            font-size: 42px; font-weight: 800; color: #f5a623;
+            line-height: 1; margin-bottom: 6px;
+        }
+        .featured-price-label {
+            font-size: 11px; color: #b8b8d0; letter-spacing: .05em;
+            text-transform: uppercase; margin-bottom: 20px;
+        }
+        .featured-btn {
+            display: block; background: #f5a623; color: #0a0a0f;
+            font-weight: 800; font-size: 15px;
+            padding: 14px 32px; border-radius: 10px;
+            text-decoration: none; white-space: nowrap;
+            transition: opacity .2s, transform .15s;
+        }
+        .featured-btn:hover { opacity: .9; transform: translateY(-1px); }
+        .featured-btn-soon {
+            display: block; background: rgba(255,255,255,.06);
+            color: #b8b8d0; font-weight: 700; font-size: 14px;
+            padding: 14px 32px; border-radius: 10px;
+            text-decoration: none; cursor: not-allowed; pointer-events: none;
+        }
+
+        /* Secção título */
+        .section-label {
+            font-size: 11px; font-weight: 700; letter-spacing: .1em;
+            text-transform: uppercase; color: #b8b8d0;
+            margin-bottom: 16px;
+        }
+
+        /* Grid de produtos individuais */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 56px;
+        }
+
+        .prod-card {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px; padding: 28px;
+            display: flex; flex-direction: column;
+            transition: border-color .2s;
+        }
+        .prod-card:hover { border-color: rgba(245,166,35,.25); }
+        .prod-card__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .prod-card__tag {
+            font-size: 10px; font-weight: 800; letter-spacing: .08em;
+            text-transform: uppercase; color: #f5a623;
+            background: #1e1608; border-radius: 4px;
+            padding: 3px 8px;
+        }
+        .prod-card__price { font-size: 22px; font-weight: 800; color: #e8e8f0; }
+        .prod-card__title { font-size: 17px; font-weight: 700; color: #e8e8f0; margin-bottom: 8px; line-height: 1.3; }
+        .prod-card__desc { font-size: 13px; color: #b8b8d0; line-height: 1.6; flex: 1; margin-bottom: 20px; }
+        .prod-card__btn {
+            display: block; text-align: center;
+            background: rgba(255,255,255,.08); color: #e8e8f0;
+            font-weight: 700; font-size: 14px;
+            padding: 12px; border-radius: 8px;
+            text-decoration: none; transition: background .2s;
+        }
+        .prod-card__btn:hover { background: #2a1f08; color: #f5a623; }
+        .prod-card__btn--gold {
+            background: #1e1608;
+            color: #f5a623; border: 1px solid rgba(245,166,35,.35);
+        }
+        .prod-card__btn--gold:hover { background: #2a1f08; }
+        .prod-card__btn--soon {
+            background: rgba(255,255,255,.04); color: #c0c0d8;
+            cursor: not-allowed; pointer-events: none;
+        }
+
+        /* Sem produtos */
+        .empty-state { text-align: center; padding: 4rem 2rem; color: #9090a8; }
 
         @media (max-width: 768px) {
-            .loja-grid { grid-template-columns: 1fr; }
-            .loja-hero { padding: 40px 24px 32px; }
+            .featured-card { grid-template-columns: 1fr; padding: 28px 24px; gap: 24px; }
+            .featured-cta { text-align: left; }
+            .featured-price { font-size: 32px; }
+            .products-grid { grid-template-columns: 1fr; }
+            .loja-wrap { padding: 32px 16px 64px; }
         }
     </style>
 </head>
 <body>
 
-<!-- Urgency bar -->
 <div class="urgency-bar">
     <span>⚽ Copa 2026 está ao vivo — guias entregues na hora</span>
-    <a href="#guias" class="urgency-bar__cta">Ver guias →</a>
+    <a th:href="@{/loja}" class="urgency-bar__cta">Ver guias →</a>
 </div>
 
-<!-- Navbar -->
 <nav class="nav">
     <div class="nav__inner">
         <a th:href="@{/}" class="nav__brand">
@@ -65,96 +164,79 @@
             <li><a th:href="@{/comparar}" class="nav__link">Rivalidades</a></li>
             <li><a th:href="@{/factos}" class="nav__link">Factos</a></li>
         </ul>
-        <a th:href="@{/loja}" class="nav__cta" style="border-color: var(--gold); color: var(--gold);">Ver guias</a>
+        <a th:href="@{/loja}" class="nav__cta" style="border-color:var(--gold);color:var(--gold);">Ver guias</a>
         <button class="nav__toggle" onclick="this.closest('nav').classList.toggle('nav--open')">&#9776;</button>
     </div>
 </nav>
 
 <main>
+<div class="loja-wrap">
 
-    <!-- Hero -->
-    <section class="loja-hero" id="guias">
-        <th:block th:if="${tipoFiltro != null}">
-            <a th:href="@{/loja}" class="loja-back">← Todos os guias</a>
-            <h1 class="loja-hero__title"><span class="hl" th:text="${tipoNome}">Guias de Seleções</span></h1>
-            <p class="loja-hero__sub">Escolhe a seleção que queres acompanhar</p>
-        </th:block>
-        <th:block th:if="${tipoFiltro == null}">
-            <h1 class="loja-hero__title">Os nossos <span class="hl">guias</span></h1>
-            <p class="loja-hero__sub" th:text="#{copa.loja.subtitulo}">Conteúdo digital entregue na hora. Escolhe o que precisas para o jogo de hoje.</p>
-        </th:block>
-    </section>
-
-    <!-- Grid de produtos -->
-    <div class="loja-grid-wrap">
-        <div class="loja-grid" th:if="${!produtos.isEmpty()}">
-
-            <th:block th:each="p, iter : ${produtos}">
-
-                <!-- Primeiro card — destaque -->
-                <div th:if="${iter.index == 0}" class="card card--highlight">
-                    <div class="card__top">
-                        <span class="card__tag"
-                              th:text="${tipoFiltro != null ? p.tipo().name() :
-                                         p.tipo().name() == 'GUIA_SELECAO'    ? 'MAIS PROCURADO' :
-                                         p.tipo().name() == 'DUELO_HISTORICO' ? 'PRÉ-JOGO' :
-                                         p.tipo().name() == 'ANALISE_PREMIUM' ? 'CURIOSIDADES' :
-                                         p.tipo().name() == 'COPA_PASS'       ? 'COMPLETO' :
-                                         'MAIS PROCURADO'}">MAIS PROCURADO</span>
-                        <span class="card__price"
-                              th:text="'€' + ${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">€3,99</span>
-                    </div>
-                    <h2 class="card__title" th:text="${p.nome()}">Nome do produto</h2>
-                    <p class="card__desc" th:text="${p.descricao()}">Descrição</p>
-                    <a th:if="${p.temHotmartUrl()}"
-                       th:href="${p.hotmartUrl()}"
-                       target="_blank" rel="noopener noreferrer"
-                       class="card__btn card__btn--gold">
-                        Comprar agora — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
-                    </a>
-                    <a th:unless="${p.temHotmartUrl()}"
-                       href="#"
-                       class="card__btn card__btn--gold card__btn--soon">
-                        Em breve — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
-                    </a>
+    <!-- ── COPA PASS em destaque ── -->
+    <th:block th:each="p : ${produtos}" th:if="${p.tipo().name() == 'COPA_PASS'}">
+        <div class="featured-card">
+            <div>
+                <div class="featured-badge">⚡ Melhor valor</div>
+                <h1 class="featured-title" th:text="${p.nome()}">Copa Pass — Acesso Total</h1>
+                <p class="featured-desc" th:text="${p.descricao()}">Descrição do produto.</p>
+                <ul class="featured-perks">
+                    <li>Todos os guias de seleções</li>
+                    <li>Histórico completo de confrontos</li>
+                    <li>Copa em 20 Factos</li>
+                    <li>Acesso vitalício a todo o conteúdo</li>
+                </ul>
+            </div>
+            <div class="featured-cta">
+                <div class="featured-price">
+                    €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">7,99</span>
                 </div>
+                <div class="featured-price-label">pagamento único</div>
+                <a th:if="${p.temHotmartUrl()}"
+                   th:href="${p.hotmartUrl()}"
+                   target="_blank" rel="noopener noreferrer"
+                   class="featured-btn">
+                    Comprar agora →
+                </a>
+                <span th:unless="${p.temHotmartUrl()}" class="featured-btn-soon">Em breve</span>
+            </div>
+        </div>
+    </th:block>
 
-                <!-- Outros cards -->
-                <div th:if="${iter.index > 0}" class="card">
-                    <div class="card__top">
-                        <span class="card__tag"
-                              th:text="${p.tipo().name() == 'GUIA_SELECAO'    ? 'GUIA' :
-                                         p.tipo().name() == 'DUELO_HISTORICO' ? 'PRÉ-JOGO' :
-                                         p.tipo().name() == 'ANALISE_PREMIUM' ? 'CURIOSIDADES' :
-                                         p.tipo().name() == 'COPA_PASS'       ? 'COMPLETO' :
-                                         p.tipo().name()}">GUIA</span>
-                        <span class="card__price"
-                              th:text="'€' + ${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">€1,99</span>
-                    </div>
-                    <h2 class="card__title" th:text="${p.nome()}">Nome do produto</h2>
-                    <p class="card__desc" th:text="${p.descricao()}">Descrição</p>
-                    <a th:if="${p.temHotmartUrl()}"
-                       th:href="${p.hotmartUrl()}"
-                       target="_blank" rel="noopener noreferrer"
-                       class="card__btn">
-                        Comprar — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">1,99</span>
-                    </a>
-                    <a th:unless="${p.temHotmartUrl()}"
-                       href="#"
-                       class="card__btn card__btn--soon">
-                        Em breve — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">1,99</span>
-                    </a>
+    <!-- ── Produtos individuais ── -->
+    <div class="section-label">Guias individuais</div>
+    <div class="products-grid">
+        <th:block th:each="p : ${produtos}" th:unless="${p.tipo().name() == 'COPA_PASS'}">
+            <div class="prod-card">
+                <div class="prod-card__top">
+                    <span class="prod-card__tag"
+                          th:text="${p.tipo().name() == 'GUIA_SELECAO'    ? 'GUIA' :
+                                     p.tipo().name() == 'DUELO_HISTORICO' ? 'PRÉ-JOGO' :
+                                     p.tipo().name() == 'ANALISE_PREMIUM' ? 'FACTOS' : 'GUIA'}">GUIA</span>
+                    <span class="prod-card__price">
+                        €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
+                    </span>
                 </div>
+                <h2 class="prod-card__title" th:text="${p.nome()}">Nome</h2>
+                <p class="prod-card__desc" th:text="${p.descricao()}">Descrição</p>
 
-            </th:block>
-        </div>
-
-        <div th:if="${produtos.isEmpty()}" style="text-align:center;padding:4rem 2rem;color:var(--text-muted);"
-             th:text="#{copa.loja.vazio}">
-            Nenhum produto disponível no momento.
-        </div>
+                <a th:if="${p.temHotmartUrl()}"
+                   th:href="${p.hotmartUrl()}"
+                   target="_blank" rel="noopener noreferrer"
+                   class="prod-card__btn prod-card__btn--gold">
+                    Comprar — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
+                </a>
+                <span th:unless="${p.temHotmartUrl()}" class="prod-card__btn prod-card__btn--soon">
+                    Em breve — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
+                </span>
+            </div>
+        </th:block>
     </div>
 
+    <div class="empty-state" th:if="${produtos.isEmpty()}">
+        Nenhum produto disponível no momento.
+    </div>
+
+</div>
 </main>
 
 <footer class="footer">
@@ -167,14 +249,5 @@
     </div>
 </footer>
 
-<script>
-    document.querySelectorAll('.lf').forEach(function(a) {
-        a.addEventListener('click', function() {
-            var p = new URLSearchParams(location.search);
-            p.set('lang', a.dataset.lang);
-            location.search = p.toString();
-        });
-    });
-</script>
 </body>
 </html>
