@@ -23,6 +23,13 @@
     .cta-btn { display: inline-block; background: #e8b930; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 8px; text-decoration: none; }
     .info-box { background: #0d1a10; border: 1px solid #1e3a22; border-radius: 8px; padding: 16px 20px; font-size: 13px; color: #a0c0a8; line-height: 1.6; margin-bottom: 24px; }
     .info-box strong { color: #c0e0c8; }
+    .cred-box { background: #1a1200; border: 1px solid #4a3800; border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+    .cred-box h3 { margin: 0 0 16px; font-size: 15px; font-weight: 800; color: #e8b930; }
+    .cred-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a2000; font-size: 14px; }
+    .cred-row:last-child { border-bottom: none; }
+    .cred-label { color: #888; }
+    .cred-value { color: #fff; font-weight: 700; font-family: monospace; letter-spacing: .03em; }
+    .cred-note { font-size: 12px; color: #999; margin-top: 12px; line-height: 1.5; }
     .footer { padding: 24px 32px; border-top: 1px solid #2a2a2a; text-align: center; }
     .footer p { font-size: 12px; color: #555; margin: 4px 0; }
   </style>
@@ -32,13 +39,16 @@
 
   <div class="header">
     <div class="header-badge">Copa Insider</div>
-    <h1>Sua compra foi confirmada!</h1>
+    <h1 th:text="${novaContaCriada} ? 'Bem-vindo ao Copa Insider!' : 'Compra confirmada!'">Compra confirmada!</h1>
   </div>
 
   <div class="body">
     <p class="greeting">Olá, <strong th:text="${nome}">Comprador</strong>!</p>
-    <p style="color:#aaa; font-size:14px; margin-top:0; margin-bottom:24px;">
-      Recebemos a confirmação do seu pagamento. Abaixo estão os detalhes da sua compra.
+    <p style="color:#aaa; font-size:14px; margin-top:0; margin-bottom:24px;"
+       th:text="${novaContaCriada}
+           ? 'A tua compra foi confirmada e criámos a tua conta Copa Insider. As tuas credenciais estão abaixo.'
+           : 'Recebemos a confirmação do teu pagamento. Abaixo estão os detalhes da tua compra.'">
+      Recebemos a confirmação do teu pagamento.
     </p>
 
     <div class="card">
@@ -62,19 +72,38 @@
       </div>
     </div>
 
-    <div class="info-box">
-      <strong>Como acessar seu conteúdo:</strong><br/>
-      Acesse <a href="https://allaboutworldcup2026.com/cliente/conta" style="color:#e8b930;">allaboutworldcup2026.com</a>,
-      faça login com seu e-mail e seu produto estará disponível em <strong>Minha Conta → Meus Palpites / Loja Copa</strong>.
-      Se você ainda não tem cadastro, crie uma conta com este mesmo e-mail.
+    <!-- Credenciais — mostrado apenas quando a conta foi criada agora -->
+    <div class="cred-box" th:if="${novaContaCriada}">
+      <h3>As tuas credenciais de acesso</h3>
+      <div class="cred-row">
+        <span class="cred-label">E-mail (login)</span>
+        <span class="cred-value" th:text="${email}"></span>
+      </div>
+      <div class="cred-row">
+        <span class="cred-label">Senha temporária</span>
+        <span class="cred-value" th:text="${senhaTemp}"></span>
+      </div>
+      <p class="cred-note">
+        Acede em <a th:href="${loginUrl}" th:text="${loginUrl}" style="color:#e8b930;"></a>
+        e altera a tua senha em <a th:href="${perfilUrl}" style="color:#e8b930;">Meus dados</a>
+        assim que entrares pela primeira vez.
+      </p>
+    </div>
+
+    <!-- Para contas já existentes: instruções simples de acesso -->
+    <div class="info-box" th:unless="${novaContaCriada}">
+      <strong>Como aceder ao teu conteúdo:</strong><br/>
+      Faz login em <a th:href="${loginUrl}" style="color:#e8b930;" th:text="${loginUrl}"></a>
+      com o teu e-mail e o teu produto estará disponível na tua conta.
     </div>
 
     <div class="cta-section">
-      <a href="https://allaboutworldcup2026.com/cliente/conta" class="cta-btn">Acessar minha conta</a>
+      <a th:href="${novaContaCriada ? loginUrl : perfilUrl}" class="cta-btn"
+         th:text="${novaContaCriada ? 'Entrar agora' : 'Acessar minha conta'}">Acessar minha conta</a>
     </div>
 
-    <p style="font-size:13px; color:#666; text-align:center;">
-      Dúvidas? Fale conosco em
+    <p style="font-size:13px; color:#888; text-align:center;">
+      Dúvidas? Fale connosco em
       <a href="mailto:suporte@allaboutworldcup2026.com" style="color:#e8b930;">suporte@allaboutworldcup2026.com</a>
     </p>
   </div>

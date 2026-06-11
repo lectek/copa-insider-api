@@ -3,45 +3,64 @@ package br.com.lectek.copainsider.application.controller;
 import br.com.lectek.copainsider.application.copa.Copa2026DataService;
 import br.com.lectek.copainsider.application.copa.PartidaVM;
 import br.com.lectek.copainsider.application.copa.SelecaoVM;
+import br.com.lectek.copainsider.application.service.CopaAcessoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
 @Controller
 public class CalendarioController {
 
-    private final Copa2026DataService copaData;
+    private static final String SLUG_ACESSO = "acesso-calendario-comparador";
+    private static final String VIEW        = "pages/site/calendario";
 
-    public CalendarioController(Copa2026DataService copaData) {
-        this.copaData = copaData;
+    private final Copa2026DataService copaData;
+    private final CopaAcessoService   acessoService;
+
+    public CalendarioController(Copa2026DataService copaData, CopaAcessoService acessoService) {
+        this.copaData     = copaData;
+        this.acessoService = acessoService;
     }
 
     @GetMapping("/calendario")
     public String calendario(
             @RequestParam(required = false) String grupo,
+            Principal principal,
             Model model) {
+
+        List<PartidaVM> aoVivo   = copaData.partidasAoVivo();
+        List<PartidaVM> proximas = copaData.proximasPartidas(5);
+        model.addAttribute("aoVivo",   aoVivo);
+        model.addAttribute("proximas", proximas);
+
+        if (principal == null) {
+            model.addAttribute("precisaLogin", true);
+            return VIEW;
+        }
+
+        if (!acessoService.temAcesso(principal.getName(), SLUG_ACESSO)) {
+            model.addAttribute("precisaComprar", true);
+            return VIEW;
+        }
 
         Map<String, List<PartidaVM>> partidasPorGrupo = copaData.partidasPorGrupo();
         Map<String, List<SelecaoVM>> selecoesPorGrupo = copaData.selecoesPorGrupo();
-        List<PartidaVM> aoVivo = copaData.partidasAoVivo();
-        List<PartidaVM> proximas = copaData.proximasPartidas(6);
 
         List<PartidaVM> partidasFiltradas = (grupo != null && !grupo.isBlank())
                 ? partidasPorGrupo.getOrDefault(grupo.toUpperCase(), List.of())
                 : copaData.listPartidas();
 
-        model.addAttribute("partidasPorGrupo", partidasPorGrupo);
-        model.addAttribute("selecoesPorGrupo", selecoesPorGrupo);
-        model.addAttribute("aoVivo", aoVivo);
-        model.addAttribute("proximas", proximas);
+        model.addAttribute("partidasPorGrupo",  partidasPorGrupo);
+        model.addAttribute("selecoesPorGrupo",  selecoesPorGrupo);
         model.addAttribute("partidasFiltradas", partidasFiltradas);
-        model.addAttribute("grupoSelecionado", grupo != null ? grupo.toUpperCase() : null);
-        model.addAttribute("grupos", partidasPorGrupo.keySet());
+        model.addAttribute("grupoSelecionado",  grupo != null ? grupo.toUpperCase() : null);
+        model.addAttribute("grupos",            partidasPorGrupo.keySet());
 
-        return "pages/site/calendario";
+        return VIEW;
     }
 }

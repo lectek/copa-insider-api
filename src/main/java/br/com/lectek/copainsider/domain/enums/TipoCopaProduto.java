@@ -4,5 +4,6 @@ public enum TipoCopaProduto {
     GUIA_SELECAO,
     DUELO_HISTORICO,
     ANALISE_PREMIUM,
-    COPA_PASS
+    COPA_PASS,
+    ACESSO_FERRAMENTAS
 }

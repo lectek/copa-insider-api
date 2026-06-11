@@ -27,7 +27,15 @@ public record HotmartWebhookPayload(
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Buyer(
             String name,
-            String email
+            String email,
+            String document,
+            Phone phone
+    ) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record Phone(
+            @JsonProperty("phone") String number,
+            @JsonProperty("country_code") String countryCode
     ) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)

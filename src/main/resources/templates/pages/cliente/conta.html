@@ -1,71 +1,123 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
-<head th:replace="~{fragments/layout :: head('Minha Conta')}"></head>
-<body class="ci-body">
-<div th:replace="~{fragments/navbar :: public-navbar}"></div>
-<div th:replace="~{fragments/flash :: flash}"></div>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Minha Conta — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0a0f; color: #e8e8f0; font-family: 'Inter', sans-serif; min-height: 100vh; }
 
-<style>
-  .acc-wrap { max-width: 860px; margin: 2.5rem auto; padding: 0 1.25rem 4rem; }
-  .acc-header { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 2rem; }
-  .acc-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
-      background: #2a2a3e; display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; font-weight: 700; color: #f5a623; flex-shrink: 0; }
-  .acc-avatar img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
-  .acc-title { font-size: 1.4rem; font-weight: 800; }
-  .acc-subtitle { color: #888; font-size: .9rem; }
-  .acc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
-  .acc-card { background: var(--ci-card-bg, #fff); border: 1px solid var(--ci-border, #e8e8f0);
-      border-radius: 14px; padding: 1.5rem; text-decoration: none; color: inherit;
-      transition: box-shadow .15s, transform .15s; display: flex; flex-direction: column; gap: .5rem; }
-  .acc-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); transform: translateY(-2px); }
-  .acc-card__icon { font-size: 1.8rem; }
-  .acc-card__title { font-weight: 700; font-size: 1rem; }
-  .acc-card__desc { font-size: .82rem; color: #888; }
-</style>
+        /* ── Navbar ── */
+        .navbar { display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 2rem; background: rgba(10,10,15,.95);
+            border-bottom: 1px solid rgba(255,255,255,.07); position: sticky; top: 0; z-index: 100; }
+        .brand { display: flex; align-items: center; gap: .5rem; text-decoration: none;
+            color: #e8e8f0; font-weight: 800; font-size: 1.1rem; }
+        .brand-badge { background: #f5a623; color: #0a0a0f; padding: .15rem .4rem;
+            border-radius: 4px; font-size: .75rem; font-weight: 800; }
+        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links a { color: #9090a8; text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .2s; }
+        .nav-links a:hover { color: #f5a623; }
+        .nav-actions { display: flex; align-items: center; gap: .75rem; }
+        .cta-btn { background: #f5a623; color: #0a0a0f; padding: .4rem 1rem;
+            border-radius: 6px; text-decoration: none; font-weight: 700; font-size: .85rem; }
+        .logout-link { color: #9090a8; text-decoration: none; font-size: .85rem;
+            font-weight: 500; transition: color .2s; }
+        .logout-link:hover { color: #e05252; }
 
-<main class="ci-main">
-  <div class="acc-wrap">
+        /* ── Conta ── */
+        .acc-wrap { max-width: 860px; margin: 2.5rem auto; padding: 0 1.25rem 5rem; }
 
-    <div class="acc-header">
-      <div class="acc-avatar">
-        <img th:if="${avatarUrl != null}" th:src="${avatarUrl}" alt="Avatar"/>
-        <span th:unless="${avatarUrl != null}"
-              th:text="${avatarNome != null ? #strings.substring(avatarNome,0,1).toUpperCase() : '?'}">?</span>
-      </div>
-      <div>
-        <div class="acc-title" th:text="${avatarNome != null ? avatarNome : 'Bem-vindo'}">Bem-vindo</div>
-        <div class="acc-subtitle">Minha Conta</div>
-      </div>
+        .acc-header { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 2.5rem;
+            background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px; padding: 1.5rem 2rem; }
+        .acc-avatar { width: 64px; height: 64px; border-radius: 50%; background: #2a2a3e;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; font-weight: 800; color: #f5a623; flex-shrink: 0; }
+        .acc-avatar img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
+        .acc-name { font-size: 1.35rem; font-weight: 800; color: #e8e8f0; }
+        .acc-label { color: #9090a8; font-size: .88rem; margin-top: .2rem; }
+
+        .acc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+
+        .acc-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+            border-radius: 14px; padding: 1.5rem; text-decoration: none; color: inherit;
+            transition: border-color .2s, transform .15s; display: flex; flex-direction: column; gap: .5rem; }
+        .acc-card:hover { border-color: rgba(245,166,35,.3); transform: translateY(-2px); }
+        .acc-card__icon { font-size: 1.8rem; line-height: 1; }
+        .acc-card__title { font-weight: 700; font-size: .95rem; color: #e8e8f0; }
+        .acc-card__desc { font-size: .82rem; color: #9090a8; line-height: 1.4; }
+
+        @media (max-width: 640px) {
+            .nav-links { display: none; }
+            .acc-header { flex-direction: column; text-align: center; }
+            .acc-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}">Calendário</a>
+        <a th:href="@{/selecoes}">Seleções</a>
+        <a th:href="@{/comparar}">Comparar</a>
+        <a th:href="@{/loja}">Loja</a>
     </div>
-
-    <div class="acc-grid">
-      <a th:href="@{/cliente/dados}" class="acc-card">
-        <span class="acc-card__icon">👤</span>
-        <div class="acc-card__title">Meus Dados</div>
-        <div class="acc-card__desc">Nome, e-mail, telefone e endereço</div>
-      </a>
-      <a th:href="@{/cliente/senha}" class="acc-card">
-        <span class="acc-card__icon">🔑</span>
-        <div class="acc-card__title">Alterar Senha</div>
-        <div class="acc-card__desc">Redefina sua senha de acesso</div>
-      </a>
-      <a th:href="@{/loja}" class="acc-card">
-        <span class="acc-card__icon">⚽</span>
-        <div class="acc-card__title">Loja Copa</div>
-        <div class="acc-card__desc">Guias, análises e muito mais</div>
-      </a>
-      <a th:href="@{/palpites}" class="acc-card">
-        <span class="acc-card__icon">🏆</span>
-        <div class="acc-card__title">Meus Palpites</div>
-        <div class="acc-card__desc">Acompanhe seus resultados</div>
-      </a>
+    <div class="nav-actions">
+        <a th:href="@{/loja}" class="cta-btn">Loja</a>
+        <a th:href="@{/auth/logout}" class="logout-link">Sair</a>
     </div>
+</nav>
 
-  </div>
+<main>
+    <div class="acc-wrap">
+
+        <div class="acc-header">
+            <div class="acc-avatar">
+                <img th:if="${avatarUrl != null}" th:src="${avatarUrl}" alt="Avatar"/>
+                <span th:unless="${avatarUrl != null}"
+                      th:text="${avatarNome != null ? #strings.substring(avatarNome,0,1).toUpperCase() : '?'}">?</span>
+            </div>
+            <div>
+                <div class="acc-name" th:text="${avatarNome != null ? avatarNome : 'Bem-vindo'}">Bem-vindo</div>
+                <div class="acc-label">Minha Conta</div>
+            </div>
+        </div>
+
+        <div class="acc-grid">
+            <a th:href="@{/cliente/dados}" class="acc-card">
+                <span class="acc-card__icon">👤</span>
+                <div class="acc-card__title">Meus Dados</div>
+                <div class="acc-card__desc">Nome, e-mail, telefone e endereço</div>
+            </a>
+            <a th:href="@{/cliente/senha}" class="acc-card">
+                <span class="acc-card__icon">🔑</span>
+                <div class="acc-card__title">Alterar Senha</div>
+                <div class="acc-card__desc">Redefine a tua senha de acesso</div>
+            </a>
+            <a th:href="@{/loja}" class="acc-card">
+                <span class="acc-card__icon">⚽</span>
+                <div class="acc-card__title">Loja Copa</div>
+                <div class="acc-card__desc">Guias, análises e muito mais</div>
+            </a>
+            <a th:href="@{/palpites}" class="acc-card">
+                <span class="acc-card__icon">🏆</span>
+                <div class="acc-card__title">Meus Palpites</div>
+                <div class="acc-card__desc">Acompanha os teus resultados</div>
+            </a>
+        </div>
+
+    </div>
 </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
-<script th:src="@{/js/main.js}"></script>
+<footer style="text-align:center;padding:2rem;color:#555;font-size:.85rem;border-top:1px solid rgba(255,255,255,.06);">
+    <p>© 2026 Copa Insider</p>
+</footer>
+
 </body>
 </html>

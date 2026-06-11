@@ -27,69 +27,70 @@ public class Copa2026DataService {
 
     private record TeamMeta(
             String nome, String slug, String bandeira,
-            String confederacao, String melhorResultado, int participacoes) {}
+            String confederacao, String melhorResultado, int participacoes,
+            String grupo) {}
 
     private static final Map<String, TeamMeta> TEAMS = Map.ofEntries(
         // Grupo A
-        Map.entry("Mexico",               new TeamMeta("México",          "mexico",          "🇲🇽", "CONCACAF", "3º lugar (1970, 1986)", 17)),
-        Map.entry("South Africa",         new TeamMeta("África do Sul",   "africa-do-sul",   "🇿🇦", "CAF",      "Quartos (2010)", 4)),
-        Map.entry("South Korea",          new TeamMeta("Coreia do Sul",   "coreia-do-sul",   "🇰🇷", "AFC",      "4º lugar (2002)", 11)),
-        Map.entry("Czech Republic",       new TeamMeta("Rep. Checa",      "rep-checa",       "🇨🇿", "UEFA",     "Vice-campeã (1962)", 10)),
+        Map.entry("Mexico",               new TeamMeta("México",          "mexico",          "🇲🇽", "CONCACAF", "3º lugar (1970, 1986)", 17, "A")),
+        Map.entry("South Africa",         new TeamMeta("África do Sul",   "africa-do-sul",   "🇿🇦", "CAF",      "Quartos (2010)", 4,          "A")),
+        Map.entry("South Korea",          new TeamMeta("Coreia do Sul",   "coreia-do-sul",   "🇰🇷", "AFC",      "4º lugar (2002)", 11,         "A")),
+        Map.entry("Czech Republic",       new TeamMeta("Rep. Checa",      "rep-checa",       "🇨🇿", "UEFA",     "Vice-campeã (1962)", 10,      "A")),
         // Grupo B
-        Map.entry("Canada",               new TeamMeta("Canadá",          "canada",          "🇨🇦", "CONCACAF", "Fase de grupos (2022)", 3)),
-        Map.entry("Bosnia & Herzegovina", new TeamMeta("Bósnia-Herz.",    "bosnia",          "🇧🇦", "UEFA",     "Fase de grupos (2014)", 2)),
-        Map.entry("Qatar",                new TeamMeta("Qatar",           "qatar",           "🇶🇦", "AFC",      "Fase de grupos (2022)", 2)),
-        Map.entry("Switzerland",          new TeamMeta("Suíça",           "suica",           "🇨🇭", "UEFA",     "Quartos (1954)", 12)),
+        Map.entry("Canada",               new TeamMeta("Canadá",          "canada",          "🇨🇦", "CONCACAF", "Fase de grupos (2022)", 3,    "B")),
+        Map.entry("Bosnia & Herzegovina", new TeamMeta("Bósnia-Herz.",    "bosnia",          "🇧🇦", "UEFA",     "Fase de grupos (2014)", 2,    "B")),
+        Map.entry("Qatar",                new TeamMeta("Qatar",           "qatar",           "🇶🇦", "AFC",      "Fase de grupos (2022)", 2,    "B")),
+        Map.entry("Switzerland",          new TeamMeta("Suíça",           "suica",           "🇨🇭", "UEFA",     "Quartos (1954)", 12,          "B")),
         // Grupo C
-        Map.entry("Brazil",               new TeamMeta("Brasil",          "brasil",          "🇧🇷", "CONMEBOL", "Campeão (1958,62,70,94,02)", 22)),
-        Map.entry("Morocco",              new TeamMeta("Marrocos",        "marrocos",        "🇲🇦", "CAF",      "4º lugar (2022)", 10)),
-        Map.entry("Haiti",                new TeamMeta("Haiti",           "haiti",           "🇭🇹", "CONCACAF", "Fase de grupos", 2)),
-        Map.entry("Scotland",             new TeamMeta("Escócia",         "escocia",         "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "UEFA", "Fase de grupos", 8)),
+        Map.entry("Brazil",               new TeamMeta("Brasil",          "brasil",          "🇧🇷", "CONMEBOL", "Campeão (1958,62,70,94,02)", 22, "C")),
+        Map.entry("Morocco",              new TeamMeta("Marrocos",        "marrocos",        "🇲🇦", "CAF",      "4º lugar (2022)", 10,         "C")),
+        Map.entry("Haiti",                new TeamMeta("Haiti",           "haiti",           "🇭🇹", "CONCACAF", "Fase de grupos", 2,           "C")),
+        Map.entry("Scotland",             new TeamMeta("Escócia",         "escocia",         "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "UEFA", "Fase de grupos", 8,          "C")),
         // Grupo D
-        Map.entry("USA",                  new TeamMeta("EUA",             "eua",             "🇺🇸", "CONCACAF", "3º lugar (1930)", 11)),
-        Map.entry("Paraguay",             new TeamMeta("Paraguai",        "paraguai",        "🇵🇾", "CONMEBOL", "Quartos (2010)", 9)),
-        Map.entry("Australia",            new TeamMeta("Austrália",       "australia",       "🇦🇺", "AFC",      "4º lugar (2006)", 6)),
-        Map.entry("Turkey",               new TeamMeta("Turquia",         "turquia",         "🇹🇷", "UEFA",     "3º lugar (2002)", 3)),
+        Map.entry("USA",                  new TeamMeta("EUA",             "eua",             "🇺🇸", "CONCACAF", "3º lugar (1930)", 11,         "D")),
+        Map.entry("Paraguay",             new TeamMeta("Paraguai",        "paraguai",        "🇵🇾", "CONMEBOL", "Quartos (2010)", 9,           "D")),
+        Map.entry("Australia",            new TeamMeta("Austrália",       "australia",       "🇦🇺", "AFC",      "4º lugar (2006)", 6,          "D")),
+        Map.entry("Turkey",               new TeamMeta("Turquia",         "turquia",         "🇹🇷", "UEFA",     "3º lugar (2002)", 3,          "D")),
         // Grupo E
-        Map.entry("Germany",              new TeamMeta("Alemanha",        "alemanha",        "🇩🇪", "UEFA",     "Campeã (1954,74,90,2014)", 20)),
-        Map.entry("Curaçao",              new TeamMeta("Curaçao",         "curacao",         "🇨🇼", "CONCACAF", "Estreia", 0)),
-        Map.entry("Ivory Coast",          new TeamMeta("Costa do Marfim", "costa-do-marfim", "🇨🇮", "CAF",      "Fase de grupos", 3)),
-        Map.entry("Ecuador",              new TeamMeta("Equador",         "equador",         "🇪🇨", "CONMEBOL", "Quartos (2006)", 4)),
+        Map.entry("Germany",              new TeamMeta("Alemanha",        "alemanha",        "🇩🇪", "UEFA",     "Campeã (1954,74,90,2014)", 20, "E")),
+        Map.entry("Curaçao",              new TeamMeta("Curaçao",         "curacao",         "🇨🇼", "CONCACAF", "Estreia", 0,                  "E")),
+        Map.entry("Ivory Coast",          new TeamMeta("Costa do Marfim", "costa-do-marfim", "🇨🇮", "CAF",      "Fase de grupos", 3,           "E")),
+        Map.entry("Ecuador",              new TeamMeta("Equador",         "equador",         "🇪🇨", "CONMEBOL", "Quartos (2006)", 4,           "E")),
         // Grupo F
-        Map.entry("Netherlands",          new TeamMeta("Países Baixos",   "paises-baixos",   "🇳🇱", "UEFA",     "Vice (1974,78,2010)", 11)),
-        Map.entry("Japan",                new TeamMeta("Japão",           "japao",           "🇯🇵", "AFC",      "Oitavos (2022)", 7)),
-        Map.entry("Sweden",               new TeamMeta("Suécia",          "suecia",          "🇸🇪", "UEFA",     "3º lugar (1950,1994)", 12)),
-        Map.entry("Tunisia",              new TeamMeta("Tunísia",         "tunisia",         "🇹🇳", "CAF",      "Fase de grupos", 6)),
+        Map.entry("Netherlands",          new TeamMeta("Países Baixos",   "paises-baixos",   "🇳🇱", "UEFA",     "Vice (1974,78,2010)", 11,     "F")),
+        Map.entry("Japan",                new TeamMeta("Japão",           "japao",           "🇯🇵", "AFC",      "Oitavos (2022)", 7,           "F")),
+        Map.entry("Sweden",               new TeamMeta("Suécia",          "suecia",          "🇸🇪", "UEFA",     "3º lugar (1950,1994)", 12,    "F")),
+        Map.entry("Tunisia",              new TeamMeta("Tunísia",         "tunisia",         "🇹🇳", "CAF",      "Fase de grupos", 6,           "F")),
         // Grupo G
-        Map.entry("Belgium",              new TeamMeta("Bélgica",         "belgica",         "🇧🇪", "UEFA",     "3º lugar (2018)", 14)),
-        Map.entry("Egypt",                new TeamMeta("Egito",           "egito",           "🇪🇬", "CAF",      "Fase de grupos", 3)),
-        Map.entry("Iran",                 new TeamMeta("Irão",            "irao",            "🇮🇷", "AFC",      "Fase de grupos", 6)),
-        Map.entry("New Zealand",          new TeamMeta("Nova Zelândia",   "nova-zelandia",   "🇳🇿", "OFC",      "Fase de grupos", 3)),
+        Map.entry("Belgium",              new TeamMeta("Bélgica",         "belgica",         "🇧🇪", "UEFA",     "3º lugar (2018)", 14,         "G")),
+        Map.entry("Egypt",                new TeamMeta("Egito",           "egito",           "🇪🇬", "CAF",      "Fase de grupos", 3,           "G")),
+        Map.entry("Iran",                 new TeamMeta("Irão",            "irao",            "🇮🇷", "AFC",      "Fase de grupos", 6,           "G")),
+        Map.entry("New Zealand",          new TeamMeta("Nova Zelândia",   "nova-zelandia",   "🇳🇿", "OFC",      "Fase de grupos", 3,           "G")),
         // Grupo H
-        Map.entry("Spain",                new TeamMeta("Espanha",         "espanha",         "🇪🇸", "UEFA",     "Campeã (2010)", 16)),
-        Map.entry("Cape Verde",           new TeamMeta("Cabo Verde",      "cabo-verde",      "🇨🇻", "CAF",      "Estreia", 0)),
-        Map.entry("Saudi Arabia",         new TeamMeta("Arábia Saudita",  "arabia-saudita",  "🇸🇦", "AFC",      "Fase de grupos", 6)),
-        Map.entry("Uruguay",              new TeamMeta("Uruguai",         "uruguai",         "🇺🇾", "CONMEBOL", "Campeão (1930,1950)", 14)),
+        Map.entry("Spain",                new TeamMeta("Espanha",         "espanha",         "🇪🇸", "UEFA",     "Campeã (2010)", 16,           "H")),
+        Map.entry("Cape Verde",           new TeamMeta("Cabo Verde",      "cabo-verde",      "🇨🇻", "CAF",      "Estreia", 0,                  "H")),
+        Map.entry("Saudi Arabia",         new TeamMeta("Arábia Saudita",  "arabia-saudita",  "🇸🇦", "AFC",      "Fase de grupos", 6,           "H")),
+        Map.entry("Uruguay",              new TeamMeta("Uruguai",         "uruguai",         "🇺🇾", "CONMEBOL", "Campeão (1930,1950)", 14,     "H")),
         // Grupo I
-        Map.entry("France",               new TeamMeta("França",          "franca",          "🇫🇷", "UEFA",     "Campeã (1998,2018)", 16)),
-        Map.entry("Senegal",              new TeamMeta("Senegal",         "senegal",         "🇸🇳", "CAF",      "Quartos (2002)", 4)),
-        Map.entry("Iraq",                 new TeamMeta("Iraque",          "iraque",          "🇮🇶", "AFC",      "Fase de grupos", 2)),
-        Map.entry("Norway",               new TeamMeta("Noruega",         "noruega",         "🇳🇴", "UEFA",     "Quartos (1938,1994)", 4)),
+        Map.entry("France",               new TeamMeta("França",          "franca",          "🇫🇷", "UEFA",     "Campeã (1998,2018)", 16,      "I")),
+        Map.entry("Senegal",              new TeamMeta("Senegal",         "senegal",         "🇸🇳", "CAF",      "Quartos (2002)", 4,           "I")),
+        Map.entry("Iraq",                 new TeamMeta("Iraque",          "iraque",          "🇮🇶", "AFC",      "Fase de grupos", 2,           "I")),
+        Map.entry("Norway",               new TeamMeta("Noruega",         "noruega",         "🇳🇴", "UEFA",     "Quartos (1938,1994)", 4,      "I")),
         // Grupo J
-        Map.entry("Argentina",            new TeamMeta("Argentina",       "argentina",       "🇦🇷", "CONMEBOL", "Campeão (1978,86,2022)", 18)),
-        Map.entry("Algeria",              new TeamMeta("Argélia",         "argelia",         "🇩🇿", "CAF",      "Oitavos (2014)", 4)),
-        Map.entry("Austria",              new TeamMeta("Áustria",         "austria",         "🇦🇹", "UEFA",     "3º lugar (1954)", 7)),
-        Map.entry("Jordan",               new TeamMeta("Jordânia",        "jordania",        "🇯🇴", "AFC",      "Estreia", 0)),
+        Map.entry("Argentina",            new TeamMeta("Argentina",       "argentina",       "🇦🇷", "CONMEBOL", "Campeão (1978,86,2022)", 18,  "J")),
+        Map.entry("Algeria",              new TeamMeta("Argélia",         "argelia",         "🇩🇿", "CAF",      "Oitavos (2014)", 4,           "J")),
+        Map.entry("Austria",              new TeamMeta("Áustria",         "austria",         "🇦🇹", "UEFA",     "3º lugar (1954)", 7,          "J")),
+        Map.entry("Jordan",               new TeamMeta("Jordânia",        "jordania",        "🇯🇴", "AFC",      "Estreia", 0,                  "J")),
         // Grupo K
-        Map.entry("Portugal",             new TeamMeta("Portugal",        "portugal",        "🇵🇹", "UEFA",     "3º lugar (1966,2006)", 9)),
-        Map.entry("DR Congo",             new TeamMeta("RD Congo",        "rd-congo",        "🇨🇩", "CAF",      "Fase de grupos (1974)", 2)),
-        Map.entry("Uzbekistan",           new TeamMeta("Uzbequistão",     "uzbequistao",     "🇺🇿", "AFC",      "Estreia", 0)),
-        Map.entry("Colombia",             new TeamMeta("Colômbia",        "colombia",        "🇨🇴", "CONMEBOL", "Quartos (2014)", 7)),
+        Map.entry("Portugal",             new TeamMeta("Portugal",        "portugal",        "🇵🇹", "UEFA",     "3º lugar (1966,2006)", 9,    "K")),
+        Map.entry("DR Congo",             new TeamMeta("RD Congo",        "rd-congo",        "🇨🇩", "CAF",      "Fase de grupos (1974)", 2,   "K")),
+        Map.entry("Uzbekistan",           new TeamMeta("Uzbequistão",     "uzbequistao",     "🇺🇿", "AFC",      "Estreia", 0,                  "K")),
+        Map.entry("Colombia",             new TeamMeta("Colômbia",        "colombia",        "🇨🇴", "CONMEBOL", "Quartos (2014)", 7,           "K")),
         // Grupo L
-        Map.entry("England",              new TeamMeta("Inglaterra",      "inglaterra",      "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "UEFA", "Campeã (1966)", 17)),
-        Map.entry("Croatia",              new TeamMeta("Croácia",         "croacia",         "🇭🇷", "UEFA",     "Vice-campeã (2018)", 8)),
-        Map.entry("Ghana",                new TeamMeta("Gana",            "gana",            "🇬🇭", "CAF",      "Quartos (2010)", 4)),
-        Map.entry("Panama",               new TeamMeta("Panamá",          "panama",          "🇵🇦", "CONCACAF", "Fase de grupos", 2))
+        Map.entry("England",              new TeamMeta("Inglaterra",      "inglaterra",      "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "UEFA", "Campeã (1966)", 17,            "L")),
+        Map.entry("Croatia",              new TeamMeta("Croácia",         "croacia",         "🇭🇷", "UEFA",     "Vice-campeã (2018)", 8,       "L")),
+        Map.entry("Ghana",                new TeamMeta("Gana",            "gana",            "🇬🇭", "CAF",      "Quartos (2010)", 4,           "L")),
+        Map.entry("Panama",               new TeamMeta("Panamá",          "panama",          "🇵🇦", "CONCACAF", "Fase de grupos", 2,           "L"))
     );
 
     // ── Mapeamento inverso: nome inglês → slug ───────────────────────────────
@@ -194,7 +195,8 @@ public class Copa2026DataService {
 
     private final OpenFootballClient client;
     private volatile List<PartidaVM>  partidas  = List.of();
-    private volatile List<SelecaoVM>  selecoes  = List.of();
+    // Pré-populado com os 48 estáticos; enriquecido com dados dinâmicos no refresh()
+    private volatile List<SelecaoVM>  selecoes  = buildSelecoes(List.of());
     private final    List<JogadorVM>  jogadores;
     private final    List<RivalidadeVM> rivalidades;
 
@@ -543,19 +545,21 @@ public class Copa2026DataService {
     }
 
     private List<SelecaoVM> buildSelecoes(List<OpenFootballClient.OFMatch> matches) {
-        // Extrai pares (nome inglês → grupo) sem repetições
-        Map<String, String> teamToGroup = new LinkedHashMap<>();
+        // Grupos confirmados pelo OpenFootball (sobrepõe os estáticos se disponíveis)
+        Map<String, String> dynamicGroups = new HashMap<>();
         for (var m : matches) {
             String grupo = extractGroup(m.group());
             if (grupo == null) continue;
-            if (m.team1() != null) teamToGroup.putIfAbsent(m.team1(), grupo);
-            if (m.team2() != null) teamToGroup.putIfAbsent(m.team2(), grupo);
+            if (m.team1() != null) dynamicGroups.putIfAbsent(m.team1().toLowerCase(Locale.ROOT), grupo);
+            if (m.team2() != null) dynamicGroups.putIfAbsent(m.team2().toLowerCase(Locale.ROOT), grupo);
         }
-        return teamToGroup.entrySet().stream()
+        // Base: sempre os 48 times estáticos — nunca depende do OpenFootball para o dropdown
+        return TEAMS.entrySet().stream()
                 .map(e -> {
-                    TeamMeta meta = resolve(e.getKey());
+                    TeamMeta meta = e.getValue();
+                    String grupo = dynamicGroups.getOrDefault(e.getKey().toLowerCase(Locale.ROOT), meta.grupo());
                     return new SelecaoVM(meta.nome(), meta.slug(), meta.bandeira(),
-                            e.getValue(), meta.confederacao(), meta.melhorResultado(),
+                            grupo, meta.confederacao(), meta.melhorResultado(),
                             meta.participacoes());
                 })
                 .sorted(Comparator.comparing(SelecaoVM::grupo).thenComparing(SelecaoVM::nome))
@@ -578,7 +582,7 @@ public class Copa2026DataService {
         // Fallback com slug gerado a partir do nome
         return new TeamMeta(englishName,
                 englishName.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-"),
-                "🏳", "—", "—", 0);
+                "🏳", "—", "—", 0, "?");
     }
 
     private String extractGroup(String group) {

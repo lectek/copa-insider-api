@@ -12,13 +12,33 @@
         .lf { font-size:1.05rem; cursor:pointer; opacity:.6; text-decoration:none; border:none; background:none;
               padding:.15rem; border-radius:4px; transition:opacity .15s; }
         .lf:hover, .lf.lf-on { opacity:1; }
+
+        /* ── Paywall ── */
+        .paywall-section { padding: 2rem 1.5rem 5rem; }
+        .paywall-bg { border-radius: 16px; overflow: hidden; max-width: 720px; margin: 0 auto;
+            background: url('/img/zeroanuncio.png') center/cover no-repeat;
+            position: relative; }
+        .paywall-bg::after { content: ''; position: absolute; inset: 0;
+            background: rgba(5,5,10,.72); border-radius: 16px; }
+        .paywall-overlay { position: relative; z-index: 1; padding: 3rem 2rem; text-align: center; }
+        .paywall-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .paywall-title { font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: .5rem;
+            text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+        .paywall-sub { font-size: .9rem; color: #d8d8ec; margin-bottom: 1.5rem; line-height: 1.6;
+            text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+        .paywall-btn { display: inline-block; background: #f5a623; color: #0a0a0f;
+            padding: .75rem 2rem; border-radius: 8px; font-weight: 700; font-size: 1rem;
+            text-decoration: none; transition: opacity .2s; box-shadow: 0 4px 16px rgba(245,166,35,.4); }
+        .paywall-btn:hover { opacity: .9; }
+        .paywall-login-link { display: block; margin-top: 1rem; font-size: .85rem; color: #c8c8e0; }
+        .paywall-login-link a { color: #f5a623; text-decoration: none; }
     </style>
 </head>
 <body>
 
 <!-- Navbar -->
 <nav class="navbar">
-    <a href="/" class="brand"><span class="brand-badge">CI</span> Copa Insider</a>
+    <a href="/" class="brand"><img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/> Copa Insider</a>
     <div class="nav-links">
         <a th:href="@{/calendario}" class="active" th:text="#{copa.nav.calendario}">Calendário</a>
         <a th:href="@{/selecoes}" th:text="#{copa.nav.selecoes}">Seleções</a>
@@ -94,6 +114,47 @@
             </div>
         </div>
     </section>
+
+    <!-- ══════════ Paywall: precisaLogin ══════════ -->
+    <section class="paywall-section" th:if="${precisaLogin}">
+        <div class="paywall-bg">
+            <div class="paywall-overlay">
+                <div class="paywall-icon">🔒</div>
+                <div class="paywall-title">Inicia sessão para aceder ao calendário completo</div>
+                <div class="paywall-sub">
+                    104 jogos, resultados em direto e agenda completa da Copa 2026.<br/>
+                    Zero anúncios — apenas informação que importa.
+                </div>
+                <a th:href="@{/auth/login}" class="paywall-btn">Fazer login</a>
+                <span class="paywall-login-link">
+                    Ainda não tens conta? <a th:href="@{/loja}">Obtém acesso na loja →</a>
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ Paywall: precisaComprar ══════════ -->
+    <section class="paywall-section" th:if="${precisaComprar}">
+        <div class="paywall-bg">
+            <div class="paywall-overlay">
+                <div class="paywall-icon">⭐</div>
+                <div class="paywall-title">Zero anúncios. Só Copa Insider.</div>
+                <div class="paywall-sub">
+                    O calendário completo com todos os grupos, resultados e agenda
+                    está disponível com o
+                    <strong style="color:#f5a623;">Acesso Calendário &amp; Comparador</strong>
+                    (€3,99) ou com o <strong style="color:#f5a623;">Copa Pass</strong> (€7,99).
+                </div>
+                <a th:href="@{/loja}" class="paywall-btn">Ver planos na loja</a>
+                <span class="paywall-login-link">
+                    Já compraste? <a th:href="@{/auth/login}">Faz login →</a>
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ Conteúdo completo (utilizador com acesso) ══════════ -->
+    <th:block th:if="${partidasPorGrupo != null}">
 
     <!-- Filtro por grupo -->
     <section class="filter-section">
@@ -195,6 +256,8 @@
             </div>
         </div>
     </section>
+
+    </th:block>
 
 </main>
 

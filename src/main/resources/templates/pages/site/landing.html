@@ -21,7 +21,7 @@
 <nav class="nav">
     <div class="nav__inner">
         <a href="/" class="nav__brand">
-            <span class="nav__logo-badge">CI</span>
+            <img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/>
             <span class="nav__logo-name">Copa Insider</span>
         </a>
         <ul class="nav__links">
@@ -122,9 +122,11 @@
                 <div th:if="${iter.index > 0}" class="card">
                     <div class="card__top">
                         <span class="card__tag"
-                              th:text="${p.tipo().name() == 'DUELO_HISTORICO' ? 'PRÉ-JOGO' :
-                                         p.tipo().name() == 'ANALISE_PREMIUM' ? 'CURIOSIDADES' :
-                                         p.tipo().name() == 'COPA_PASS'       ? 'COMPLETO' :
+                              th:text="${p.tipo().name() == 'DUELO_HISTORICO'    ? 'PRÉ-JOGO' :
+                                         p.tipo().name() == 'ANALISE_PREMIUM'    ? 'CURIOSIDADES' :
+                                         p.tipo().name() == 'COPA_PASS'          ? 'COMPLETO' :
+                                         p.tipo().name() == 'GUIA_SELECAO'       ? 'GUIA SELEÇÃO' :
+                                         p.tipo().name() == 'ACESSO_FERRAMENTAS' ? 'FERRAMENTAS' :
                                          p.tipo().name()}">TIPO</span>
                         <span class="card__price"
                               th:text="'€' + ${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">€1,99</span>
@@ -211,7 +213,7 @@
 <footer class="footer">
     <div class="footer__inner">
         <div class="footer__brand">
-            <span class="nav__logo-badge">CI</span>
+            <img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/>
             <span>Copa Insider</span>
         </div>
         <p class="footer__copy">© 2026 Copa Insider. Todos os direitos reservados.</p>
