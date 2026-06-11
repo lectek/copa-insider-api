@@ -106,13 +106,14 @@ public class Copa2026DataService {
         m.put("republic of korea",    "coreia-do-sul");
         m.put("united states",        "eua");
         m.put("u.s.a.",               "eua");
+        // — 2006-2022 aliases —
         m.put("west germany",         "alemanha");
         m.put("bosnia-herzegovina",   "bosnia");
         m.put("ir iran",              "irao");
-        m.put("england",              "inglaterra");  // openfootball usa "England"
+        m.put("england",              "inglaterra");
         m.put("czechia",              "rep-checa");
         m.put("czech rep.",           "rep-checa");
-        m.put("slovak republic",      "eslováquia");
+        m.put("slovak republic",      "eslovaquia");
         m.put("north ireland",        "irlanda-do-norte");
         m.put("northern ireland",     "irlanda-do-norte");
         m.put("trinidad & tobago",    "trinidad-tobago");
@@ -126,6 +127,43 @@ public class Copa2026DataService {
         m.put("south africa",         "africa-do-sul");
         m.put("south korea",          "coreia-do-sul");
         m.put("costa rica",           "costa-rica");
+        // — Nomes em falta nos logs (2006-2022) —
+        m.put("russia",               "russia");
+        m.put("serbia",               "servia");
+        m.put("serbia and montenegro","servia-e-montenegro");
+        m.put("slovakia",             "eslovaquia");
+        m.put("slovenia",             "eslovenia");
+        m.put("togo",                 "togo");
+        m.put("ukraine",              "ucrania");
+        m.put("wales",                "gales");
+        // — Nações históricas extintas (pré-2006) —
+        m.put("soviet union",         "uniao-sovietica");
+        m.put("ussr",                 "uniao-sovietica");
+        m.put("yugoslavia",           "iugoslavia");
+        m.put("czechoslovakia",       "tchecoslovaquia");
+        m.put("east germany",         "alemanha-oriental");
+        m.put("german dr",            "alemanha-oriental");
+        m.put("zaire",                "rd-congo");
+        m.put("dutch east indies",    "indonesia");
+        // — Nomes comuns pré-2006 —
+        m.put("nigeria",              "nigeria");
+        m.put("cameroon",             "camaroes");
+        m.put("peru",                 "peru");
+        m.put("chile",                "chile");
+        m.put("poland",               "polonia");
+        m.put("hungary",              "hungria");
+        m.put("italy",                "italia");
+        m.put("romania",              "romenia");
+        m.put("bulgaria",             "bulgaria");
+        m.put("cuba",                 "cuba");
+        m.put("china pr",             "china");
+        m.put("north korea",          "coreia-do-norte");
+        m.put("dpr korea",            "coreia-do-norte");
+        m.put("republic of ireland",  "irlanda");
+        m.put("greece",               "grecia");
+        m.put("honduras",             "honduras");
+        m.put("denmark",              "dinamarca");
+        m.put("nigeria",              "nigeria");
         ENGLISH_TO_SLUG = Collections.unmodifiableMap(m);
     }
 
@@ -133,7 +171,13 @@ public class Copa2026DataService {
 
     private record YearMatch(int ano, OpenFootballClient.OFMatch match) {}
 
-    private static final List<Integer> HISTORICAL_YEARS = List.of(2022, 2018, 2014, 2010, 2006);
+    private static final List<Integer> HISTORICAL_YEARS = List.of(
+        2022, 2018, 2014, 2010, 2006,
+        2002, 1998, 1994, 1990, 1986,
+        1982, 1978, 1974, 1970, 1966,
+        1962, 1958, 1954, 1950, 1938,
+        1934, 1930
+    );
     private volatile List<YearMatch> historicalMatches = null;
 
     // ── Estado dinâmico ──────────────────────────────────────────────────────
