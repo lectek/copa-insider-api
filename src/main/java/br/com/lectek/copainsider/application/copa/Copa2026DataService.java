@@ -169,7 +169,7 @@ public class Copa2026DataService {
 
     // ── Histórico de Copas (lazy-loaded) ─────────────────────────────────────
 
-    private record YearMatch(int ano, OpenFootballClient.OFMatch match) {}
+    private record YearMatch(int ano, String competicao, String icone, OpenFootballClient.OFMatch match) {}
 
     private static final List<Integer> HISTORICAL_YEARS = List.of(
         2022, 2018, 2014, 2010, 2006,
@@ -177,6 +177,16 @@ public class Copa2026DataService {
         1982, 1978, 1974, 1970, 1966,
         1962, 1958, 1954, 1950, 1938,
         1934, 1930
+    );
+
+    private static final List<Integer> COPA_AMERICA_YEARS = List.of(
+        2024, 2021, 2019, 2016, 2015, 2011, 2007, 2004, 2001, 1999,
+        1997, 1995, 1993, 1991, 1989, 1987, 1983, 1979, 1975
+    );
+
+    private static final List<Integer> UEFA_EURO_YEARS = List.of(
+        2024, 2020, 2016, 2012, 2008, 2004, 2000, 1996,
+        1992, 1988, 1984, 1980, 1976, 1972, 1968, 1964, 1960
     );
     private volatile List<YearMatch> historicalMatches = null;
 
@@ -301,7 +311,6 @@ public class Copa2026DataService {
             OpenFootballClient.OFMatch m = ym.match();
             if (!m.hasScore()) continue;
 
-            // Converter nomes do openfootball para slugs (trata aliases históricos)
             String hSlug1 = resolveSlug(m.team1());
             String hSlug2 = resolveSlug(m.team2());
             if (hSlug1 == null || hSlug2 == null) continue;
@@ -320,7 +329,8 @@ public class Copa2026DataService {
             if (gs1 > gs2) v1++; else if (gs1 < gs2) v2++; else emp++;
 
             encontros.add(new EncuentroVM(ym.ano(), extractFase(m.round()),
-                    s1.bandeira(), s1.nome(), gs1, gs2, s2.nome(), s2.bandeira()));
+                    s1.bandeira(), s1.nome(), gs1, gs2, s2.nome(), s2.bandeira(),
+                    ym.competicao(), ym.icone()));
         }
 
         encontros.sort(Comparator.comparingInt(EncuentroVM::ano).reversed());
@@ -330,25 +340,169 @@ public class Copa2026DataService {
                           || (p.slugCasa().equals(slug2) && p.slugVisitante().equals(slug1)))
                 .findFirst().orElse(null);
 
-        return Optional.of(new ComparadorVM(s1, s2, v1, emp, v2, g1, g2, encontros, enc2026));
+        List<LendaVM> lendas = buildLendas(slug1, slug2);
+
+        return Optional.of(new ComparadorVM(s1, s2, v1, emp, v2, g1, g2, encontros, enc2026, lendas));
     }
 
     private synchronized void ensureHistoricalLoaded() {
         if (historicalMatches != null) return;
         List<YearMatch> all = new ArrayList<>();
+
         for (int year : HISTORICAL_YEARS) {
             for (var m : client.fetchYear(year)) {
-                if (m.hasScore()) all.add(new YearMatch(year, m));
+                if (m.hasScore()) all.add(new YearMatch(year, "Copa do Mundo", "🌍", m));
             }
         }
+        for (int year : COPA_AMERICA_YEARS) {
+            for (var m : client.fetchCopaAmerica(year)) {
+                if (m.hasScore()) all.add(new YearMatch(year, "Copa América", "🏆", m));
+            }
+        }
+        for (int year : UEFA_EURO_YEARS) {
+            for (var m : client.fetchEuro(year)) {
+                if (m.hasScore()) all.add(new YearMatch(year, "UEFA Euro", "🇪🇺", m));
+            }
+        }
+
         historicalMatches = Collections.unmodifiableList(all);
-        log.info("Histórico Copa: {} partidas carregadas ({})", historicalMatches.size(), HISTORICAL_YEARS);
-        // Diagnóstico: nomes sem mapeamento para slug (ajuda a descobrir aliases em falta)
+        log.info("Histórico multi-competição: {} partidas carregadas", historicalMatches.size());
+
         all.stream()
             .flatMap(ym -> java.util.stream.Stream.of(ym.match().team1(), ym.match().team2()))
             .filter(name -> name != null && ENGLISH_TO_SLUG.get(name.toLowerCase(Locale.ROOT)) == null)
             .distinct().sorted()
             .forEach(name -> log.warn("Histórico: sem mapeamento para '{}'", name));
+    }
+
+    // ── Lendas / Joias por rivalidade ────────────────────────────────────────
+
+    private static final Map<String, List<LendaVM>> LENDAS_POR_RIVALIDADE = buildLegendsMap();
+
+    private static Map<String, List<LendaVM>> buildLegendsMap() {
+        Map<String, List<LendaVM>> m = new HashMap<>();
+
+        // Brasil × Argentina
+        List<LendaVM> braArg = List.of(
+            new LendaVM("Pelé", "brasil", "🇧🇷", "Avançado", "1958–1977",
+                "3× Campeão Mundial (1958, 1962, 1970)",
+                "77 golos pela Seleção · Único jogador a vencer 3 Copas",
+                "«O futebol é a mais bela das artes.»"),
+            new LendaVM("Maradona", "argentina", "🇦🇷", "Meia-atacante", "1977–1994",
+                "Campeão Mundial (1986) · Copa América (1987)",
+                "34 golos · Gol do Século (1986) · Mão de Deus (1986)",
+                "«O futebol não se joga com as mãos, exceto para mim.»"),
+            new LendaVM("Ronaldo R9", "brasil", "🇧🇷", "Avançado", "1994–2006",
+                "2× Campeão Mundial (1994, 2002) · Copa América (1997, 1999)",
+                "15 golos em Copas · Artilheiro da Copa 2002 (8 golos)",
+                "«Eu não jogo para enganar os adeptos.»"),
+            new LendaVM("Batistuta", "argentina", "🇦🇷", "Avançado", "1991–2002",
+                "Copa América (1991, 1993)",
+                "10 golos em Copas · 56 golos pela Seleção · Maior artilheiro histórico até Messi",
+                "«Nasci para marcar golos.»"),
+            new LendaVM("Neymar Jr", "brasil", "🇧🇷", "Avançado", "2010–",
+                "Campeão Olímpico (2016) · Copa das Confederações (2013)",
+                "79 golos pela Seleção · Maior artilheiro da história do Brasil",
+                "«O meu sonho é ganhar uma Copa do Mundo.»"),
+            new LendaVM("Lionel Messi", "argentina", "🇦🇷", "Meia-atacante", "2005–",
+                "Campeão Mundial (2022) · 3× Copa América (2021, 2015 sub, 1993)",
+                "109 golos pela Seleção · 8× Bola de Ouro · Melhor de todos os tempos",
+                "«O sucesso é resultado de trabalho duro, nunca de sorte.»")
+        );
+        putRivalidade(m, "brasil", "argentina", braArg);
+
+        // Portugal × Espanha
+        List<LendaVM> porEsp = List.of(
+            new LendaVM("Cristiano Ronaldo", "portugal", "🇵🇹", "Avançado", "2003–",
+                "UEFA Euro (2016) · Nations League (2019)",
+                "130 golos pela Seleção · Maior marcador internacional de sempre",
+                "«Talento sem trabalho não é nada.»"),
+            new LendaVM("Luís Figo", "portugal", "🇵🇹", "Extremo", "1991–2006",
+                "3º lugar Copa do Mundo (2006)",
+                "Bola de Ouro 2000 · 127 jogos pela Seleção · 32 golos",
+                "«Jogar pela Seleção é a maior honra.»"),
+            new LendaVM("Iker Casillas", "espanha", "🇪🇸", "Guarda-redes", "2000–2016",
+                "2× UEFA Euro (2008, 2012) · Copa do Mundo (2010)",
+                "167 jogos · Melhor guarda-redes do mundo por 3 anos",
+                "«Nunca perdes enquanto não desistes.»"),
+            new LendaVM("Xavi Hernández", "espanha", "🇪🇸", "Médio", "2000–2014",
+                "2× UEFA Euro (2008, 2012) · Copa do Mundo (2010)",
+                "133 jogos · Arquitecto do jogo espanhol · 13 golos e 26 assistências",
+                "«O futebol é posse de bola.»"),
+            new LendaVM("Andrés Iniesta", "espanha", "🇪🇸", "Médio", "2006–2018",
+                "2× UEFA Euro (2008, 2012) · Copa do Mundo (2010)",
+                "Golo da Final 2010 · Melhor jogador do Euro 2012",
+                "«Os momentos difíceis fazem-nos mais fortes.»")
+        );
+        putRivalidade(m, "portugal", "espanha", porEsp);
+
+        // Brasil × Alemanha
+        List<LendaVM> braAle = List.of(
+            new LendaVM("Ronaldo R9", "brasil", "🇧🇷", "Avançado", "1994–2006",
+                "2× Campeão Mundial (1994, 2002)",
+                "Golo na Final de 2002 contra a Alemanha · 15 golos em Copas",
+                "«Quando marco um golo, sinto que estou a voar.»"),
+            new LendaVM("Ronaldinho", "brasil", "🇧🇷", "Meia-atacante", "1999–2013",
+                "Campeão Mundial (2002)",
+                "2× Bola de Ouro (2004, 2005) · 33 golos pela Seleção",
+                "«O futebol é alegria, é magia.»"),
+            new LendaVM("Miroslav Klose", "alemanha", "🇩🇪", "Avançado", "2001–2014",
+                "Campeão Mundial (2014)",
+                "16 golos em Copas · Recorde histórico mundial · 71 golos pela Seleção",
+                "«Cada golo é um presente.»"),
+            new LendaVM("Franz Beckenbauer", "alemanha", "🇩🇪", "Defesa/Médio", "1965–1977",
+                "Campeão Mundial (1974) como jogador e treinador",
+                "O Kaiser · 103 jogos · 14 golos · Bola de Ouro 1972 e 1976",
+                "«Liderança é saber quando falar e quando calar.»")
+        );
+        putRivalidade(m, "brasil", "alemanha", braAle);
+
+        // Portugal × França
+        List<LendaVM> porFra = List.of(
+            new LendaVM("Cristiano Ronaldo", "portugal", "🇵🇹", "Avançado", "2003–",
+                "UEFA Euro (2016) · Nations League (2019)",
+                "130 golos · Golo no Euro 2016 SF vs Gales · Lesionado na Final vs França",
+                "«A derrota não existe para quem nunca desiste.»"),
+            new LendaVM("Zinedine Zidane", "franca", "🇫🇷", "Meia-atacante", "1994–2006",
+                "Campeão Mundial (1998) · UEFA Euro (2000)",
+                "2× Bola de Ouro · 31 golos · Melhor jogador do Copa 1998",
+                "«O talento sem trabalho é como um pássaro sem asas.»"),
+            new LendaVM("Thierry Henry", "franca", "🇫🇷", "Avançado", "1997–2010",
+                "Campeão Mundial (1998) · UEFA Euro (2000)",
+                "51 golos pela Seleção · Artilheiro histórico de França até Giroud",
+                "«Marcar pela França é sempre especial.»")
+        );
+        putRivalidade(m, "portugal", "franca", porFra);
+
+        // França × Argentina
+        List<LendaVM> fraArg = List.of(
+            new LendaVM("Kylian Mbappé", "franca", "🇫🇷", "Avançado", "2017–",
+                "Campeão Mundial (2018) · Finalista (2022)",
+                "Melhor jovem Copa 2018 · Hat-trick na Final 2022 · 45 golos pela Seleção",
+                "«Estou aqui para ganhar títulos.»"),
+            new LendaVM("Lionel Messi", "argentina", "🇦🇷", "Meia-atacante", "2005–",
+                "Campeão Mundial (2022)",
+                "Bola de Ouro Copa 2022 · Melhor da Final 2022 · 109 golos",
+                "«A final de 2022 foi o jogo da minha vida.»"),
+            new LendaVM("Zinedine Zidane", "franca", "🇫🇷", "Meia-atacante", "1994–2006",
+                "Campeão Mundial (1998) · UEFA Euro (2000)",
+                "Eliminou Argentina em 2006 com exibição magistral",
+                "«Quem nunca falhou nunca tentou nada grandioso.»")
+        );
+        putRivalidade(m, "franca", "argentina", fraArg);
+
+        return Collections.unmodifiableMap(m);
+    }
+
+    private static void putRivalidade(Map<String, List<LendaVM>> m,
+                                       String s1, String s2, List<LendaVM> lendas) {
+        m.put(s1 + "×" + s2, lendas);
+        m.put(s2 + "×" + s1, lendas);
+    }
+
+    private List<LendaVM> buildLendas(String slug1, String slug2) {
+        String key = slug1 + "×" + slug2;
+        return LENDAS_POR_RIVALIDADE.getOrDefault(key, List.of());
     }
 
     private String resolveSlug(String englishName) {

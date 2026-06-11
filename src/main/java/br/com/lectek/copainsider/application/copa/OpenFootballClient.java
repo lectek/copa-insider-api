@@ -26,20 +26,36 @@ public class OpenFootballClient {
         this.mapper = mapper;
     }
 
+    private static final String BASE = "https://raw.githubusercontent.com/openfootball/";
+
     public List<OFMatch> fetchMatches() {
         return fetchYear(2026);
     }
 
     public List<OFMatch> fetchYear(int year) {
         String url = (year == 2026) ? URL
-                : "https://raw.githubusercontent.com/openfootball/worldcup.json/master/" + year + "/worldcup.json";
+                : BASE + "worldcup.json/master/" + year + "/worldcup.json";
+        return fetch(url, "Copa do Mundo " + year);
+    }
+
+    public List<OFMatch> fetchCopaAmerica(int year) {
+        String url = BASE + "copa-america.json/master/" + year + "/copa-america.json";
+        return fetch(url, "Copa América " + year);
+    }
+
+    public List<OFMatch> fetchEuro(int year) {
+        String url = BASE + "euro.json/master/" + year + "/euro.json";
+        return fetch(url, "UEFA Euro " + year);
+    }
+
+    private List<OFMatch> fetch(String url, String label) {
         try {
             String json = rest.getForObject(url, String.class);
             if (json == null) return List.of();
             OFResponse resp = mapper.readValue(json, OFResponse.class);
             return (resp != null && resp.matches() != null) ? resp.matches() : List.of();
         } catch (Exception e) {
-            log.warn("Falha ao buscar Copa {} openfootball: {}", year, e.getMessage());
+            log.warn("Falha ao buscar {} openfootball: {}", label, e.getMessage());
             return List.of();
         }
     }
