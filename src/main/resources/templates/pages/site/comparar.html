@@ -102,6 +102,18 @@
         .sem-historico { text-align: center; color: #9090a8; font-size: .9rem; padding: 2rem;
             background: rgba(255,255,255,.03); border-radius: 12px; border: 1px dashed rgba(255,255,255,.1); }
 
+        /* Rivalidades rápidas */
+        .rivals-quick { margin-top: 1.5rem; text-align: center; }
+        .rivals-quick__label { font-size: .8rem; color: #9090a8; display: block; margin-bottom: .6rem; letter-spacing: .04em; text-transform: uppercase; }
+        .rivals-quick__chips { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+        .rival-chip {
+            background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+            border-radius: 20px; padding: .35rem .85rem; font-size: .82rem; color: #c8c8e0;
+            text-decoration: none; transition: background .15s, border-color .15s, color .15s;
+            white-space: nowrap;
+        }
+        .rival-chip:hover { background: rgba(245,166,35,.12); border-color: rgba(245,166,35,.35); color: #f5a623; }
+
         @media (max-width: 600px) {
             .form-row { grid-template-columns: 1fr; }
             .vs-sep { padding: 0; }
@@ -135,8 +147,8 @@
 <main>
 
     <section class="hero">
-        <h1>Comparar <span class="hl">Seleções</span></h1>
-        <p>Histórico de confrontos em Copas do Mundo (2006–2022) + Copa 2026</p>
+        <h1>Acompanha <span class="hl">Qualquer Rivalidade</span></h1>
+        <p>Pesquisa o histórico de confronto entre duas seleções em Copas do Mundo (2006–2022) + Copa 2026</p>
 
         <div class="form-card">
             <form method="get" th:action="@{/comparar}">
@@ -167,6 +179,18 @@
                 </div>
                 <button type="submit" class="btn-comparar">Comparar histórico</button>
             </form>
+        </div>
+
+        <div class="rivals-quick">
+            <span class="rivals-quick__label">Rivalidades populares:</span>
+            <div class="rivals-quick__chips">
+                <a th:href="@{/comparar(time1='brasil',time2='argentina')}" class="rival-chip">🇧🇷 Brasil × Argentina 🇦🇷</a>
+                <a th:href="@{/comparar(time1='portugal',time2='espanha')}" class="rival-chip">🇵🇹 Portugal × Espanha 🇪🇸</a>
+                <a th:href="@{/comparar(time1='brasil',time2='franca')}" class="rival-chip">🇧🇷 Brasil × França 🇫🇷</a>
+                <a th:href="@{/comparar(time1='alemanha',time2='brasil')}" class="rival-chip">🇩🇪 Alemanha × Brasil 🇧🇷</a>
+                <a th:href="@{/comparar(time1='portugal',time2='franca')}" class="rival-chip">🇵🇹 Portugal × França 🇫🇷</a>
+                <a th:href="@{/comparar(time1='italia',time2='alemanha')}" class="rival-chip">🇮🇹 Itália × Alemanha 🇩🇪</a>
+            </div>
         </div>
     </section>
 
