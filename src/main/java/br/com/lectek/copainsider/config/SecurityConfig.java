@@ -86,7 +86,7 @@ public class SecurityConfig {
         String requested = request.getParameter("redirect");
         if (StringUtils.hasText(requested) && requested.startsWith("/")
                 && !requested.startsWith("//")
-                && !requested.startsWith("/cliente")
+                && (isAdmin || !requested.startsWith("/cliente"))
                 && (!requested.startsWith("/admin") || isAdmin)) {
             return requested;
         }
@@ -94,8 +94,8 @@ public class SecurityConfig {
         SavedRequest saved = new HttpSessionRequestCache().getRequest(request, response);
         if (saved != null && StringUtils.hasText(saved.getRedirectUrl())) {
             String url = saved.getRedirectUrl();
-            // Skip legacy e-commerce paths — Copa Insider customers stay on the public site
-            if (!url.contains("/cliente") && (isAdmin || !url.contains("/admin"))) {
+            // Clientes normais ficam na área pública; admin acede a tudo
+            if ((isAdmin || !url.contains("/cliente")) && (isAdmin || !url.contains("/admin"))) {
                 return url;
             }
         }
