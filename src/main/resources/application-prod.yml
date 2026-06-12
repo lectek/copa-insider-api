@@ -243,6 +243,12 @@ stripe:
   secret-key: ${STRIPE_SECRET_KEY:}
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
 
+api:
+  football:
+    key: ${API_FOOTBALL_KEY:}
+    league-id: ${API_FOOTBALL_LEAGUE_ID:1}
+    season: ${API_FOOTBALL_SEASON:2026}
+
 legacy:
   sync:
     enabled: false

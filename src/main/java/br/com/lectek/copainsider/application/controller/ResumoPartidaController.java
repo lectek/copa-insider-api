@@ -2,6 +2,7 @@ package br.com.lectek.copainsider.application.controller;
 
 import br.com.lectek.copainsider.application.copa.Copa2026DataService;
 import br.com.lectek.copainsider.application.copa.PartidaVM;
+import br.com.lectek.copainsider.application.service.ApiFootballService;
 import br.com.lectek.copainsider.application.service.NotasJogadorService;
 import br.com.lectek.copainsider.application.copa.vm.NotaJogadorVM;
 import jakarta.servlet.http.HttpSession;
@@ -20,11 +21,14 @@ public class ResumoPartidaController {
 
     private final Copa2026DataService copaData;
     private final NotasJogadorService notasService;
+    private final ApiFootballService  apiFootball;
 
     public ResumoPartidaController(Copa2026DataService copaData,
-                                   NotasJogadorService notasService) {
+                                   NotasJogadorService notasService,
+                                   ApiFootballService apiFootball) {
         this.copaData     = copaData;
         this.notasService = notasService;
+        this.apiFootball  = apiFootball;
     }
 
     @GetMapping("/jogo/{id}/resumo")
@@ -36,6 +40,10 @@ public class ResumoPartidaController {
                     copaData.findSelecao(partida.slugCasa()).orElse(null));
             model.addAttribute("selecaoVisitante",
                     copaData.findSelecao(partida.slugVisitante()).orElse(null));
+
+            // Dados oficiais da API-Football (golos, cartões, estatísticas)
+            apiFootball.findMatchData(partida)
+                    .ifPresent(md -> model.addAttribute("matchData", md));
 
             // Top jogadores avaliados pelos adeptos
             List<NotaJogadorVM> topCasa = topJogadores(id, partida.slugCasa(), session.getId());
