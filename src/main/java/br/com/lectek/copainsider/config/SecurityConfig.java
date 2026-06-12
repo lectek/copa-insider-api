@@ -81,18 +81,23 @@ public class SecurityConfig {
     ) {
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
-        String roleDefault = isAdmin ? "/admin/dashboard" : "/cliente/conta";
+        String roleDefault = isAdmin ? "/admin/dashboard" : "/";
 
         String requested = request.getParameter("redirect");
         if (StringUtils.hasText(requested) && requested.startsWith("/")
                 && !requested.startsWith("//")
+                && !requested.startsWith("/cliente")
                 && (!requested.startsWith("/admin") || isAdmin)) {
             return requested;
         }
 
         SavedRequest saved = new HttpSessionRequestCache().getRequest(request, response);
         if (saved != null && StringUtils.hasText(saved.getRedirectUrl())) {
-            return saved.getRedirectUrl();
+            String url = saved.getRedirectUrl();
+            // Skip legacy e-commerce paths — Copa Insider customers stay on the public site
+            if (!url.contains("/cliente") && (isAdmin || !url.contains("/admin"))) {
+                return url;
+            }
         }
 
         return roleDefault;

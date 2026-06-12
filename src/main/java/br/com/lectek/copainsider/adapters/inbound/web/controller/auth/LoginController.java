@@ -38,10 +38,11 @@ public class LoginController {
     private String resolveRedirectDefault(final String redirect) {
         if (StringUtils.hasText(redirect)) {
             final String normalized = redirect.trim();
-            if (normalized.startsWith("/") && !normalized.startsWith("//")) {
+            if (normalized.startsWith("/") && !normalized.startsWith("//")
+                    && !normalized.startsWith("/cliente")) {
                 return normalized;
             }
         }
-        return "/cliente/conta";
+        return "/";
     }
 }
