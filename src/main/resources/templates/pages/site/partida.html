@@ -129,6 +129,12 @@
                    style="text-decoration:none;padding:10px 20px;font-size:14px;background:#1a1a1a;border:1px solid #3a3a3a;color:#e8e8f0;">
                     📱 Segunda Tela
                 </a>
+                <a th:href="@{/jogo/{id}/resumo(id=${partida.id()})}"
+                   th:if="${partida.encerrada()}"
+                   class="cta-btn-big"
+                   style="text-decoration:none;padding:10px 20px;font-size:14px;background:#0f1a0f;border:1px solid #2a5a2a;color:#4ade80;">
+                    📊 Ver Resumo
+                </a>
             </div>
         </div>
     </section>

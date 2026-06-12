@@ -48,10 +48,11 @@ public class SitemapController {
         // Páginas dinâmicas por partida
         String today = LocalDateTime.now().format(ISO);
         for (PartidaVM p : copaData.listPartidas()) {
-            addUrlWithDate(sb, "/jogo/"       + p.id() + "/sala",  HOURLY, "1.0", today);
-            addUrlWithDate(sb, "/jogo/"       + p.id() + "/notas", HOURLY, "0.9", today);
-            addUrl(sb, "/segunda-tela/"  + p.id(), HOURLY, "0.8");
-            addUrl(sb, "/partida/"       + p.id(), DAILY,  "0.7");
+            addUrlWithDate(sb, "/jogo/"       + p.id() + "/sala",   HOURLY,  "1.0", today);
+            addUrlWithDate(sb, "/jogo/"       + p.id() + "/notas",  HOURLY,  "0.9", today);
+            addUrl(sb, "/segunda-tela/"  + p.id(), HOURLY,  "0.8");
+            addUrl(sb, "/partida/"       + p.id(), DAILY,   "0.7");
+            if (p.encerrada()) addUrl(sb, "/jogo/" + p.id() + "/resumo", WEEKLY, "0.9");
         }
 
         sb.append("</urlset>");

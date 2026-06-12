@@ -15,6 +15,8 @@ public record PartidaVM(
         String grupo,
         Integer golsCasa,
         Integer golsVisitante,
+        Integer golsCasaHT,
+        Integer golsVisitanteHT,
         StatusPartida status,
         String estadio,
         String cidade
@@ -23,6 +25,11 @@ public record PartidaVM(
     public boolean encerrada() { return status == StatusPartida.ENCERRADA; }
     public boolean agendada() { return status == StatusPartida.AGENDADA; }
     public boolean temResultado() { return golsCasa != null && golsVisitante != null; }
+    public boolean temHalfTime() { return golsCasaHT != null && golsVisitanteHT != null; }
+    public String placarHT() {
+        if (!temHalfTime()) return null;
+        return golsCasaHT + " : " + golsVisitanteHT;
+    }
     public String placar() {
         if (!temResultado()) return "- : -";
         return golsCasa + " : " + golsVisitante;

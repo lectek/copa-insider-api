@@ -533,12 +533,17 @@ public class Copa2026DataService {
                     LocalDateTime dt = parseDateTime(m.date(), m.time());
                     PartidaVM.StatusPartida status = m.hasScore() ? ENCERRADA : AGENDADA;
                     String[] ground = splitGround(m.ground());
+                    Integer htHome = (m.score() != null && m.score().ht() != null
+                            && m.score().ht().size() == 2) ? m.score().ht().get(0) : null;
+                    Integer htAway = (m.score() != null && m.score().ht() != null
+                            && m.score().ht().size() == 2) ? m.score().ht().get(1) : null;
                     return new PartidaVM(
                             idGen.getAndIncrement(),
                             casa.nome(), casa.slug(), casa.bandeira(),
                             visitante.nome(), visitante.slug(), visitante.bandeira(),
                             dt, fase, grupo,
                             m.scoreHome(), m.scoreAway(),
+                            htHome, htAway,
                             status, ground[0], ground[1]);
                 })
                 .toList();
