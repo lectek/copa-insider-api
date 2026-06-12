@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -164,7 +165,12 @@
             <li><a th:href="@{/comparar}" class="nav__link">Rivalidades</a></li>
             <li><a th:href="@{/factos}" class="nav__link">Factos</a></li>
         </ul>
-        <a th:href="@{/loja}" class="nav__cta" style="border-color:var(--gold);color:var(--gold);">Ver guias</a>
+        <a th:href="@{/admin/dashboard}" sec:authorize="hasRole('ADMIN')"
+           style="font-size:13px;font-weight:700;color:#e8b930;text-decoration:none;margin-right:4px;">⚙ Admin</a>
+        <a th:href="@{/auth/logout}" sec:authorize="isAuthenticated()"
+           style="font-size:13px;color:#6a6a7a;text-decoration:none;">Sair</a>
+        <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()"
+           class="nav__cta">Login</a>
         <button class="nav__toggle" onclick="this.closest('nav').classList.toggle('nav--open')">&#9776;</button>
     </div>
 </nav>
