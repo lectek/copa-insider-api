@@ -181,7 +181,7 @@
         <a th:href="@{/calendario}" class="btn btn--outline">← Calendário</a>
     </div>
 
-    <!-- Golos e cartões (API-Football) -->
+    <!-- Golos e cartões (SofaScore) -->
     <div class="section" th:if="${matchData != null}">
         <div class="section__title">⚽ Eventos da partida</div>
         <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;">
@@ -194,17 +194,15 @@
                      style="display:flex;align-items:center;gap:10px;padding:8px 0;
                             border-bottom:1px solid var(--border);">
                     <span style="font-size:13px;font-weight:700;color:var(--gold);min-width:36px;"
-                          th:text="${g.time().label()}"></span>
+                          th:text="${g.minuto()}"></span>
                     <span style="font-size:14px;">⚽</span>
                     <span style="font-size:13px;font-weight:600;color:var(--text);flex:1;"
-                          th:text="${g.player().name()}"></span>
+                          th:text="${g.player() != null ? g.player().name() : ''}"></span>
                     <span style="font-size:12px;color:var(--muted);"
-                          th:text="${g.team().name()}"></span>
+                          th:text="${g.isHome() ? partida.selecaoCasa() : partida.selecaoVisitante()}"></span>
                     <span style="font-size:11px;color:var(--muted);"
-                          th:if="${g.assist() != null and g.assist().name() != null}"
-                          th:text="'assist: ' + ${g.assist().name()}"></span>
-                    <span style="font-size:11px;color:var(--muted);"
-                          th:text="${g.detail()}"></span>
+                          th:if="${g.assist1() != null}"
+                          th:text="'assist: ' + ${g.assist1().name()}"></span>
                 </div>
             </div>
 
@@ -215,12 +213,12 @@
                 <div th:each="c : ${matchData.cartoes()}"
                      style="display:flex;align-items:center;gap:10px;padding:6px 0;">
                     <span style="font-size:13px;font-weight:700;color:var(--gold);min-width:36px;"
-                          th:text="${c.time().label()}"></span>
-                    <span th:text="${'Yellow Card'.equals(c.detail()) ? '🟨' : '🟥'}"></span>
+                          th:text="${c.minuto()}"></span>
+                    <span th:text="${c.isAmarelo() ? '🟨' : '🟥'}"></span>
                     <span style="font-size:13px;color:var(--text);flex:1;"
-                          th:text="${c.player().name()}"></span>
+                          th:text="${c.player() != null ? c.player().name() : ''}"></span>
                     <span style="font-size:12px;color:var(--muted);"
-                          th:text="${c.team().name()}"></span>
+                          th:text="${c.isHome() ? partida.selecaoCasa() : partida.selecaoVisitante()}"></span>
                 </div>
             </div>
 
@@ -231,8 +229,8 @@
         </div>
     </div>
 
-    <!-- Estatísticas (API-Football) -->
-    <div class="section" th:if="${matchData != null and !matchData.stats().isEmpty()}">
+    <!-- Estatísticas (SofaScore) -->
+    <div class="section" th:if="${matchData != null and matchData.temEstatisticas()}">
         <div class="section__title">📊 Estatísticas oficiais</div>
         <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;">
             <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;
@@ -243,16 +241,16 @@
                 <span style="font-size:13px;font-weight:700;color:var(--text);text-align:right;"
                       th:text="${partida.bandeiraVisitante() + ' ' + partida.selecaoVisitante()}"></span>
             </div>
-            <th:block th:with="statNames=${ {'Ball Possession','Total Shots','Shots on Goal','Corner Kicks','Fouls','Yellow Cards','Red Cards'} }">
+            <th:block th:with="statNames=${ {'Ball possession','Total shots','Shots on target','Corner kicks','Fouls','Yellow cards','Red cards'} }">
                 <div th:each="statName : ${statNames}"
                      style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;
                             align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);">
                     <span style="font-size:14px;font-weight:700;color:var(--text);"
-                          th:text="${matchData.stat(partida.selecaoCasa(), statName).orElse('-')}"></span>
+                          th:text="${matchData.statHome(statName)}"></span>
                     <span style="font-size:11px;color:var(--muted);text-align:center;min-width:120px;"
                           th:text="${statName}"></span>
                     <span style="font-size:14px;font-weight:700;color:var(--text);text-align:right;"
-                          th:text="${matchData.stat(partida.selecaoVisitante(), statName).orElse('-')}"></span>
+                          th:text="${matchData.statAway(statName)}"></span>
                 </div>
             </th:block>
         </div>

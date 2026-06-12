@@ -2,8 +2,8 @@ package br.com.lectek.copainsider.application.controller;
 
 import br.com.lectek.copainsider.application.copa.Copa2026DataService;
 import br.com.lectek.copainsider.application.copa.PartidaVM;
-import br.com.lectek.copainsider.application.service.ApiFootballService;
 import br.com.lectek.copainsider.application.service.NotasJogadorService;
+import br.com.lectek.copainsider.application.service.SofaScoreService;
 import br.com.lectek.copainsider.application.copa.vm.NotaJogadorVM;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -21,14 +21,14 @@ public class ResumoPartidaController {
 
     private final Copa2026DataService copaData;
     private final NotasJogadorService notasService;
-    private final ApiFootballService  apiFootball;
+    private final SofaScoreService    sofaScore;
 
     public ResumoPartidaController(Copa2026DataService copaData,
                                    NotasJogadorService notasService,
-                                   ApiFootballService apiFootball) {
+                                   SofaScoreService sofaScore) {
         this.copaData     = copaData;
         this.notasService = notasService;
-        this.apiFootball  = apiFootball;
+        this.sofaScore    = sofaScore;
     }
 
     @GetMapping("/jogo/{id}/resumo")
@@ -41,8 +41,7 @@ public class ResumoPartidaController {
             model.addAttribute("selecaoVisitante",
                     copaData.findSelecao(partida.slugVisitante()).orElse(null));
 
-            // Dados oficiais da API-Football (golos, cartões, estatísticas)
-            apiFootball.findMatchData(partida)
+            sofaScore.findMatchData(partida)
                     .ifPresent(md -> model.addAttribute("matchData", md));
 
             // Top jogadores avaliados pelos adeptos
