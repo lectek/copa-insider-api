@@ -106,6 +106,27 @@
         </div>
     </section>
 
+    <!-- Ferramentas ao vivo -->
+    <section class="cta-section" style="margin-bottom:0;">
+        <div class="cta-card" style="display:flex;flex-direction:column;gap:14px;">
+            <p style="font-size:16px;font-weight:800;">📺 Acompanha este jogo em directo</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+                <a th:href="@{/jogo/{id}/sala(id=${partida.id()})}" class="cta-btn-big"
+                   style="text-decoration:none;padding:10px 20px;font-size:14px;">
+                    💬 Sala do Jogo
+                </a>
+                <a th:href="@{/jogo/{id}/notas(id=${partida.id()})}" class="cta-btn-big"
+                   style="text-decoration:none;padding:10px 20px;font-size:14px;background:#1a1508;border:1px solid #b8922a;color:#e8b930;">
+                    ⭐ Notas ao Vivo
+                </a>
+                <a th:href="@{/segunda-tela/{id}(id=${partida.id()})}" class="cta-btn-big"
+                   style="text-decoration:none;padding:10px 20px;font-size:14px;background:#1a1a1a;border:1px solid #3a3a3a;color:#e8e8f0;">
+                    📱 Segunda Tela
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA guia -->
     <section class="cta-section">
         <div class="cta-card">

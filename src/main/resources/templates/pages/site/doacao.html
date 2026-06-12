@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Apoiar o projeto — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/landing.css}"/>
+    <style>
+        .doacao-wrap{max-width:720px;margin:0 auto;padding:56px 24px 96px;}
+        .doacao-hero{text-align:center;margin-bottom:48px;}
+        .doacao-hero__icon{font-size:56px;margin-bottom:16px;}
+        .doacao-hero__title{font-size:clamp(26px,4vw,40px);font-weight:900;color:#e8e8f0;margin-bottom:12px;}
+        .doacao-hero__sub{font-size:16px;color:#b8b8d0;line-height:1.7;max-width:560px;margin:0 auto;}
+
+        .about-block{background:rgba(255,255,255,.04);border:1px solid #2a2a2a;border-radius:14px;
+            padding:28px;margin-bottom:32px;}
+        .about-block h2{font-size:18px;font-weight:800;color:#e8e8f0;margin-bottom:14px;}
+        .about-block p{font-size:14px;color:#b8b8d0;line-height:1.7;margin-bottom:10px;}
+        .about-block p:last-child{margin-bottom:0;}
+
+        .disclaimer{background:rgba(255,165,0,.06);border:1px solid rgba(255,165,0,.2);border-radius:10px;
+            padding:16px 20px;margin-bottom:32px;font-size:13px;color:#d0b060;line-height:1.6;}
+        .disclaimer strong{color:#e8c060;}
+
+        .doacao-form{background:rgba(255,255,255,.04);border:1px solid #2a2a2a;border-radius:14px;padding:28px;}
+        .doacao-form h2{font-size:18px;font-weight:800;color:#e8e8f0;margin-bottom:20px;}
+
+        .form-group{margin-bottom:16px;}
+        .form-label{display:block;font-size:13px;font-weight:700;color:#b8b8d0;margin-bottom:6px;}
+        .form-input{width:100%;background:rgba(255,255,255,.06);border:1px solid #2a2a2a;border-radius:8px;
+            padding:10px 14px;color:#fff;font-size:14px;font-family:inherit;outline:none;
+            transition:border-color .2s;}
+        .form-input:focus{border-color:rgba(232,185,48,.4);}
+        textarea.form-input{resize:vertical;min-height:80px;}
+
+        .valor-btns{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+        .valor-btn{padding:8px 16px;border-radius:8px;border:1px solid #2a2a2a;background:rgba(255,255,255,.04);
+            color:#b8b8d0;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+        .valor-btn:hover,.valor-btn.sel{background:rgba(232,185,48,.1);border-color:rgba(232,185,48,.4);color:#e8b930;}
+
+        .submit-btn{width:100%;background:#e8b930;color:#0a0a0a;border:none;border-radius:10px;
+            padding:14px;font-weight:800;font-size:16px;cursor:pointer;margin-top:8px;
+            transition:opacity .2s;}
+        .submit-btn:hover{opacity:.9;}
+        .submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+        .no-stripe{background:rgba(255,255,255,.04);border:1px solid #2a2a2a;border-radius:10px;
+            padding:20px;text-align:center;color:#8a8a8a;font-size:14px;margin-top:16px;}
+        .no-stripe a{color:#e8b930;}
+
+        .err-msg{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);
+            color:#f87171;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px;}
+    </style>
+</head>
+<body>
+
+<div class="urgency-bar">
+    <span>⚽ Copa 2026 está ao vivo — guias entregues na hora</span>
+    <a th:href="@{/loja}" class="urgency-bar__cta">Ver guias →</a>
+</div>
+
+<nav class="nav">
+    <div class="nav__inner">
+        <a href="/" class="nav__brand">
+            <img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/>
+            <span class="nav__logo-name">Copa Insider</span>
+        </a>
+        <ul class="nav__links">
+            <li><a th:href="@{/calendario}" class="nav__link">Calendário</a></li>
+            <li><a th:href="@{/selecoes}" class="nav__link">Seleções</a></li>
+            <li><a th:href="@{/comparar}" class="nav__link">Rivalidades</a></li>
+        </ul>
+        <a th:href="@{/loja}" class="nav__cta">Ver guias</a>
+        <button class="nav__toggle" onclick="this.closest('nav').classList.toggle('nav--open')">&#9776;</button>
+    </div>
+</nav>
+
+<main>
+<div class="doacao-wrap">
+
+    <div class="doacao-hero">
+        <div class="doacao-hero__icon">❤️</div>
+        <h1 class="doacao-hero__title">Apoiar o Copa Insider</h1>
+        <p class="doacao-hero__sub">
+            O Copa Insider é um projeto independente criado por amor ao futebol.
+            Se o conteúdo te ajudou a viver melhor a Copa 2026, considera fazer um donativo livre.
+        </p>
+    </div>
+
+    <div class="about-block">
+        <h2>O que é o Copa Insider?</h2>
+        <p>
+            Uma plataforma independente com guias digitais, histórico de seleções, comparador de rivalidades,
+            calendário completo, notas ao vivo e chat durante os jogos da Copa do Mundo 2026.
+        </p>
+        <p>
+            Tudo feito por uma pequena equipa, sem publicidade invasiva, focada em dar contexto real
+            antes e durante cada jogo — para que sejas o mais bem informado da sala.
+        </p>
+    </div>
+
+    <div class="disclaimer">
+        <strong>⚠️ Nota importante:</strong> O Copa Insider <strong>não transmite</strong> nenhum jogo
+        nem detém direitos de transmissão televisiva. Os donativos apoiam o desenvolvimento e manutenção
+        da plataforma. A Copa 2026 é transmitida pelas emissoras oficiais licenciadas pela FIFA.
+    </div>
+
+    <div class="doacao-form">
+        <h2>Fazer um donativo</h2>
+
+        <div class="err-msg" th:if="${param.erro != null}">
+            <span th:if="${param.erro[0] == 'valor'}">Valor mínimo de €1,00.</span>
+            <span th:if="${param.erro[0] == 'stripe'}">Erro ao processar. Tenta novamente.</span>
+        </div>
+
+        <form th:if="${stripeEnabled}" method="post" action="/api/doacao/checkout" id="doacaoForm">
+            <div class="form-group">
+                <label class="form-label">Valor (EUR)</label>
+                <div class="valor-btns">
+                    <button type="button" class="valor-btn" onclick="setValor(2)">€2</button>
+                    <button type="button" class="valor-btn" onclick="setValor(5)">€5</button>
+                    <button type="button" class="valor-btn" onclick="setValor(10)">€10</button>
+                    <button type="button" class="valor-btn" onclick="setValor(20)">€20</button>
+                </div>
+                <input type="number" name="valor" id="valorInput" class="form-input"
+                       placeholder="Ou escreve outro valor" min="1" step="1" required/>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nome (opcional)</label>
+                <input type="text" name="nome" class="form-input" placeholder="O teu nome" maxlength="100"/>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email (opcional — para recibo)</label>
+                <input type="email" name="email" class="form-input" placeholder="email@exemplo.com"/>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mensagem (opcional)</label>
+                <textarea name="mensagem" class="form-input" maxlength="500"
+                          placeholder="Deixa uma mensagem para a equipa…"></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Continuar para pagamento →</button>
+        </form>
+
+        <div class="no-stripe" th:unless="${stripeEnabled}">
+            <p>O sistema de pagamentos ainda não está configurado.</p>
+            <p style="margin-top:8px;">Podes apoiar o projeto diretamente por
+                <a href="mailto:ruimf3@outlook.com">email</a> ou partilhando o Copa Insider com amigos. 🙏</p>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="footer__brand">
+            <img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/>
+            Copa Insider
+        </div>
+        <p class="footer__copy">© 2026 Copa Insider · Conteúdo digital independente</p>
+    </div>
+</footer>
+
+<script>
+    function setValor(v) {
+        document.getElementById('valorInput').value = v;
+        document.querySelectorAll('.valor-btn').forEach(b => {
+            b.classList.toggle('sel', parseInt(b.textContent.replace('€','')) === v);
+        });
+    }
+</script>
+</body>
+</html>

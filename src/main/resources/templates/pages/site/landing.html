@@ -3,18 +3,63 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Copa Insider — Guias digitais para a Copa 2026</title>
+    <title>Copa 2026 ao Vivo — Assista Grátis e Sem Anúncios | Copa Insider</title>
+    <meta name="description" content="Assista agora à Copa do Mundo 2026 ao vivo — gratuito e sem anúncios. Chat em tempo real durante os jogos, notas de jogadores, calendário completo e guias digitais. Sem registo obrigatório."/>
+    <meta name="robots" content="index, follow"/>
+    <link rel="canonical" th:href="${baseUrl + '/'}"/>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:site_name" content="Copa Insider"/>
+    <meta property="og:title" content="Copa 2026 ao Vivo — Assista Grátis e Sem Anúncios | Copa Insider"/>
+    <meta property="og:description" content="Acompanha todos os jogos da Copa do Mundo 2026 ao vivo. Chat em tempo real, reações, notas de jogadores e guias digitais. Gratuito e sem anúncios."/>
+    <meta property="og:url" th:content="${baseUrl + '/'}"/>
+    <meta property="og:image" th:content="${baseUrl + '/img/og-copa.webp'}"/>
+    <meta property="og:locale" content="pt_BR"/>
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Copa 2026 ao Vivo — Assista Grátis | Copa Insider"/>
+    <meta name="twitter:description" content="Chat ao vivo, notas de jogadores e guias digitais para a Copa do Mundo 2026. Gratuito e sem anúncios."/>
+    <meta name="twitter:image" th:content="${baseUrl + '/img/og-copa.webp'}"/>
+
+    <!-- Schema.org WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Copa Insider",
+      "description": "Plataforma gratuita para acompanhar a Copa do Mundo 2026 ao vivo. Chat em tempo real, notas de jogadores e guias digitais.",
+      "url": "https://copainsider.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://copainsider.com/selecoes?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "isAccessibleForFree": true
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" th:href="@{/css/landing.css}"/>
+    <style>
+        .live-card{background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:24px;
+            text-decoration:none;display:block;transition:border-color .2s;}
+        .live-card:hover,.live-card:focus{border-color:#2a2a2a;outline:2px solid #2a2a2a;}
+        .live-card__icon{font-size:32px;margin-bottom:12px;}
+        .live-card__title{font-size:16px;font-weight:800;color:#e8e8f0;margin-bottom:6px;}
+        .live-card__desc{font-size:13px;color:#6a6a7a;line-height:1.6;margin-bottom:14px;}
+        .live-card__cta{font-size:12px;font-weight:700;color:#e8b930;}
+    </style>
 </head>
 <body>
 
 <!-- BARRA DE URGÊNCIA -->
 <div class="urgency-bar">
-    ⚽ A Copa 2026 está ao vivo — guias disponíveis antes de cada jogo
-    <a href="#guias" class="urgency-bar__cta">Ver guias →</a>
+    🔴 Copa 2026 ao vivo agora — Chat, notas e transmissões gratuitas, sem anúncios
+    <a th:href="@{/calendario}" class="urgency-bar__cta">Entrar na sala →</a>
 </div>
 
 <!-- NAVBAR -->
@@ -25,16 +70,74 @@
             <span class="nav__logo-name">Copa Insider</span>
         </a>
         <ul class="nav__links">
+            <li><a th:href="@{/calendario}" class="nav__link" style="color:#ef4444;font-weight:700;">🔴 Ao Vivo</a></li>
             <li><a href="#guias" class="nav__link">Guias</a></li>
             <li><a th:href="@{/calendario}" class="nav__link">Calendário</a></li>
             <li><a th:href="@{/selecoes}" class="nav__link">Seleções</a></li>
             <li><a th:href="@{/comparar}" class="nav__link">Rivalidades</a></li>
             <li><a th:href="@{/ranking}" class="nav__link">Ranking</a></li>
+            <li><a th:href="@{/doacao}" class="nav__link">Apoiar ❤️</a></li>
         </ul>
         <a href="#guias" class="nav__cta">Ver guias</a>
         <button class="nav__toggle" onclick="this.closest('nav').classList.toggle('nav--open')">&#9776;</button>
     </div>
 </nav>
+
+<!-- BANNER AO VIVO -->
+<section style="background:#0d0d0d;border-bottom:1px solid #1a1a1a;padding:52px 24px;">
+    <div style="max-width:1100px;margin:0 auto;">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:#1a0a0a;color:#ef4444;border:1px solid #3a1010;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px;">
+            <span style="width:7px;height:7px;background:#ef4444;border-radius:50%;display:inline-block;animation:pulse 1.2s infinite;"></span>
+            AO VIVO AGORA
+        </div>
+        <h2 style="font-size:clamp(26px,4vw,40px);font-weight:900;color:#e8e8f0;margin-bottom:10px;line-height:1.2;">
+            Assista à Copa 2026 ao vivo —<br>gratuito e sem anúncios.
+        </h2>
+        <p style="font-size:16px;color:#8a8a9a;margin-bottom:36px;max-width:580px;line-height:1.7;">
+            Entra na sala do jogo, comenta com outros adeptos, avalia os jogadores em tempo real e usa o telemóvel como segunda tela. Tudo gratuito, sem registo obrigatório.
+        </p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:36px;">
+
+            <a th:href="@{/calendario}" class="live-card">
+                <div class="live-card__icon">💬</div>
+                <div class="live-card__title">Sala do Jogo</div>
+                <div class="live-card__desc">Chat em tempo real, links de transmissão e notas dos jogadores durante o jogo.</div>
+                <div class="live-card__cta">Entrar →</div>
+            </a>
+
+            <a th:href="@{/calendario}" class="live-card">
+                <div class="live-card__icon">⭐</div>
+                <div class="live-card__title">Notas ao Vivo</div>
+                <div class="live-card__desc">Avalia cada jogador de 1 a 10 durante o jogo. Médias em tempo real com mínimo de 10 votos.</div>
+                <div class="live-card__cta">Votar →</div>
+            </a>
+
+            <a th:href="@{/calendario}" class="live-card">
+                <div class="live-card__icon">📱</div>
+                <div class="live-card__title">Segunda Tela</div>
+                <div class="live-card__desc">Versão compacta para o telemóvel. Chat, reações e notas enquanto assistes no televisor.</div>
+                <div class="live-card__cta">Abrir →</div>
+            </a>
+
+        </div>
+
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+            <span style="font-size:13px;color:#5a5a6a;display:flex;align-items:center;gap:6px;">
+                <span style="color:#4ade80;font-weight:900;">✓</span> 100% gratuito
+            </span>
+            <span style="font-size:13px;color:#5a5a6a;display:flex;align-items:center;gap:6px;">
+                <span style="color:#4ade80;font-weight:900;">✓</span> Sem anúncios
+            </span>
+            <span style="font-size:13px;color:#5a5a6a;display:flex;align-items:center;gap:6px;">
+                <span style="color:#4ade80;font-weight:900;">✓</span> Sem registo obrigatório
+            </span>
+            <span style="font-size:13px;color:#5a5a6a;display:flex;align-items:center;gap:6px;">
+                <span style="color:#4ade80;font-weight:900;">✓</span> Não transmitimos jogos
+            </span>
+        </div>
+    </div>
+</section>
 
 <!-- HERO — título + como funciona sobre a imagem -->
 <section class="hero">
@@ -176,6 +279,21 @@
         <h2 class="content-types__title">Tudo o que a Copa tem para te dar</h2>
         <div class="content-types__grid">
             <a th:href="@{/calendario}" class="content-types__item content-types__item--link">
+                <span class="content-types__icon">💬</span>
+                <h3>Sala do Jogo</h3>
+                <p>Chat ao vivo, links de transmissão e notas dos jogadores durante cada partida.</p>
+            </a>
+            <a th:href="@{/calendario}" class="content-types__item content-types__item--link">
+                <span class="content-types__icon">⭐</span>
+                <h3>Notas ao Vivo</h3>
+                <p>Avalia os jogadores de 1 a 10 em tempo real. Médias públicas após 10 votos.</p>
+            </a>
+            <a th:href="@{/calendario}" class="content-types__item content-types__item--link">
+                <span class="content-types__icon">📱</span>
+                <h3>Segunda Tela</h3>
+                <p>Versão móvel compacta — chat, reações e notas enquanto assistes no televisor.</p>
+            </a>
+            <a th:href="@{/calendario}" class="content-types__item content-types__item--link">
                 <span class="content-types__icon">📅</span>
                 <h3>Calendário completo</h3>
                 <p>Todas as datas, grupos, fases e jogos da Copa 2026.</p>
@@ -187,23 +305,18 @@
             </a>
             <a th:href="@{/comparar}" class="content-types__item content-types__item--link">
                 <span class="content-types__icon">⚔️</span>
-                <h3>Grandes rivalidades</h3>
-                <p>Pesquisa qualquer confronto entre seleções. Acompanha o histórico completo face a face.</p>
-            </a>
-            <a th:href="@{/calendario}" class="content-types__item content-types__item--link">
-                <span class="content-types__icon">📋</span>
-                <h3>Escalações</h3>
-                <p>As prováveis escalações para cada jogo com contexto tático.</p>
+                <h3>Rivalidades</h3>
+                <p>Brasil × Argentina, Portugal × Espanha — histórico completo de qualquer confronto.</p>
             </a>
             <a th:href="@{/ranking}" class="content-types__item content-types__item--link">
-                <span class="content-types__icon">⭐</span>
+                <span class="content-types__icon">📊</span>
                 <h3>Ranking de jogadores</h3>
-                <p>Os melhores jogadores da Copa com base em estatísticas reais.</p>
+                <p>Os mais bem avaliados pelos adeptos ao longo de toda a Copa 2026.</p>
             </a>
-            <a th:href="@{/comparar}" class="content-types__item content-types__item--link">
-                <span class="content-types__icon">🔥</span>
-                <h3>Head-to-head</h3>
-                <p>Brasil × Argentina, Portugal × Espanha — acompanha agora qualquer rivalidade do futebol.</p>
+            <a th:href="@{/doacao}" class="content-types__item content-types__item--link">
+                <span class="content-types__icon">❤️</span>
+                <h3>Apoiar o projeto</h3>
+                <p>O Copa Insider é independente. Se gostas, considera fazer um donativo livre.</p>
             </a>
         </div>
     </div>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="'Assista ao Vivo: ' + ${partida.selecaoCasa()} + ' × ' + ${partida.selecaoVisitante()} + ' — Grátis e Sem Anúncios | Copa Insider'">Assista ao Vivo — Grátis e Sem Anúncios | Copa Insider</title>
+    <meta name="description"
+          th:content="'Assista agora à Copa ao vivo — gratuito e sem anúncios. Segunda tela para ' + ${partida.selecaoCasa()} + ' × ' + ${partida.selecaoVisitante()} + ': chat, reações e notas dos jogadores no telemóvel.'"/>
+    <meta name="robots" content="index, follow"/>
+    <link rel="canonical" th:href="${baseUrl + '/jogo/' + partida.id() + '/sala'}"/>
+    <style>
+        :root{--bg:#0a0a0a;--surface:#141414;--card:#161616;--gold:#e8b930;--border:#2a2a2a;--text:#fff;--muted:#8a8a8a;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        html,body{height:100%;overflow:hidden;}
+        body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;
+            display:flex;flex-direction:column;}
+
+        /* Top bar */
+        .top-bar{background:var(--surface);border-bottom:1px solid var(--border);
+            padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+            flex-shrink:0;}
+        .top-bar__match{font-size:13px;font-weight:700;}
+        .top-bar__score{font-size:16px;font-weight:900;color:var(--gold);}
+        .top-bar__status{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;
+            background:#1a0a0a;color:#ef4444;}
+        .top-bar__status.done{background:#1a1a1a;color:var(--muted);}
+
+        /* Tabs */
+        .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+        .tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;
+            color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+            transition:all .2s;}
+        .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+        /* Panels */
+        .panel{flex:1;overflow:hidden;display:none;flex-direction:column;}
+        .panel.active{display:flex;}
+
+        /* Chat */
+        .chat-msgs{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px;}
+        .msg{font-size:13px;line-height:1.4;}
+        .msg__nome{font-weight:700;color:var(--gold);margin-right:4px;}
+        .msg__hora{font-size:10px;color:var(--muted);margin-left:4px;}
+
+        .reactions-bar{padding:8px 12px;border-top:1px solid var(--border);
+            display:flex;gap:4px;flex-wrap:wrap;flex-shrink:0;}
+        .react-btn{font-size:20px;cursor:pointer;padding:4px 8px;border-radius:8px;
+            border:1px solid var(--border);background:transparent;}
+        .react-fly{position:fixed;font-size:26px;pointer-events:none;
+            animation:fly 1.5s ease-out forwards;z-index:99;}
+        @keyframes fly{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-100px) scale(1.6)}}
+
+        .chat-form{padding:10px 12px;border-top:1px solid var(--border);
+            display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+        .chat-input{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;
+            padding:8px 12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;width:100%;}
+        .chat-input:focus{border-color:rgba(232,185,48,.4);}
+        .chat-row{display:flex;gap:6px;}
+        .chat-send{background:var(--gold);color:#0a0a0a;border:none;border-radius:8px;
+            padding:8px 16px;font-weight:800;font-size:13px;cursor:pointer;}
+
+        /* Reacoes tab */
+        .reacoes-panel{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+        .reacoes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:20px;}
+        .react-big{font-size:40px;cursor:pointer;padding:16px;border-radius:14px;
+            border:1px solid var(--border);background:rgba(255,255,255,.04);text-align:center;
+            transition:background .15s;}
+        .react-big:hover,.react-big:active{background:rgba(232,185,48,.1);}
+        .react-count{font-size:11px;font-weight:700;color:var(--muted);text-align:center;margin-top:4px;}
+
+        /* Notas tab */
+        .notas-scroll{flex:1;overflow-y:auto;padding:10px;}
+        .ncard{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+            padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+        .ncard__info{flex:1;}
+        .ncard__nome{font-size:13px;font-weight:700;}
+        .ncard__pos{font-size:11px;color:var(--muted);}
+        .ncard__media{font-size:22px;font-weight:900;color:var(--gold);min-width:44px;text-align:right;}
+        .ncard__media.hidden{color:var(--muted);font-size:16px;}
+        .stars-mini{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
+        .sm-star{width:20px;height:20px;border-radius:4px;border:1px solid var(--border);
+            background:rgba(255,255,255,.04);font-size:10px;font-weight:700;color:var(--muted);
+            display:flex;align-items:center;justify-content:center;cursor:pointer;}
+        .sm-star.voted{background:rgba(232,185,48,.15);border-color:rgba(232,185,48,.4);color:var(--gold);}
+        .sel-toggle{display:flex;gap:6px;padding:10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+        .sel-btn{flex:1;padding:6px;text-align:center;font-size:12px;font-weight:700;border-radius:8px;
+            border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;}
+        .sel-btn.active{background:rgba(232,185,48,.1);border-color:rgba(232,185,48,.4);color:var(--gold);}
+    </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="top-bar">
+    <div class="top-bar__match">
+        <span th:text="${partida.bandeiraCasa()}"></span>
+        <span th:text="${partida.selecaoCasa()}"></span>
+        <span class="top-bar__score" th:if="${partida.temResultado()}"
+              th:text="${partida.golsCasa()} + ':' + ${partida.golsVisitante()}"> </span>
+        <span th:text="${partida.bandeiraVisitante()}"></span>
+        <span th:text="${partida.selecaoVisitante()}"></span>
+    </div>
+    <span class="top-bar__status"
+          th:classappend="${!partida.aoVivo()} ? ' done' : ''"
+          th:text="${partida.aoVivo()} ? 'AO VIVO' : (${partida.encerrada()} ? 'FIM' : 'EM BREVE')">
+    </span>
+</div>
+
+<!-- Tabs -->
+<div class="tabs" role="tablist">
+    <button type="button" class="tab active" role="tab" onclick="switchTab('chat')">💬 Chat</button>
+    <button type="button" class="tab" role="tab" onclick="switchTab('reacoes')">🔥 Reações</button>
+    <button type="button" class="tab" role="tab" onclick="switchTab('notas')">⭐ Notas</button>
+</div>
+
+<!-- ── CHAT ── -->
+<div class="panel active" id="panel-chat">
+    <div class="chat-msgs" id="chatMsgs">
+        <div class="msg" th:each="m : ${historico}">
+            <span class="msg__nome" th:text="${m.autorNome()}"></span>
+            <span th:text="${m.mensagem()}"></span>
+            <span class="msg__hora" th:text="${m.criadoEm()}"></span>
+        </div>
+    </div>
+    <div class="reactions-bar">
+        <button class="react-btn" onclick="reagir('⚽')">⚽</button>
+        <button class="react-btn" onclick="reagir('🔥')">🔥</button>
+        <button class="react-btn" onclick="reagir('👏')">👏</button>
+        <button class="react-btn" onclick="reagir('😱')">😱</button>
+        <button class="react-btn" onclick="reagir('💛')">💛</button>
+        <button class="react-btn" onclick="reagir('💪')">💪</button>
+        <button class="react-btn" onclick="reagir('🎉')">🎉</button>
+    </div>
+    <div class="chat-form">
+        <input id="chatNome" class="chat-input" placeholder="O teu nome" maxlength="40"/>
+        <div class="chat-row">
+            <input id="chatMsg" class="chat-input" placeholder="Mensagem…" maxlength="300"
+                   onkeydown="if(event.key==='Enter')enviar()"/>
+            <button class="chat-send" onclick="enviar()">→</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── REAÇÕES ── -->
+<div class="panel" id="panel-reacoes">
+    <div class="reacoes-panel">
+        <div class="reacoes-grid">
+            <div>
+                <button type="button" class="react-big" onclick="reagir('⚽')" aria-label="Golo">⚽</button>
+                <div class="react-count" id="rc-golo">0</div>
+            </div>
+            <div>
+                <button type="button" class="react-big" onclick="reagir('🔥')" aria-label="Fogo">🔥</button>
+                <div class="react-count" id="rc-fogo">0</div>
+            </div>
+            <div>
+                <button type="button" class="react-big" onclick="reagir('👏')" aria-label="Palmas">👏</button>
+                <div class="react-count" id="rc-palmas">0</div>
+            </div>
+            <div>
+                <button type="button" class="react-big" onclick="reagir('😱')" aria-label="Surpresa">😱</button>
+                <div class="react-count" id="rc-wow">0</div>
+            </div>
+            <div>
+                <button type="button" class="react-big" onclick="reagir('💛')" aria-label="Amor">💛</button>
+                <div class="react-count" id="rc-amor">0</div>
+            </div>
+            <div>
+                <button type="button" class="react-big" onclick="reagir('💪')" aria-label="Força">💪</button>
+                <div class="react-count" id="rc-forca">0</div>
+            </div>
+            <div>
+                <button type="button" class="react-big" onclick="reagir('🎉')" aria-label="Festa">🎉</button>
+                <div class="react-count" id="rc-festa">0</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── NOTAS ── -->
+<div class="panel" id="panel-notas">
+    <div class="sel-toggle">
+        <button class="sel-btn active" id="sbtn-casa"
+                th:text="${partida.bandeiraCasa()} + ' ' + ${partida.selecaoCasa()}"
+                onclick="switchSelecao('casa')">Casa</button>
+        <button class="sel-btn" id="sbtn-vis"
+                th:text="${partida.bandeiraVisitante()} + ' ' + ${partida.selecaoVisitante()}"
+                onclick="switchSelecao('visitante')">Visitante</button>
+    </div>
+    <div class="notas-scroll" id="notas-lista">
+        <!-- populated by JS -->
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const JOGO_ID     = /*[[${partida.id()}]]*/ 0;
+    const ENCERRADA   = /*[[${partida.encerrada()}]]*/ false;
+    const notasCasa   = /*[[${notasCasa}]]*/ [];
+    const notasVis    = /*[[${notasVisitante}]]*/ [];
+
+    let selAtiva = 'casa';
+    const reacaoCount = {'⚽':0,'🔥':0,'👏':0,'😱':0,'💛':0,'💪':0,'🎉':0};
+    const rcIds = {'⚽':'rc-golo','🔥':'rc-fogo','👏':'rc-palmas','😱':'rc-wow','💛':'rc-amor','💪':'rc-forca','🎉':'rc-festa'};
+
+    // Restore name
+    const stored = localStorage.getItem('copa_chat_nome');
+    if (stored) document.getElementById('chatNome').value = stored;
+    document.getElementById('chatMsgs').scrollTop = 999999;
+
+    // ── SSE ──
+    const evt = new EventSource('/api/jogo/' + JOGO_ID + '/chat/stream');
+    evt.onmessage = function(e) {
+        const d = JSON.parse(e.data);
+        if (d.tipo === 'REACAO') {
+            reacaoCount[d.emoji] = (reacaoCount[d.emoji] || 0) + 1;
+            const el = document.getElementById(rcIds[d.emoji]);
+            if (el) el.textContent = reacaoCount[d.emoji];
+            spawnEmoji(d.emoji);
+        } else {
+            appendMsg(d.autorNome, d.mensagem, d.criadoEm);
+        }
+    };
+
+    const evtN = new EventSource('/api/jogo/' + JOGO_ID + '/notas/stream');
+    evtN.onmessage = function(e) {
+        const d = JSON.parse(e.data);
+        const med = document.getElementById('med-' + d.slug);
+        const cnt = document.getElementById('cnt-' + d.slug);
+        if (med) { med.textContent = d.votoMinimo ? d.media.toFixed(1) : '—'; med.classList.toggle('hidden', !d.votoMinimo); }
+        if (cnt) cnt.textContent = d.totalVotos + 'v';
+    };
+
+    // ── Tabs ──
+    function switchTab(tab) {
+        ['chat','reacoes','notas'].forEach(t => {
+            document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+        });
+        document.querySelectorAll('.tab').forEach((el, i) => {
+            el.classList.toggle('active', ['chat','reacoes','notas'][i] === tab);
+        });
+        if (tab === 'notas') renderNotas();
+    }
+
+    // ── Notas ──
+    function renderNotas() {
+        const lista = document.getElementById('notas-lista');
+        const src   = selAtiva === 'casa' ? notasCasa : notasVis;
+        lista.innerHTML = '';
+        src.forEach(j => {
+            const card = document.createElement('div');
+            card.className = 'ncard';
+            card.id = 'nc-' + j.slug;
+            const stars = Array.from({length:10}, (_,i) => {
+                const n = i + 1;
+                const cls = 'sm-star' + (j.meuVoto === n ? ' voted' : '');
+                return `<span class="${cls}" data-slug="${j.slug}" data-sel="${j.selecaoSlug}" data-nota="${n}" onclick="votarMini(this)">${n}</span>`;
+            }).join('');
+            card.innerHTML = `
+                <div class="ncard__info">
+                    <div class="ncard__nome">${escHtml(j.nome)}</div>
+                    <div class="ncard__pos">${j.posicaoLabel}</div>
+                    <div class="stars-mini">${stars}</div>
+                </div>
+                <div class="ncard__media${j.votoMinimo ? '' : ' hidden'}" id="med-${j.slug}">${j.votoMinimo ? j.media.toFixed(1) : '—'}</div>
+            `;
+            lista.appendChild(card);
+        });
+    }
+
+    function switchSelecao(which) {
+        selAtiva = which;
+        document.getElementById('sbtn-casa').classList.toggle('active', which === 'casa');
+        document.getElementById('sbtn-vis').classList.toggle('active',  which === 'visitante');
+        renderNotas();
+    }
+
+    function votarMini(star) {
+        if (ENCERRADA) return;
+        const slug = star.dataset.slug;
+        const sel  = star.dataset.sel;
+        const nota = parseInt(star.dataset.nota);
+        const row  = star.closest('.ncard');
+        if (row) row.querySelectorAll('.sm-star').forEach(s => {
+            s.classList.toggle('voted', parseInt(s.dataset.nota) === nota);
+        });
+        fetch('/api/jogo/' + JOGO_ID + '/notas/' + sel + '/' + slug, {
+            method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'nota='+nota
+        });
+    }
+
+    // ── Chat ──
+    function appendMsg(nome, msg, hora) {
+        const box = document.getElementById('chatMsgs');
+        const el = document.createElement('div');
+        el.className = 'msg';
+        el.innerHTML = '<span class="msg__nome">' + escHtml(nome) + '</span>' +
+            escHtml(msg) + '<span class="msg__hora">' + (hora||'') + '</span>';
+        box.appendChild(el);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function enviar() {
+        const nome = document.getElementById('chatNome').value.trim();
+        const msg  = document.getElementById('chatMsg').value.trim();
+        if (!nome || !msg) return;
+        localStorage.setItem('copa_chat_nome', nome);
+        fetch('/api/jogo/' + JOGO_ID + '/chat', {
+            method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'nome='+encodeURIComponent(nome)+'&mensagem='+encodeURIComponent(msg)
+        }).then(r=>r.json()).then(d=>{ if(d.ok) document.getElementById('chatMsg').value=''; });
+    }
+
+    function reagir(emoji) {
+        fetch('/api/jogo/' + JOGO_ID + '/chat/reacao', {
+            method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'emoji='+encodeURIComponent(emoji)
+        });
+    }
+
+    function spawnEmoji(emoji) {
+        const el = document.createElement('span');
+        el.className = 'react-fly';
+        el.textContent = emoji;
+        el.style.left   = (10 + Math.random() * 80) + '%';
+        el.style.bottom = '80px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1600);
+    }
+
+    function escHtml(s) {
+        return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+</script>
+</body>
+</html>

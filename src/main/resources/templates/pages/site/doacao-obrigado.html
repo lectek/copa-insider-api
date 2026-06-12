@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Obrigado! — Copa Insider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/landing.css}"/>
+    <style>
+        .thanks-wrap{max-width:520px;margin:80px auto;padding:0 24px;text-align:center;}
+        .thanks-icon{font-size:64px;margin-bottom:20px;}
+        .thanks-title{font-size:32px;font-weight:900;color:#e8e8f0;margin-bottom:12px;}
+        .thanks-sub{font-size:16px;color:#b8b8d0;line-height:1.7;margin-bottom:32px;}
+        .back-link{display:inline-block;background:rgba(232,185,48,.1);border:1px solid rgba(232,185,48,.4);
+            color:#e8b930;padding:12px 28px;border-radius:10px;font-weight:700;text-decoration:none;}
+        .back-link:hover{opacity:.9;}
+    </style>
+</head>
+<body>
+<nav class="nav">
+    <div class="nav__inner">
+        <a href="/" class="nav__brand">
+            <img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/>
+            <span class="nav__logo-name">Copa Insider</span>
+        </a>
+    </div>
+</nav>
+
+<main>
+<div class="thanks-wrap">
+    <div class="thanks-icon">🙏</div>
+    <h1 class="thanks-title">Obrigado pelo apoio!</h1>
+    <p class="thanks-sub">
+        O teu donativo foi recebido com muita gratidão. Ajuda-nos a continuar a trazer conteúdo
+        de qualidade durante a Copa 2026.
+    </p>
+    <a th:href="@{/calendario}" class="back-link">Voltar ao calendário →</a>
+</div>
+</main>
+</body>
+</html>

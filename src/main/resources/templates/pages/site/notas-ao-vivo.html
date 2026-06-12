@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="'Assista ao Vivo: ' + ${partida.selecaoCasa()} + ' × ' + ${partida.selecaoVisitante()} + ' — Grátis e Sem Anúncios | Copa Insider'">Assista ao Vivo — Grátis e Sem Anúncios | Copa Insider</title>
+    <meta name="description"
+          th:content="'Assista agora à Copa ao vivo — gratuito e sem anúncios. Avalia os jogadores de ' + ${partida.selecaoCasa()} + ' × ' + ${partida.selecaoVisitante()} + ' em tempo real. Médias da Copa do Mundo 2026 sem registo obrigatório.'"/>
+    <meta name="robots" content="index, follow"/>
+    <link rel="canonical" th:href="${baseUrl + '/jogo/' + partida.id() + '/notas'}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title"
+          th:content="'Assista ao Vivo: ' + ${partida.selecaoCasa()} + ' × ' + ${partida.selecaoVisitante()} + ' — Grátis, Sem Anúncios | Copa Insider'"/>
+    <meta property="og:description"
+          th:content="'Assista agora à Copa do Mundo 2026 ao vivo — gratuito e sem anúncios. Notas dos jogadores de ' + ${partida.selecaoCasa()} + ' × ' + ${partida.selecaoVisitante()} + ' em tempo real.'"/>
+    <meta property="og:url" th:content="${baseUrl + '/jogo/' + partida.id() + '/notas'}"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/partida.css}"/>
+    <style>
+        :root{--bg:#0a0a0a;--surface:#141414;--card:#161616;--gold:#e8b930;--border:#2a2a2a;--text:#fff;--muted:#8a8a8a;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+
+        .notas-wrap{max-width:1100px;margin:0 auto;padding:32px 24px 80px;}
+
+        .match-badge{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap;}
+        .match-badge__score{font-size:22px;font-weight:900;color:var(--gold);}
+        .match-badge__sep{color:var(--muted);}
+        .match-badge__status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;
+            background:#1a1a1a;color:var(--muted);}
+        .match-badge__status.live{background:#1a0a0a;color:#ef4444;}
+
+        .sel-tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+        .sel-tab{font-size:14px;font-weight:700;padding:8px 20px;border-radius:10px;
+            border:1.5px solid var(--border);background:transparent;color:var(--muted);
+            cursor:pointer;text-decoration:none;transition:all .2s;}
+        .sel-tab.active{background:rgba(232,185,48,.1);border-color:rgba(232,185,48,.4);color:var(--gold);}
+
+        .notice{font-size:13px;color:var(--muted);margin-bottom:20px;
+            background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:10px 14px;}
+
+        /* Field layout */
+        .field{background:linear-gradient(180deg,#1a2e1a 0%,#1a3a1a 100%);
+            border:2px solid #2a4a2a;border-radius:14px;padding:24px 16px;margin-bottom:32px;
+            position:relative;overflow:hidden;}
+        .field::before{content:'';position:absolute;top:50%;left:10%;right:10%;height:2px;
+            background:rgba(255,255,255,.1);}
+        .field::after{content:'';position:absolute;top:30%;left:50%;transform:translateX(-50%);
+            width:80px;height:80px;border:2px solid rgba(255,255,255,.08);border-radius:50%;}
+
+        .field-row{display:flex;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+        .field-row:last-child{margin-bottom:0;}
+
+        .pcard{background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;
+            padding:10px 14px;min-width:110px;text-align:center;cursor:pointer;transition:all .2s;
+            backdrop-filter:blur(4px);}
+        .pcard:hover{border-color:rgba(232,185,48,.5);background:rgba(232,185,48,.08);}
+        .pcard.voted{border-color:rgba(232,185,48,.4);}
+        .pcard__num{font-size:10px;color:rgba(255,255,255,.4);font-weight:700;}
+        .pcard__nome{font-size:12px;font-weight:700;color:#fff;margin:2px 0;}
+        .pcard__media{font-size:20px;font-weight:900;color:var(--gold);}
+        .pcard__media.hidden{color:rgba(255,255,255,.25);font-size:14px;}
+        .pcard__votos{font-size:10px;color:rgba(255,255,255,.4);}
+
+        /* Vote modal */
+        .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;
+            display:flex;align-items:center;justify-content:center;padding:20px;}
+        .modal-bg.hidden{display:none;}
+        .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+            padding:28px;width:100%;max-width:380px;}
+        .modal__title{font-size:18px;font-weight:800;margin-bottom:6px;}
+        .modal__sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+        .modal__stars{display:flex;gap:6px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+        .modal__star{width:40px;height:40px;border-radius:8px;border:1.5px solid var(--border);
+            background:rgba(255,255,255,.04);font-size:16px;font-weight:800;color:var(--muted);
+            cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+        .modal__star:hover,.modal__star.sel{background:rgba(232,185,48,.2);border-color:rgba(232,185,48,.5);color:var(--gold);}
+        .modal__star.voted{background:rgba(232,185,48,.15);border-color:rgba(232,185,48,.4);color:var(--gold);}
+        .modal__actions{display:flex;gap:10px;justify-content:flex-end;}
+        .modal__cancel{background:transparent;border:1px solid var(--border);color:var(--muted);
+            padding:8px 20px;border-radius:8px;cursor:pointer;font-size:14px;}
+        .modal__confirm{background:var(--gold);color:#0a0a0a;border:none;padding:8px 24px;
+            border-radius:8px;font-weight:800;cursor:pointer;font-size:14px;}
+
+        .back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);
+            text-decoration:none;margin-bottom:20px;}
+        .back-link:hover{color:var(--text);}
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand"><img src="/img/logo-sm.webp" alt="Copa Insider" style="width:32px;height:32px;object-fit:contain;"/> Copa Insider</a>
+    <div class="nav-links">
+        <a th:href="@{/calendario}">Calendário</a>
+        <a th:href="@{/jogo/{id}/sala(id=${partida.id()})}">Sala do Jogo</a>
+        <a th:href="@{/segunda-tela/{id}(id=${partida.id()})}">Segunda Tela</a>
+    </div>
+    <a href="/" class="cta-btn">Ver guias</a>
+</nav>
+
+<div class="notas-wrap">
+
+    <a th:href="@{/jogo/{id}/sala(id=${partida.id()})}" class="back-link">← Sala do Jogo</a>
+
+    <div class="match-badge">
+        <span th:text="${partida.bandeiraCasa()} + ' ' + ${partida.selecaoCasa()}"></span>
+        <span class="match-badge__score" th:if="${partida.temResultado()}"
+              th:text="${partida.golsCasa()} + ':' + ${partida.golsVisitante()}"></span>
+        <span class="match-badge__sep" th:unless="${partida.temResultado()}">×</span>
+        <span th:text="${partida.bandeiraVisitante()} + ' ' + ${partida.selecaoVisitante()}"></span>
+        <span class="match-badge__status"
+              th:classappend="${partida.aoVivo()} ? ' live' : ''"
+              th:text="${partida.aoVivo()} ? '🔴 AO VIVO' : (${partida.encerrada()} ? 'Encerrado' : 'Agendado')">
+        </span>
+    </div>
+
+    <div class="sel-tabs">
+        <a th:href="@{/jogo/{id}/notas(id=${partida.id()},selecao=${partida.slugCasa()})}"
+           class="sel-tab"
+           th:classappend="${selecaoAtiva == partida.slugCasa()} ? ' active' : ''"
+           th:text="${partida.bandeiraCasa()} + ' ' + ${partida.selecaoCasa()}"></a>
+        <a th:href="@{/jogo/{id}/notas(id=${partida.id()},selecao=${partida.slugVisitante()})}"
+           class="sel-tab"
+           th:classappend="${selecaoAtiva == partida.slugVisitante()} ? ' active' : ''"
+           th:text="${partida.bandeiraVisitante()} + ' ' + ${partida.selecaoVisitante()}"></a>
+    </div>
+
+    <div class="notice" th:if="${jogadores.isEmpty()}">
+        Escalação não disponível para esta seleção nesta fase.
+    </div>
+
+    <div class="notice" th:unless="${jogadores.isEmpty()}">
+        Clica num jogador para dar a tua nota de 1 a 10. A média só aparece com pelo menos 10 votos.
+    </div>
+
+    <!-- Field graphic -->
+    <div class="field" th:unless="${jogadores.isEmpty()}" id="fieldLayout">
+        <!-- populated by JS from model data -->
+    </div>
+
+</div>
+
+<!-- Vote modal -->
+<div class="modal-bg hidden" id="modalBg" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+        <div class="modal__title" id="modalNome"></div>
+        <div class="modal__sub" id="modalSub">Escolhe uma nota de 1 a 10</div>
+        <div class="modal__stars" id="modalStars"></div>
+        <div class="modal__actions">
+            <button class="modal__cancel" onclick="closeModal()">Cancelar</button>
+            <button class="modal__confirm" onclick="confirmarVoto()">Votar</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const JOGO_ID = /*[[${partida.id()}]]*/ 0;
+    const SELECAO = /*[[${selecaoAtiva}]]*/ '';
+    const ENCERRADA = /*[[${partida.encerrada()}]]*/ false;
+
+    const jogadores = /*[[${jogadores}]]*/ [];
+
+    // Build field layout
+    const posOrder = ['GL','DF','MC','AT'];
+    const grupos   = {};
+    posOrder.forEach(p => grupos[p] = []);
+    jogadores.forEach(j => {
+        const pos = j.posicao || 'MC';
+        if (grupos[pos]) grupos[pos].push(j);
+    });
+
+    const field = document.getElementById('fieldLayout');
+    if (field) {
+        posOrder.slice().reverse().forEach(pos => {
+            const grp = grupos[pos];
+            if (!grp || grp.length === 0) return;
+            const row = document.createElement('div');
+            row.className = 'field-row';
+            grp.forEach(j => {
+                const card = document.createElement('div');
+                card.className = 'pcard' + (j.meuVoto !== null ? ' voted' : '');
+                card.id = 'pcard-' + j.slug;
+                const med = j.votoMinimo
+                    ? '<div class="pcard__media" id="med-' + j.slug + '">' + j.media.toFixed(1) + '</div>'
+                    : '<div class="pcard__media hidden" id="med-' + j.slug + '">—</div>';
+                card.innerHTML =
+                    '<div class="pcard__num">' + j.numero + '</div>' +
+                    '<div class="pcard__nome">' + escHtml(j.nome) + '</div>' +
+                    med +
+                    '<div class="pcard__votos" id="cnt-' + j.slug + '">' + j.totalVotos + ' voto' + (j.totalVotos !== 1 ? 's' : '') + '</div>';
+                if (!ENCERRADA) card.onclick = () => openModal(j);
+                row.appendChild(card);
+            });
+            field.appendChild(row);
+        });
+    }
+
+    // SSE
+    const evt = new EventSource('/api/jogo/' + JOGO_ID + '/notas/stream');
+    evt.onmessage = function(e) {
+        const d = JSON.parse(e.data);
+        const med = document.getElementById('med-' + d.slug);
+        const cnt = document.getElementById('cnt-' + d.slug);
+        if (med) {
+            med.textContent = d.votoMinimo ? d.media.toFixed(1) : '—';
+            med.classList.toggle('hidden', !d.votoMinimo);
+        }
+        if (cnt) cnt.textContent = d.totalVotos + ' voto' + (d.totalVotos !== 1 ? 's' : '');
+    };
+
+    // Modal
+    let currentJogador = null;
+    let selectedNota   = null;
+
+    function openModal(j) {
+        currentJogador = j;
+        selectedNota   = j.meuVoto || null;
+        document.getElementById('modalNome').textContent = j.nome;
+        document.getElementById('modalSub').textContent  = j.posicaoLabel + ' · clique para votar';
+        const starsEl = document.getElementById('modalStars');
+        starsEl.innerHTML = '';
+        for (let n = 1; n <= 10; n++) {
+            const s = document.createElement('button');
+            s.className = 'modal__star' + (j.meuVoto === n ? ' voted' : '');
+            s.textContent = n;
+            s.onclick = () => selectNota(n);
+            if (n === selectedNota) s.classList.add('sel');
+            starsEl.appendChild(s);
+        }
+        document.getElementById('modalBg').classList.remove('hidden');
+    }
+
+    function selectNota(n) {
+        selectedNota = n;
+        document.querySelectorAll('.modal__star').forEach((s, i) => {
+            s.classList.toggle('sel', i + 1 === n);
+            s.classList.remove('voted');
+        });
+    }
+
+    function closeModal() {
+        document.getElementById('modalBg').classList.add('hidden');
+        currentJogador = null;
+        selectedNota   = null;
+    }
+
+    function confirmarVoto() {
+        if (!currentJogador || !selectedNota) return;
+        const slug    = currentJogador.slug;
+        const selecao = currentJogador.selecaoSlug;
+        fetch('/api/jogo/' + JOGO_ID + '/notas/' + selecao + '/' + slug, {
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'nota=' + selectedNota
+        }).then(r => r.json()).then(d => {
+            if (d.ok) {
+                const card = document.getElementById('pcard-' + slug);
+                if (card) card.classList.add('voted');
+            }
+        });
+        closeModal();
+    }
+
+    function escHtml(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+</script>
+</body>
+</html>

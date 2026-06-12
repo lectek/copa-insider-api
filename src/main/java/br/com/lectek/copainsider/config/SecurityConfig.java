@@ -35,6 +35,8 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/api/public/**",
                     "/api/admin/**",
+                    "/api/jogo/**",
+                    "/api/doacao/**",
                     "/webhooks/**"
                 )
             )

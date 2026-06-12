@@ -61,7 +61,20 @@ spring:
   flyway:
     enabled: true
     table: flyway_schema_history
-    locations: classpath:db/migration,classpath:db/migration-mysql,classpath:db/migration/PROD,classpath:db/migration/USER
+    locations:
+      - classpath:db/migration
+      - classpath:db/migration/ADM
+      - classpath:db/migration/AUTH
+      - classpath:db/migration/CFG
+      - classpath:db/migration/CLI
+      - classpath:db/migration/DEL
+      - classpath:db/migration/FIN
+      - classpath:db/migration/FISC
+      - classpath:db/migration/MKT
+      - classpath:db/migration/mysql
+      - classpath:db/migration/PED
+      - classpath:db/migration/PROD
+      - classpath:db/migration/USER
     url: ${SPRING_FLYWAY_URL:${SPRING_DATASOURCE_URL:}}
     user: ${SPRING_FLYWAY_USER:${SPRING_DATASOURCE_USERNAME:}}
     password: ${SPRING_FLYWAY_PASSWORD:${SPRING_DATASOURCE_PASSWORD:}}
@@ -225,6 +238,10 @@ app:
 kafka:
   enabled: ${KAFKA_ENABLED:false}
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:}
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
 
 legacy:
   sync:
