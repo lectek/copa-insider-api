@@ -48,7 +48,8 @@ public class ComparadorController {
         }
 
         boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())
+                            || "ROLE_DEVELOPER".equals(a.getAuthority()));
 
         if (!isAdmin && !acessoService.temAcesso(authentication.getName(), SLUG_ACESSO)) {
             model.addAttribute("precisaComprar", true);

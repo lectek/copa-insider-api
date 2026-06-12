@@ -31,7 +31,7 @@
             <a class="lf" data-lang="pt_PT" th:classappend="${#locale.country=='PT'?'lf-on':''}">🇵🇹</a>
             <a class="lf" data-lang="en"    th:classappend="${#locale.language=='en'?'lf-on':''}">🇺🇸</a>
         </div>
-        <a th:href="@{/admin/dashboard}" sec:authorize="hasRole('ADMIN')"
+        <a th:href="@{/admin/dashboard}" sec:authorize="hasAnyRole('ADMIN','DEVELOPER')"
            style="font-size:13px;font-weight:700;color:#e8b930;text-decoration:none;margin-right:4px;">⚙ Admin</a>
         <a th:href="@{/auth/logout}" sec:authorize="isAuthenticated()"
            style="font-size:13px;color:#6a6a7a;text-decoration:none;">Sair</a>

@@ -43,7 +43,7 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
                 // Admin continua protegido
-                .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**", "/api/admin/**").hasAnyRole("ADMIN", "DEVELOPER")
                 // Tudo o resto é público — Hotmart trata do checkout e acesso
                 .anyRequest().permitAll()
             )
@@ -80,7 +80,8 @@ public class SecurityConfig {
             Authentication authentication
     ) {
         boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())
+                            || "ROLE_DEVELOPER".equals(a.getAuthority()));
         String roleDefault = isAdmin ? "/admin/dashboard" : "/";
 
         String requested = request.getParameter("redirect");
@@ -102,4 +103,5 @@ public class SecurityConfig {
 
         return roleDefault;
     }
+
 }

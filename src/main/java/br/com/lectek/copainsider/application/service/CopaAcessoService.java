@@ -30,7 +30,8 @@ public class CopaAcessoService {
     public boolean temAcesso(String email, String produtoSlug) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getAuthorities().stream()
-                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())
+                           || "ROLE_DEVELOPER".equals(a.getAuthority()))) {
             return true;
         }
         if (email == null || email.isBlank()) return false;
