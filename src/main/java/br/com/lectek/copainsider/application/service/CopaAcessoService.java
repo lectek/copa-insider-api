@@ -2,6 +2,8 @@ package br.com.lectek.copainsider.application.service;
 
 import br.com.lectek.copainsider.adapters.outbound.persistence.entity.CopaAcessoEntity;
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CopaAcessoJPARepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,11 @@ public class CopaAcessoService {
     }
 
     public boolean temAcesso(String email, String produtoSlug) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
+            return true;
+        }
         if (email == null || email.isBlank()) return false;
         String norm = email.toLowerCase();
         return repo.existsByEmailIgnoreCaseAndProdutoSlug(norm, produtoSlug)
