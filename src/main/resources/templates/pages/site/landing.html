@@ -70,13 +70,13 @@
             <span class="nav__logo-name">Copa Insider</span>
         </a>
         <ul class="nav__links">
-            <li><a th:href="@{/calendario}" class="nav__link" style="color:#ef4444;font-weight:700;">🔴 Ao Vivo</a></li>
-            <li><a href="#guias" class="nav__link">Guias</a></li>
-            <li><a th:href="@{/calendario}" class="nav__link">Calendário</a></li>
-            <li><a th:href="@{/selecoes}" class="nav__link">Seleções</a></li>
-            <li><a th:href="@{/comparar}" class="nav__link">Rivalidades</a></li>
-            <li><a th:href="@{/ranking}" class="nav__link">Ranking</a></li>
-            <li><a th:href="@{/doacao}" class="nav__link">Apoiar ❤️</a></li>
+            <li><a th:href="@{/calendario}" class="nav__link" style="color:#ef4444;font-weight:700;" data-pagina="ao-vivo">🔴 Ao Vivo</a></li>
+            <li><a href="#guias" class="nav__link" data-pagina="loja">Guias</a></li>
+            <li><a th:href="@{/calendario}" class="nav__link" data-pagina="calendario">Calendário</a></li>
+            <li><a th:href="@{/selecoes}" class="nav__link" data-pagina="selecoes">Seleções</a></li>
+            <li><a th:href="@{/comparar}" class="nav__link" data-pagina="comparar">Rivalidades</a></li>
+            <li><a th:href="@{/ranking}" class="nav__link" data-pagina="ranking">Ranking</a></li>
+            <li><a th:href="@{/doacao}" class="nav__link" data-pagina="doacao">Apoiar ❤️</a></li>
         </ul>
         <a th:href="@{/admin/dashboard}" sec:authorize="hasAnyRole('ADMIN','DEVELOPER')"
            style="font-size:13px;font-weight:700;color:#e8b930;text-decoration:none;margin-right:4px;">⚙ Admin</a>
@@ -89,57 +89,45 @@
 </nav>
 
 <!-- BANNER AO VIVO -->
-<section style="background:#0d0d0d;border-bottom:1px solid #1a1a1a;padding:52px 24px;">
-    <div style="max-width:1100px;margin:0 auto;">
-        <div style="display:inline-flex;align-items:center;gap:8px;background:#1a0a0a;color:#ef4444;border:1px solid #3a1010;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px;">
-            <span style="width:7px;height:7px;background:#ef4444;border-radius:50%;display:inline-block;animation:pulse 1.2s infinite;"></span>
+<section class="live-banner">
+    <div class="live-banner__inner">
+        <div class="live-badge">
+            <span class="live-badge__dot"></span>
             AO VIVO AGORA
         </div>
-        <h2 style="font-size:clamp(26px,4vw,40px);font-weight:900;color:#e8e8f0;margin-bottom:10px;line-height:1.2;">
+        <h2 class="live-banner__title">
             Assista à Copa 2026 ao vivo —<br>gratuito e sem anúncios.
         </h2>
-        <p style="font-size:16px;color:#8a8a9a;margin-bottom:36px;max-width:580px;line-height:1.7;">
+        <p class="live-banner__sub">
             Entra na sala do jogo, comenta com outros adeptos, avalia os jogadores em tempo real e usa o telemóvel como segunda tela. Tudo gratuito, sem registo obrigatório.
         </p>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:36px;">
-
+        <div class="live-cards">
             <a th:href="@{/calendario}" class="live-card">
                 <div class="live-card__icon">💬</div>
                 <div class="live-card__title">Sala do Jogo</div>
                 <div class="live-card__desc">Chat em tempo real, links de transmissão e notas dos jogadores durante o jogo.</div>
                 <div class="live-card__cta">Entrar →</div>
             </a>
-
             <a th:href="@{/calendario}" class="live-card">
                 <div class="live-card__icon">⭐</div>
                 <div class="live-card__title">Notas ao Vivo</div>
                 <div class="live-card__desc">Avalia cada jogador de 1 a 10 durante o jogo. Médias em tempo real com mínimo de 10 votos.</div>
                 <div class="live-card__cta">Votar →</div>
             </a>
-
             <a th:href="@{/calendario}" class="live-card">
                 <div class="live-card__icon">📱</div>
                 <div class="live-card__title">Segunda Tela</div>
                 <div class="live-card__desc">Versão compacta para o telemóvel. Chat, reações e notas enquanto assistes no televisor.</div>
                 <div class="live-card__cta">Abrir →</div>
             </a>
-
         </div>
 
-        <div style="display:flex;gap:20px;flex-wrap:wrap;">
-            <span style="font-size:13px;color:#5a5a6a;display:flex;align-items:center;gap:6px;">
-                <span style="color:#4ade80;font-weight:900;">✓</span> 100% gratuito
-            </span>
-            <span style="font-size:13px;color:#5a5a6a;display:flex;align-items:center;gap:6px;">
-                <span style="color:#4ade80;font-weight:900;">✓</span> Sem anúncios
-            </span>
-            <span style="font-size:13px;color:#5a5a6a;display:flex;align-items:center;gap:6px;">
-                <span style="color:#4ade80;font-weight:900;">✓</span> Sem registo obrigatório
-            </span>
-            <span style="font-size:13px;color:#5a5a6a;display:flex;align-items:center;gap:6px;">
-                <span style="color:#4ade80;font-weight:900;">✓</span> Não transmitimos jogos
-            </span>
+        <div class="live-trust">
+            <span class="live-trust__item"><span class="live-trust__check">✓</span> 100% gratuito</span>
+            <span class="live-trust__item"><span class="live-trust__check">✓</span> Sem anúncios</span>
+            <span class="live-trust__item"><span class="live-trust__check">✓</span> Sem registo obrigatório</span>
+            <span class="live-trust__item"><span class="live-trust__check">✓</span> Não transmitimos jogos</span>
         </div>
     </div>
 </section>
@@ -338,5 +326,6 @@
     </div>
 </footer>
 
+<script src="/js/nav.js" defer></script>
 </body>
 </html>

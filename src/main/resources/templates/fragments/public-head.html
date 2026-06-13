@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<body>
+
+<!--
+  Fragment: public-head(title, description, ogImage, pagina, cssExtra)
+
+  Uso mínimo:
+    <head th:replace="~{fragments/public-head :: head('Título', null, null, 'loja', null)}"></head>
+
+  Uso completo:
+    <head th:replace="~{fragments/public-head :: head('Guias Copa', 'Descrição SEO', '/img/og.webp', 'loja', '/css/loja.css')}"></head>
+
+  pagina   → string para highlight de link activo na navbar ('loja', 'calendario', 'selecoes', ...)
+  cssExtra → caminho para CSS específico da página, ou null
+-->
+<head th:fragment="head(title, description, ogImage, pagina, cssExtra)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' — Copa Insider'">Copa Insider</title>
+
+    <!-- SEO -->
+    <meta name="description" th:content="${description ?: 'Copa Insider — tudo sobre a Copa do Mundo 2026.'}"/>
+    <meta name="robots" content="index, follow"/>
+    <link rel="canonical" th:href="${#httpServletRequest.requestURL}"/>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:site_name" content="Copa Insider"/>
+    <meta property="og:title" th:content="${title} + ' — Copa Insider'"/>
+    <meta property="og:description" th:content="${description ?: 'Copa Insider — tudo sobre a Copa do Mundo 2026.'}"/>
+    <meta property="og:image" th:content="${ogImage ?: '/img/og-copa.webp'}"/>
+    <meta property="og:locale" content="pt_PT"/>
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" th:content="${title} + ' — Copa Insider'"/>
+    <meta name="twitter:image" th:content="${ogImage ?: '/img/og-copa.webp'}"/>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" th:href="@{/img/logo-sm.webp}"/>
+    <link rel="apple-touch-icon" th:href="@{/img/logo-sm.webp}"/>
+
+    <!-- Fontes (única fonte de verdade — não repetir nas páginas) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+          rel="stylesheet"/>
+
+    <!-- CSS base do site público -->
+    <link rel="stylesheet" th:href="@{/css/landing.css}"/>
+
+    <!-- CSS específico da página (opcional) -->
+    <link th:if="${cssExtra != null and cssExtra != ''}"
+          rel="stylesheet" th:href="${cssExtra}"/>
+
+    <!-- Página activa passada ao JS para navbar highlight -->
+    <meta name="pagina-actual" th:content="${pagina ?: ''}"/>
+</head>
+
+</body>
+</html>
