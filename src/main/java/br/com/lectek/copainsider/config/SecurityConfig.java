@@ -42,9 +42,8 @@ public class SecurityConfig {
             )
 
             .authorizeHttpRequests(auth -> auth
-                // Admin continua protegido
                 .requestMatchers("/admin/**", "/api/admin/**").hasAnyRole("ADMIN", "DEVELOPER")
-                // Tudo o resto é público — Hotmart trata do checkout e acesso
+                .requestMatchers("/conta/**").authenticated()
                 .anyRequest().permitAll()
             )
 

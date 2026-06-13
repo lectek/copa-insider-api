@@ -118,7 +118,7 @@ public class HotmartWebhookController {
             log.info("[hotmart] acesso '{}' concedido a {}", produtoSlug, email);
         }
 
-        enviarEmail(compra, conta, valor, moeda);
+        enviarEmail(compra, conta, valor, moeda, produtoSlug);
         return ResponseEntity.ok().build();
     }
 
@@ -142,7 +142,7 @@ public class HotmartWebhookController {
     }
 
     private void enviarEmail(CopaCompraEntity compra, ContaCriada conta,
-                              BigDecimal valor, String moeda) {
+                              BigDecimal valor, String moeda, String produtoSlug) {
         try {
             Map<String, Object> vars = new HashMap<>();
             vars.put("nome",            compra.getCompradorNome());
@@ -156,6 +156,7 @@ public class HotmartWebhookController {
             vars.put("loginUrl",        baseUrl + "/auth/login");
             vars.put("perfilUrl",       baseUrl + "/cliente/dados");
             vars.put("plataformaUrl",   baseUrl);
+            vars.put("produtoSlug",     produtoSlug != null ? produtoSlug : "");
 
             String assunto = conta.nova()
                     ? "Bem-vindo ao Copa Insider — as suas credenciais"

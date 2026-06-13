@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface CopaAcessoJPARepository extends JpaRepository<CopaAcessoEntity, Long> {
     boolean existsByEmailIgnoreCaseAndProdutoSlug(String email, String produtoSlug);
+    List<CopaAcessoEntity> findByEmailIgnoreCase(String email);
     List<CopaAcessoEntity> findByEmailContainingIgnoreCase(String email);
     Page<CopaAcessoEntity> findAllByOrderByConcedidoEmDesc(Pageable pageable);
     Page<CopaAcessoEntity> findByEmailContainingIgnoreCaseOrderByConcedidoEmDesc(String email, Pageable pageable);

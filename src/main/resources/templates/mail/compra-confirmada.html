@@ -21,6 +21,7 @@
     .badge-ok { display: inline-block; background: #1a4a2a; color: #4caf50; border: 1px solid #2d7a3a; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
     .cta-section { text-align: center; margin: 32px 0 24px; }
     .cta-btn { display: inline-block; background: #e8b930; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 8px; text-decoration: none; }
+    .cta-btn-sm { display: inline-block; background: #e8b930; color: #000; font-weight: 700; font-size: 13px; padding: 10px 20px; border-radius: 6px; text-decoration: none; white-space: nowrap; }
     .info-box { background: #0d1a10; border: 1px solid #1e3a22; border-radius: 8px; padding: 16px 20px; font-size: 13px; color: #a0c0a8; line-height: 1.6; margin-bottom: 24px; }
     .info-box strong { color: #c0e0c8; }
     .cred-box { background: #1a1200; border: 1px solid #4a3800; border-radius: 10px; padding: 24px; margin-bottom: 24px; }
@@ -30,6 +31,13 @@
     .cred-label { color: #888; }
     .cred-value { color: #fff; font-weight: 700; font-family: monospace; letter-spacing: .03em; }
     .cred-note { font-size: 12px; color: #999; margin-top: 12px; line-height: 1.5; }
+    .access-box { background: #0a1a12; border: 1px solid #1e3a28; border-radius: 10px; padding: 20px 24px; margin-bottom: 24px; }
+    .access-box h3 { margin: 0 0 14px; font-size: 14px; font-weight: 800; color: #e8b930; text-transform: uppercase; letter-spacing: .06em; }
+    .access-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2e20; }
+    .access-item:last-child { border-bottom: none; }
+    .access-item-left { display: flex; align-items: center; gap: 10px; }
+    .access-icon { font-size: 18px; width: 24px; text-align: center; }
+    .access-name { font-size: 13px; font-weight: 600; color: #e0e0e0; }
     .footer { padding: 24px 32px; border-top: 1px solid #2a2a2a; text-align: center; }
     .footer p { font-size: 12px; color: #555; margin: 4px 0; }
   </style>
@@ -51,6 +59,7 @@
       Recebemos a confirmação do teu pagamento.
     </p>
 
+    <!-- Detalhes da compra -->
     <div class="card">
       <div class="card-row">
         <span class="label">Produto</span>
@@ -72,7 +81,95 @@
       </div>
     </div>
 
-    <!-- Credenciais — mostrado apenas quando a conta foi criada agora -->
+    <!-- O que tens acesso — Copa Pass -->
+    <div class="access-box" th:if="${produtoSlug == 'copa-pass'}">
+      <h3>O que o Copa Pass inclui</h3>
+      <div class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon">📅</span>
+          <span class="access-name">Calendário completo com todos os jogos</span>
+        </div>
+        <a th:href="${plataformaUrl + '/calendario'}" class="cta-btn-sm">Abrir</a>
+      </div>
+      <div class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon">⚔️</span>
+          <span class="access-name">Comparador — histórico de qualquer rivalidade</span>
+        </div>
+        <a th:href="${plataformaUrl + '/comparar'}" class="cta-btn-sm">Abrir</a>
+      </div>
+      <div class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon">📊</span>
+          <span class="access-name">Copa em 20 Factos</span>
+        </div>
+        <a th:href="${plataformaUrl + '/factos'}" class="cta-btn-sm">Abrir</a>
+      </div>
+      <div class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon">🇵🇹</span>
+          <span class="access-name">Guia Portugal</span>
+        </div>
+        <a th:href="${plataformaUrl + '/guia/guia-selecao-portugal'}" class="cta-btn-sm">Abrir</a>
+      </div>
+      <div class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon">🇧🇷</span>
+          <span class="access-name">Guia Brasil</span>
+        </div>
+        <a th:href="${plataformaUrl + '/guia/guia-selecao-brasil'}" class="cta-btn-sm">Abrir</a>
+      </div>
+    </div>
+
+    <!-- O que tens acesso — Histórico do Confronto -->
+    <div class="access-box" th:if="${produtoSlug == 'historico-confronto'}">
+      <h3>Acesso incluído</h3>
+      <div class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon">⚔️</span>
+          <span class="access-name">Comparador — histórico completo de rivalidades</span>
+        </div>
+        <a th:href="${plataformaUrl + '/comparar'}" class="cta-btn-sm">Abrir agora</a>
+      </div>
+    </div>
+
+    <!-- O que tens acesso — Copa em 20 Factos -->
+    <div class="access-box" th:if="${produtoSlug == 'copa-em-20-factos'}">
+      <h3>Acesso incluído</h3>
+      <div class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon">📊</span>
+          <span class="access-name">Copa em 20 Factos</span>
+        </div>
+        <a th:href="${plataformaUrl + '/factos'}" class="cta-btn-sm">Abrir agora</a>
+      </div>
+    </div>
+
+    <!-- O que tens acesso — Guia Portugal -->
+    <div class="access-box" th:if="${produtoSlug == 'guia-selecao-portugal'}">
+      <h3>Acesso incluído</h3>
+      <div class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon">🇵🇹</span>
+          <span class="access-name">Guia Seleção Portugal</span>
+        </div>
+        <a th:href="${plataformaUrl + '/guia/guia-selecao-portugal'}" class="cta-btn-sm">Abrir agora</a>
+      </div>
+    </div>
+
+    <!-- O que tens acesso — Guia Brasil -->
+    <div class="access-box" th:if="${produtoSlug == 'guia-selecao-brasil'}">
+      <h3>Acesso incluído</h3>
+      <div class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon">🇧🇷</span>
+          <span class="access-name">Guia Seleção Brasil</span>
+        </div>
+        <a th:href="${plataformaUrl + '/guia/guia-selecao-brasil'}" class="cta-btn-sm">Abrir agora</a>
+      </div>
+    </div>
+
+    <!-- Credenciais — apenas para contas novas -->
     <div class="cred-box" th:if="${novaContaCriada}">
       <h3>As tuas credenciais de acesso</h3>
       <div class="cred-row">
@@ -90,16 +187,17 @@
       </p>
     </div>
 
-    <!-- Para contas já existentes: instruções simples de acesso -->
-    <div class="info-box" th:unless="${novaContaCriada}">
+    <!-- Para contas já existentes sem access-box acima: instrução genérica -->
+    <div class="info-box"
+         th:unless="${novaContaCriada or produtoSlug == 'copa-pass' or produtoSlug == 'historico-confronto' or produtoSlug == 'copa-em-20-factos' or produtoSlug == 'guia-selecao-portugal' or produtoSlug == 'guia-selecao-brasil'}">
       <strong>Como aceder ao teu conteúdo:</strong><br/>
       Faz login em <a th:href="${loginUrl}" style="color:#e8b930;" th:text="${loginUrl}"></a>
-      com o teu e-mail e o teu produto estará disponível na tua conta.
+      e vai a <strong>Os meus acessos</strong> para ver o teu conteúdo.
     </div>
 
     <div class="cta-section">
-      <a th:href="${novaContaCriada ? loginUrl : perfilUrl}" class="cta-btn"
-         th:text="${novaContaCriada ? 'Entrar agora' : 'Acessar minha conta'}">Acessar minha conta</a>
+      <a th:href="${novaContaCriada ? loginUrl : (plataformaUrl + '/conta/acessos')}" class="cta-btn"
+         th:text="${novaContaCriada ? 'Entrar agora' : 'Ver os meus acessos'}">Ver os meus acessos</a>
     </div>
 
     <p style="font-size:13px; color:#888; text-align:center;">
