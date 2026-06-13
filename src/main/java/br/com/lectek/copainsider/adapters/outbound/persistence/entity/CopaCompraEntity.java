@@ -15,13 +15,13 @@ public class CopaCompraEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String transacao;
 
-    @Column(nullable = false, length = 200)
+    @Column(name = "comprador_email", nullable = false, length = 200)
     private String compradorEmail;
 
-    @Column(nullable = false, length = 200)
+    @Column(name = "comprador_nome", nullable = false, length = 200)
     private String compradorNome;
 
-    @Column(length = 200)
+    @Column(name = "produto_nome", length = 200)
     private String produtoNome;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -33,13 +33,13 @@ public class CopaCompraEntity {
     @Column(nullable = false, length = 30)
     private String status;
 
-    @Column(nullable = false)
+    @Column(name = "criado_em", nullable = false)
     private Instant criadoEm;
 
-    @Column
+    @Column(name = "email_enviado")
     private boolean emailEnviado;
 
-    @Column
+    @Column(name = "email_enviado_em")
     private Instant emailEnviadoEm;
 
     public CopaCompraEntity() {}
