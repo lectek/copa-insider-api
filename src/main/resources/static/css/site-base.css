@@ -103,6 +103,16 @@ a { text-decoration: none; color: inherit; }
 
 .cta-btn:hover { opacity: .88; }
 
+.navbar__acessos-link {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .15s;
+}
+
+.navbar__acessos-link:hover { color: var(--gold); }
+
 .navbar__admin-link {
     font-size: 13px;
     font-weight: 700;

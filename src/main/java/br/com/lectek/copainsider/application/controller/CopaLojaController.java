@@ -3,6 +3,7 @@ package br.com.lectek.copainsider.application.controller;
 import br.com.lectek.copainsider.adapters.outbound.persistence.entity.CopaProdutoEntity;
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CopaProdutoJPARepository;
 import br.com.lectek.copainsider.application.copa.CopaProdutoVM;
+import br.com.lectek.copainsider.application.service.CopaAcessoService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -17,9 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CopaLojaController {
 
     private final CopaProdutoJPARepository repository;
+    private final CopaAcessoService acessoService;
 
-    public CopaLojaController(CopaProdutoJPARepository repository) {
-        this.repository = repository;
+    public CopaLojaController(CopaProdutoJPARepository repository,
+                               CopaAcessoService acessoService) {
+        this.repository    = repository;
+        this.acessoService = acessoService;
     }
 
     @GetMapping("/loja")
@@ -39,13 +43,31 @@ public class CopaLojaController {
     }
 
     @GetMapping("/guia/{slug}")
-    public String produto(@PathVariable String slug, Model model, Locale locale) {
+    public String produto(@PathVariable String slug, Model model, Locale locale,
+                          org.springframework.security.core.Authentication auth) {
         return repository.findBySlugAndAtivoTrue(slug)
                 .map(p -> {
                     model.addAttribute("produto", toVM(p, locale));
+                    String email = (auth != null && auth.isAuthenticated()
+                                    && !"anonymousUser".equals(auth.getName()))
+                                   ? auth.getName() : null;
+                    model.addAttribute("temAcesso", acessoService.temAcesso(email, p.getSlug()));
+                    model.addAttribute("urlConteudo", urlConteudo(p.getSlug()));
                     return "pages/site/produto";
                 })
                 .orElse("redirect:/loja");
+    }
+
+    private String urlConteudo(String slug) {
+        return switch (slug) {
+            case "copa-pass", "historico-confronto", "acesso-calendario-comparador" -> "/comparar";
+            case "copa-em-20-factos"     -> "/factos";
+            case "guia-selecao-portugal" -> "/selecoes/portugal";
+            case "guia-selecao-brasil"   -> "/selecoes/brasil";
+            default -> slug.startsWith("guia-selecao-")
+                       ? "/selecoes/" + slug.replace("guia-selecao-", "")
+                       : "/conta/acessos";
+        };
     }
 
     private String tipoNome(String tipo) {
