@@ -11,6 +11,16 @@
 
     <main class="ci-admin-content">
 
+        <!-- Filtro por email -->
+        <form th:action="@{/admin/copa/compras}" method="get"
+              style="display:flex;gap:.5rem;margin-bottom:1.5rem;align-items:center">
+            <input type="text" name="email" th:value="${emailFiltro}"
+                   placeholder="Pesquisar por e-mail do comprador…"
+                   style="flex:1;max-width:360px;padding:.5rem .75rem;border-radius:4px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:.9rem"/>
+            <button type="submit" class="ci-btn ci-btn--primary ci-btn--sm">Pesquisar</button>
+            <a th:if="${emailFiltro != ''}" th:href="@{/admin/copa/compras}" class="ci-btn ci-btn--ghost ci-btn--sm">Limpar</a>
+        </form>
+
         <div class="ci-stats-grid" style="margin-bottom:1.5rem">
             <div class="ci-stat-card">
                 <p class="ci-stat-card__label">Total de compras</p>
@@ -23,23 +33,22 @@
                 <tr>
                     <th>Data</th>
                     <th>Comprador</th>
-                    <th>E-mail</th>
                     <th>Produto</th>
                     <th>Valor</th>
-                    <th>Moeda</th>
                     <th>Status</th>
-                    <th>Email enviado</th>
+                    <th>Email</th>
                     <th>Transação</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="c : ${compras}">
                     <td th:text="${#temporals.format(c.criadoEm.atZone(T(java.time.ZoneId).of('Europe/Lisbon')).toLocalDateTime(), 'dd/MM/yyyy HH:mm')}">data</td>
-                    <td th:text="${c.compradorNome}">Nome</td>
-                    <td th:text="${c.compradorEmail}">email</td>
+                    <td>
+                        <div th:text="${c.compradorNome}">Nome</div>
+                        <div style="font-size:.78rem;color:#64748b" th:text="${c.compradorEmail}">email</div>
+                    </td>
                     <td th:text="${c.produtoNome ?: '—'}">produto</td>
-                    <td th:text="${c.valor}">0.00</td>
-                    <td th:text="${c.moeda ?: '—'}">EUR</td>
+                    <td th:text="${c.moeda ?: 'EUR'} + ' ' + ${c.valor}">EUR 0.00</td>
                     <td>
                         <span class="ci-badge"
                               th:classappend="${c.status == 'COMPLETED' or c.status == 'APPROVED'} ? 'ci-badge--green' : 'ci-badge--gray'"
@@ -48,30 +57,31 @@
                     <td>
                         <span class="ci-badge"
                               th:classappend="${c.emailEnviado} ? 'ci-badge--green' : 'ci-badge--gray'"
-                              th:text="${c.emailEnviado} ? 'Sim' : 'Não'">Não</span>
+                              th:text="${c.emailEnviado} ? '✓ Enviado' : '✗ Pendente'">—</span>
                     </td>
-                    <td><code th:text="${c.transacao}">txn</code></td>
+                    <td><code style="font-size:.75rem" th:text="${c.transacao}">txn</code></td>
                 </tr>
             </tbody>
         </table>
 
         <p th:if="${compras == null or compras.empty}" class="ci-empty">
-            Nenhuma compra registada ainda.
+            <span th:if="${emailFiltro != ''}">Nenhuma compra encontrada para "<span th:text="${emailFiltro}"></span>".</span>
+            <span th:if="${emailFiltro == ''}">Nenhuma compra registada ainda.</span>
         </p>
 
         <!-- Paginação -->
         <div th:if="${pagina.totalPages > 1}" style="display:flex;gap:.5rem;margin-top:1.5rem;flex-wrap:wrap">
             <a th:if="${paginaAtual > 0}"
-               th:href="@{/admin/copa/compras(page=${paginaAtual - 1})}"
+               th:href="@{/admin/copa/compras(page=${paginaAtual - 1}, email=${emailFiltro})}"
                class="ci-btn ci-btn--ghost ci-btn--sm">← Anterior</a>
             <span th:each="i : ${#numbers.sequence(0, pagina.totalPages - 1)}">
-                <a th:href="@{/admin/copa/compras(page=${i})}"
+                <a th:href="@{/admin/copa/compras(page=${i}, email=${emailFiltro})}"
                    class="ci-btn ci-btn--sm"
                    th:classappend="${i == paginaAtual} ? 'ci-btn--primary' : 'ci-btn--ghost'"
                    th:text="${i + 1}">1</a>
             </span>
             <a th:if="${paginaAtual < pagina.totalPages - 1}"
-               th:href="@{/admin/copa/compras(page=${paginaAtual + 1})}"
+               th:href="@{/admin/copa/compras(page=${paginaAtual + 1}, email=${emailFiltro})}"
                class="ci-btn ci-btn--ghost ci-btn--sm">Próxima →</a>
         </div>
 

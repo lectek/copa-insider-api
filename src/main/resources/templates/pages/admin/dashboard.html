@@ -11,8 +11,9 @@
 
     <main class="ci-admin-content">
 
-        <!-- Métricas Copa -->
-        <div class="ci-stats-grid">
+        <!-- ── Copa 2026 ── -->
+        <p class="ci-section-label">Copa 2026</p>
+        <div class="ci-stats-grid" style="margin-bottom:2rem">
             <div class="ci-stat-card">
                 <p class="ci-stat-card__label">Utilizadores registados</p>
                 <p class="ci-stat-card__value" th:text="${totalUsuarios ?: 0}">0</p>
@@ -29,12 +30,88 @@
                 <p class="ci-stat-card__label">Acessos concedidos</p>
                 <p class="ci-stat-card__value" th:text="${totalAcessos ?: 0}">0</p>
             </div>
+            <div class="ci-stat-card" style="border-color:rgba(245,166,35,.35)">
+                <p class="ci-stat-card__label">Receita aprovada</p>
+                <p class="ci-stat-card__value" style="color:#f5a623"
+                   th:text="'€ ' + ${#numbers.formatDecimal(receitaTotal, 1, 'POINT', 2, 'COMMA')}">€ 0,00</p>
+            </div>
         </div>
 
-        <!-- Utilizadores recentes -->
+        <!-- Compras recentes -->
         <section class="ci-admin-section">
             <div class="ci-admin-section__header">
-                <h2 class="ci-admin-section__title">Utilizadores recentes</h2>
+                <h2 class="ci-admin-section__title">Compras recentes</h2>
+                <a th:href="@{/admin/copa/compras}" class="ci-btn ci-btn--ghost ci-btn--sm">Ver todas</a>
+            </div>
+            <table class="ci-table" th:if="${comprasRecentes != null and !comprasRecentes.empty}">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Comprador</th>
+                        <th>Produto</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${comprasRecentes}">
+                        <td th:text="${#temporals.format(c.criadoEm.atZone(T(java.time.ZoneId).of('Europe/Lisbon')).toLocalDateTime(), 'dd/MM HH:mm')}">—</td>
+                        <td>
+                            <div th:text="${c.compradorNome}">Nome</div>
+                            <div style="font-size:.78rem;color:#64748b" th:text="${c.compradorEmail}">email</div>
+                        </td>
+                        <td th:text="${c.produtoNome ?: '—'}">produto</td>
+                        <td th:text="${c.moeda ?: 'EUR'} + ' ' + ${c.valor}">EUR 0.00</td>
+                        <td>
+                            <span class="ci-badge"
+                                  th:classappend="${c.status == 'COMPLETED' or c.status == 'APPROVED'} ? 'ci-badge--green' : 'ci-badge--gray'"
+                                  th:text="${c.status}">status</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${comprasRecentes == null or comprasRecentes.empty}" class="ci-empty">
+                Nenhuma compra registada ainda.
+            </p>
+        </section>
+
+        <!-- Acessos recentes -->
+        <section class="ci-admin-section">
+            <div class="ci-admin-section__header">
+                <h2 class="ci-admin-section__title">Acessos recentes</h2>
+                <a th:href="@{/admin/copa/acessos}" class="ci-btn ci-btn--ghost ci-btn--sm">Ver todos</a>
+            </div>
+            <table class="ci-table" th:if="${acessosRecentes != null and !acessosRecentes.empty}">
+                <thead>
+                    <tr>
+                        <th>E-mail</th>
+                        <th>Produto</th>
+                        <th>Concedido em</th>
+                        <th>Origem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="a : ${acessosRecentes}">
+                        <td th:text="${a.email}">email</td>
+                        <td><code th:text="${a.produtoSlug}">slug</code></td>
+                        <td th:text="${#temporals.format(a.concedidoEm, 'dd/MM HH:mm')}">—</td>
+                        <td>
+                            <span class="ci-badge"
+                                  th:classappend="${a.transacao == 'MANUAL-ADMIN'} ? 'ci-badge--gray' : 'ci-badge--green'"
+                                  th:text="${a.transacao == 'MANUAL-ADMIN'} ? 'Manual' : 'Hotmart'">Hotmart</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${acessosRecentes == null or acessosRecentes.empty}" class="ci-empty">
+                Nenhum acesso concedido ainda.
+            </p>
+        </section>
+
+        <!-- Utilizadores recentes (secundário) -->
+        <section class="ci-admin-section">
+            <div class="ci-admin-section__header">
+                <h2 class="ci-admin-section__title">Utilizadores registados</h2>
                 <a th:href="@{/admin/usuarios}" class="ci-btn ci-btn--ghost ci-btn--sm">Ver todos</a>
             </div>
             <table class="ci-table" th:if="${usuariosRecentes != null and !usuariosRecentes.empty}">
@@ -49,7 +126,7 @@
                     <tr th:each="u : ${usuariosRecentes}">
                         <td th:text="${u.nome()}">Nome</td>
                         <td th:text="${u.email()}">email@exemplo.com</td>
-                        <td th:text="${u.criadoEm() != null ? #temporals.format(u.criadoEm(), 'dd/MM/yyyy') : '—'}">01/06/2026</td>
+                        <td th:text="${u.criadoEm() != null ? #temporals.format(u.criadoEm(), 'dd/MM/yyyy') : '—'}">—</td>
                     </tr>
                 </tbody>
             </table>

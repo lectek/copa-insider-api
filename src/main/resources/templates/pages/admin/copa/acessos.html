@@ -11,7 +11,34 @@
 
     <main class="ci-admin-content">
 
-        <!-- Pesquisa por email -->
+        <!-- Conceder acesso manual -->
+        <section class="ci-admin-section" style="border:1px solid rgba(245,166,35,.25);background:rgba(245,166,35,.04);border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.75rem">
+            <h2 class="ci-admin-section__title" style="margin-bottom:1rem">Conceder acesso manual</h2>
+            <form th:action="@{/admin/copa/acessos/conceder}" method="post"
+                  style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:220px">
+                    <label for="conceder-email" style="font-size:.78rem;color:#94a3b8;font-weight:600">E-mail do utilizador</label>
+                    <input id="conceder-email" type="email" name="email" required placeholder="utilizador@email.com"
+                           style="padding:.5rem .75rem;border-radius:4px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:.9rem"/>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:200px">
+                    <label for="conceder-slug" style="font-size:.78rem;color:#94a3b8;font-weight:600">Produto</label>
+                    <select id="conceder-slug" name="slug" required
+                            style="padding:.5rem .75rem;border-radius:4px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:.9rem">
+                        <option value="">Seleccionar produto…</option>
+                        <option th:each="p : ${produtos}"
+                                th:value="${p.slug}"
+                                th:text="${(p.nomePtPt != null and !p.nomePtPt.isBlank()) ? p.nomePtPt : p.slug}
+                                          + (p.slug == 'copa-pass' ? ' ⭐ (inclui tudo)' : '')">
+                        </option>
+                    </select>
+                </div>
+                <button type="submit" class="ci-btn ci-btn--primary ci-btn--sm">Conceder acesso</button>
+            </form>
+        </section>
+
+        <!-- Filtro por email -->
         <form th:action="@{/admin/copa/acessos}" method="get"
               style="display:flex;gap:.5rem;margin-bottom:1.5rem;align-items:center">
             <input type="text" name="email" th:value="${emailFiltro}"
@@ -35,6 +62,7 @@
                     <th>Produto (slug)</th>
                     <th>Transação</th>
                     <th>Concedido em</th>
+                    <th>Origem</th>
                     <th>Ação</th>
                 </tr>
             </thead>
@@ -44,6 +72,11 @@
                     <td><code th:text="${a.produtoSlug}">slug</code></td>
                     <td><code th:text="${a.transacao ?: '—'}">txn</code></td>
                     <td th:text="${#temporals.format(a.concedidoEm, 'dd/MM/yyyy HH:mm')}">data</td>
+                    <td>
+                        <span class="ci-badge"
+                              th:classappend="${a.transacao == 'MANUAL-ADMIN'} ? 'ci-badge--gray' : 'ci-badge--green'"
+                              th:text="${a.transacao == 'MANUAL-ADMIN'} ? 'Manual' : 'Hotmart'">Hotmart</span>
+                    </td>
                     <td>
                         <form th:action="@{/admin/copa/acessos/{id}/revogar(id=${a.id})}" method="post"
                               onsubmit="return confirm('Revogar acesso de ' + this.dataset.email + '?')"

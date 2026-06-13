@@ -109,16 +109,25 @@ public class AdminDashboardController {
         final long totalProdutos = copaProdutoRepo.findByAtivoTrueOrderByOrdemAsc().size();
         final long totalCompras  = copaCompraRepo.count();
         final long totalAcessos  = copaAcessoRepo.count();
+        final BigDecimal receitaTotal = copaCompraRepo.sumValorAprovado();
+
         final List<UsuarioResumoView> usuariosRecentes = usuarioRepo
                 .findAll(PageRequest.of(0, 5, Sort.by("id").descending()))
                 .stream()
                 .map(UsuarioResumoView::from)
                 .toList();
 
-        model.addAttribute("totalUsuarios", totalUsuarios);
-        model.addAttribute("totalProdutos", totalProdutos);
-        model.addAttribute("totalCompras",  totalCompras);
-        model.addAttribute("totalAcessos",  totalAcessos);
+        final var comprasRecentes = copaCompraRepo.findTop5ByOrderByCriadoEmDesc();
+        final var acessosRecentes = copaAcessoRepo
+                .findAllByOrderByConcedidoEmDesc(PageRequest.of(0, 5)).getContent();
+
+        model.addAttribute("totalUsuarios",   totalUsuarios);
+        model.addAttribute("totalProdutos",   totalProdutos);
+        model.addAttribute("totalCompras",    totalCompras);
+        model.addAttribute("totalAcessos",    totalAcessos);
+        model.addAttribute("receitaTotal",    receitaTotal != null ? receitaTotal : BigDecimal.ZERO);
+        model.addAttribute("comprasRecentes", comprasRecentes);
+        model.addAttribute("acessosRecentes", acessosRecentes);
         model.addAttribute("usuariosRecentes", usuariosRecentes);
 
         // Métricas legadas (mantidas para /admin/index se necessário)
