@@ -1,35 +1,6 @@
-:root {
-    --bg: #0a0a0a;
-    --bg2: #111111;
-    --bg3: #181818;
-    --border: #252525;
-    --gold: #e8b930;
-    --gold-dim: rgba(232, 185, 48, 0.12);
-    --text: #f0f0f0;
-    --muted: #888;
-    --radius: 12px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; }
-a { text-decoration: none; color: inherit; }
-
-/* ── Navbar ─────────────────────────────────────────── */
-.navbar {
-    display: flex; align-items: center; gap: 2rem;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0;
-    background: rgba(10,10,10,0.95);
-    backdrop-filter: blur(8px); z-index: 100;
-}
-.brand { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.05rem; }
-.brand-badge { background: var(--gold); color: #000; padding: 2px 7px; border-radius: 5px; font-weight: 800; font-size: .8rem; }
-.nav-links { display: flex; gap: 1.5rem; margin-left: auto; }
-.nav-links a { color: var(--muted); font-size: .9rem; transition: color .2s; }
-.nav-links a:hover, .nav-links a.active { color: var(--text); }
-.cta-btn { background: var(--gold); color: #000; padding: .45rem 1.1rem; border-radius: 6px; font-weight: 700; font-size: .85rem; }
-.cta-btn:hover { opacity: .85; }
+/* ─── rivalidades.css — específico desta página ─────────────────────────────────
+   Base: site-base.css (carregado por public-head)
+   ────────────────────────────────────────────────────────────────────── */
 
 /* ── Hero ────────────────────────────────────────────── */
 main { max-width: 900px; margin: 0 auto; padding: 0 1rem 4rem; }
@@ -123,10 +94,8 @@ main { max-width: 900px; margin: 0 auto; padding: 0 1rem 4rem; }
 .guia-link:hover { opacity: .75; }
 
 /* ── Footer ─────────────────────────────────────────── */
-.footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .8rem; }
 
 /* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 640px) {
-    .nav-links { display: none; }
     .rivalidades-grid { grid-template-columns: 1fr; }
 }

@@ -1,0 +1,160 @@
+/* ─── comparar.css — /comparar ───────────────────────────────────────────────
+   Base: site-base.css (carregado por public-head via cssExtra implícito)
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ── Hero / formulário ── */
+.hero { text-align: center; padding: 3rem 2rem 2rem; }
+.hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: .5rem; }
+.hl { color: var(--gold); }
+.hero p { color: var(--muted); margin-bottom: 2rem; }
+
+.form-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: end; margin-bottom: 1.25rem; }
+.form-group { display: flex; flex-direction: column; gap: .4rem; }
+.form-group label { font-size: .8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.form-group select {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    color: var(--text);
+    padding: .65rem 1rem;
+    border-radius: 8px;
+    font-size: .95rem;
+    font-family: inherit;
+    appearance: none;
+    cursor: pointer;
+    width: 100%;
+}
+.form-group select:focus { outline: none; border-color: var(--gold); }
+.form-group select option { background: #1a1a2e; }
+.vs-sep { color: var(--gold); font-weight: 800; font-size: 1.1rem; padding-bottom: .65rem; text-align: center; }
+.btn-comparar {
+    width: 100%;
+    background: var(--gold);
+    color: #0a0a0f;
+    border: none;
+    padding: .75rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s;
+    font-family: inherit;
+}
+.btn-comparar:hover { opacity: .9; }
+
+/* ── Rivalidades rápidas ── */
+.rivals-quick { margin-top: 1.5rem; text-align: center; }
+.rivals-quick__label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: .6rem; letter-spacing: .04em; text-transform: uppercase; }
+.rivals-quick__chips { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.rival-chip {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 20px;
+    padding: .35rem .85rem;
+    font-size: .82rem;
+    color: #c8c8e0;
+    text-decoration: none;
+    transition: background .15s, border-color .15s, color .15s;
+    white-space: nowrap;
+}
+.rival-chip:hover { background: rgba(245,166,35,.12); border-color: rgba(245,166,35,.35); color: var(--gold); }
+
+/* ── Resultado ── */
+.resultado { max-width: 820px; margin: 2rem auto; padding: 0 1.5rem 5rem; }
+
+.duelo-header {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+.duelo-times { display: flex; align-items: center; justify-content: space-around; gap: 1rem; margin-bottom: 1.5rem; }
+.duelo-lado { display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+.duelo-flag { font-size: 3.5rem; line-height: 1; }
+.duelo-nome { font-size: 1.1rem; font-weight: 700; }
+.duelo-conf { font-size: .75rem; color: var(--muted); }
+.duelo-placar { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+.placar-nums { display: flex; gap: .75rem; align-items: baseline; }
+.placar-v { font-size: 2.5rem; font-weight: 800; color: var(--gold); }
+.placar-sep { font-size: 1.5rem; color: #555; }
+.placar-label { font-size: .75rem; color: var(--muted); }
+.empates-chip { background: rgba(255,255,255,.08); padding: .2rem .6rem; border-radius: 20px; font-size: .8rem; color: #b0b0c8; margin-top: .25rem; }
+.gols-row { font-size: .85rem; color: var(--muted); margin-top: .5rem; }
+.gols-num { color: var(--text); font-weight: 600; }
+
+/* Barra de domínio */
+.barra-wrap { margin-top: 1.25rem; }
+.barra-labels { display: flex; justify-content: space-between; font-size: .78rem; color: var(--muted); margin-bottom: .3rem; }
+.barra-bg { background: rgba(255,255,255,.08); border-radius: 20px; height: 8px; overflow: hidden; }
+.barra-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #e8902a); border-radius: 20px; transition: width .6s ease; }
+
+/* Stats por competição */
+.stats-comps { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: 1rem; }
+.stats-comp-chip { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: .4rem .8rem; font-size: .78rem; }
+.stats-comp-chip .comp-icon { margin-right: .3rem; }
+.stats-comp-chip strong { color: var(--gold); }
+
+/* Encontro Copa 2026 */
+.enc-2026 { background: rgba(245,166,35,.07); border: 1px solid rgba(245,166,35,.2); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+.enc-2026-label { font-size: .75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+.enc-2026-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.enc-time { display: flex; align-items: center; gap: .4rem; font-size: .95rem; font-weight: 600; }
+.enc-placar { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+.enc-info { font-size: .78rem; color: var(--muted); margin-top: .35rem; text-align: center; }
+
+/* Secções por competição */
+.comp-section { margin-bottom: 2.5rem; }
+.comp-section-header { display: flex; align-items: center; gap: .6rem; padding: .6rem 0 .75rem; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 1rem; }
+.comp-section-icon { font-size: 1.3rem; }
+.comp-section-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+.comp-section-count { background: rgba(245,166,35,.15); color: var(--gold); border-radius: 20px; padding: .15rem .55rem; font-size: .75rem; font-weight: 700; margin-left: auto; }
+
+.encontro-row { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; border-radius: 8px; margin-bottom: .4rem; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); }
+.enc-ano { font-size: .8rem; color: var(--gold); font-weight: 700; min-width: 40px; }
+.enc-fase { font-size: .75rem; color: var(--muted); min-width: 90px; }
+.enc-times { display: flex; align-items: center; gap: .5rem; font-size: .9rem; font-weight: 600; flex: 1; justify-content: center; }
+.enc-score { font-size: 1rem; font-weight: 800; color: var(--gold); min-width: 40px; text-align: center; }
+.vencedor { color: #4ade80; }
+.perdedor { color: var(--muted); font-weight: 400; }
+
+.sem-historico { text-align: center; color: var(--muted); font-size: .9rem; padding: 2rem; background: rgba(255,255,255,.03); border-radius: 12px; border: 1px dashed rgba(255,255,255,.1); }
+
+/* ── Lendas ── */
+.lendas-section { margin-top: 1rem; margin-bottom: 2.5rem; }
+.lendas-section-header { display: flex; align-items: center; gap: .6rem; padding: .6rem 0 .75rem; border-bottom: 2px solid rgba(245,166,35,.25); margin-bottom: 1.25rem; }
+.lendas-section-title { font-size: 1.05rem; font-weight: 800; color: var(--gold); }
+.lendas-title-icon { font-size: 1.2rem; }
+
+.lendas-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.lendas-col-header { display: flex; align-items: center; gap: .5rem; font-size: .85rem; font-weight: 700; color: var(--muted); margin-bottom: .75rem; text-transform: uppercase; letter-spacing: .04em; }
+
+.lenda-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 1.1rem 1.25rem; margin-bottom: .75rem; transition: border-color .2s; }
+.lenda-card:hover { border-color: rgba(245,166,35,.3); }
+.lenda-top { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; margin-bottom: .6rem; }
+.lenda-nome { font-size: 1rem; font-weight: 800; color: var(--text); }
+.lenda-pos { font-size: .72rem; background: rgba(245,166,35,.12); color: var(--gold); border-radius: 20px; padding: .15rem .5rem; font-weight: 600; white-space: nowrap; }
+.lenda-era { font-size: .75rem; color: var(--muted); margin-bottom: .35rem; }
+.lenda-titulos { font-size: .8rem; color: #c8c8e0; margin-bottom: .45rem; line-height: 1.4; }
+.lenda-stat { font-size: .78rem; color: var(--muted); padding: .35rem .6rem; background: rgba(255,255,255,.04); border-radius: 6px; margin-bottom: .5rem; line-height: 1.4; }
+.lenda-citacao { font-size: .78rem; color: #7070a0; font-style: italic; line-height: 1.4; border-left: 2px solid rgba(245,166,35,.3); padding-left: .6rem; }
+
+.sem-lendas { font-size: .85rem; color: #555; font-style: italic; text-align: center; padding: 1rem; background: rgba(255,255,255,.02); border-radius: 8px; }
+
+@media (max-width: 640px) {
+    .form-row { grid-template-columns: 1fr; }
+    .vs-sep { padding: 0; }
+    .duelo-times { flex-direction: column; gap: .75rem; }
+    .enc-2026-row { flex-direction: column; gap: .25rem; }
+    .encontro-row { flex-wrap: wrap; gap: .25rem; }
+    .lendas-cols { grid-template-columns: 1fr; }
+}

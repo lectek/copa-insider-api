@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="pt">
+<body>
+
+<!--
+  Fragment: site-nav(pagina)
+
+  Uso:
+    <nav th:replace="~{fragments/site-nav :: nav('calendario')}"></nav>
+
+  pagina → identifica o link activo: 'calendario', 'selecoes', 'comparar', 'loja', 'factos', 'ranking'
+-->
+<nav th:fragment="nav(pagina)" class="navbar">
+
+    <a href="/" class="brand">
+        <img src="/img/logo-sm.webp" alt="Copa Insider" width="36" height="36"
+             style="object-fit:contain;"/>
+        <span class="brand-badge">CI</span>
+        Copa Insider
+    </a>
+
+    <div class="nav-links">
+        <a th:href="@{/calendario}" th:text="#{copa.nav.calendario}"
+           th:classappend="${pagina == 'calendario'} ? 'active'">Calendário</a>
+        <a th:href="@{/selecoes}" th:text="#{copa.nav.selecoes}"
+           th:classappend="${pagina == 'selecoes'} ? 'active'">Seleções</a>
+        <a th:href="@{/comparar}" th:text="#{copa.nav.comparar}"
+           th:classappend="${pagina == 'comparar'} ? 'active'">Comparar</a>
+        <a th:href="@{/factos}"
+           th:classappend="${pagina == 'factos'} ? 'active'">Factos</a>
+        <a th:href="@{/loja}" th:text="#{copa.nav.loja}"
+           th:classappend="${pagina == 'loja'} ? 'active'">Loja</a>
+    </div>
+
+    <div class="navbar__actions">
+        <div class="lang-sw">
+            <a class="lf" data-lang="pt_BR"
+               th:classappend="${#locale.country=='BR'} ? 'lf-on'">🇧🇷</a>
+            <a class="lf" data-lang="pt_PT"
+               th:classappend="${#locale.country=='PT'} ? 'lf-on'">🇵🇹</a>
+            <a class="lf" data-lang="en"
+               th:classappend="${#locale.language=='en'} ? 'lf-on'">🇺🇸</a>
+        </div>
+        <a th:href="@{/admin/dashboard}" sec:authorize="hasAnyRole('ADMIN','DEVELOPER')"
+           class="navbar__admin-link">⚙ Admin</a>
+        <a th:href="@{/auth/logout}" sec:authorize="isAuthenticated()"
+           class="navbar__logout-link">Sair</a>
+        <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()"
+           class="cta-btn">Login</a>
+    </div>
+
+</nav>
+
+<!-- Lang switcher JS (inline porque é tiny e precisa de correr antes do DOMContentLoaded) -->
+<script th:fragment="lang-js">
+document.querySelectorAll('.lf[data-lang]').forEach(function(a){
+    a.addEventListener('click',function(){
+        var p=new URLSearchParams(location.search);
+        p.set('lang',a.dataset.lang);
+        location.search=p.toString();
+    });
+});
+</script>
+
+</body>
+</html>

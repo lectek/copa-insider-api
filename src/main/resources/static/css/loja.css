@@ -1,6 +1,8 @@
 /* ─── Loja — /loja ──────────────────────────────────────────────────────────
-   Usa variáveis de landing.css: --bg, --gold, --surface, --card, --border, etc.
+   Puxa landing.css (design do site de marketing) para que a loja use o mesmo
+   sistema visual que a página inicial — navbar .nav, variáveis, etc.
    ────────────────────────────────────────────────────────────────────────── */
+@import url('/css/landing.css');
 
 .loja-wrap {
     max-width: 1100px;

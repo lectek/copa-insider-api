@@ -47,8 +47,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"/>
 
-    <!-- CSS base do site público -->
-    <link rel="stylesheet" th:href="@{/css/landing.css}"/>
+    <!-- CSS base do site público (navbar, footer, paywall, variáveis) -->
+    <link rel="stylesheet" th:href="@{/css/site-base.css}"/>
 
     <!-- CSS específico da página (opcional) -->
     <link th:if="${cssExtra != null and cssExtra != ''}"
