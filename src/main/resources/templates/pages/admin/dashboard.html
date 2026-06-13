@@ -10,70 +10,31 @@
     <div th:replace="~{fragments/flash :: flash}"></div>
 
     <main class="ci-admin-content">
-        <!-- Métricas rápidas -->
+
+        <!-- Métricas Copa -->
         <div class="ci-stats-grid">
             <div class="ci-stat-card">
-                <p class="ci-stat-card__label">Usuários cadastrados</p>
+                <p class="ci-stat-card__label">Utilizadores registados</p>
                 <p class="ci-stat-card__value" th:text="${totalUsuarios ?: 0}">0</p>
             </div>
             <div class="ci-stat-card">
-                <p class="ci-stat-card__label">Palpites hoje</p>
-                <p class="ci-stat-card__value" th:text="${palpitesHoje ?: 0}">0</p>
+                <p class="ci-stat-card__label">Produtos ativos</p>
+                <p class="ci-stat-card__value" th:text="${totalProdutos ?: 0}">0</p>
             </div>
             <div class="ci-stat-card">
-                <p class="ci-stat-card__label">Partidas ativas</p>
-                <p class="ci-stat-card__value" th:text="${partidasAtivas ?: 0}">0</p>
+                <p class="ci-stat-card__label">Compras Hotmart</p>
+                <p class="ci-stat-card__value" th:text="${totalCompras ?: 0}">0</p>
             </div>
             <div class="ci-stat-card">
-                <p class="ci-stat-card__label">Grupos criados</p>
-                <p class="ci-stat-card__value" th:text="${totalGrupos ?: 0}">0</p>
+                <p class="ci-stat-card__label">Acessos concedidos</p>
+                <p class="ci-stat-card__value" th:text="${totalAcessos ?: 0}">0</p>
             </div>
         </div>
 
-        <!-- Próximas partidas -->
+        <!-- Utilizadores recentes -->
         <section class="ci-admin-section">
             <div class="ci-admin-section__header">
-                <h2 class="ci-admin-section__title">Partidas programadas</h2>
-                <a th:href="@{/admin/partidas/nova}" class="ci-btn ci-btn--primary ci-btn--sm">+ Nova partida</a>
-            </div>
-            <table class="ci-table" th:if="${proximasPartidas != null and !proximasPartidas.empty}">
-                <thead>
-                    <tr>
-                        <th>Partida</th>
-                        <th>Fase</th>
-                        <th>Data/Hora</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="partida : ${proximasPartidas}">
-                        <td th:text="${partida.timeCasa} + ' × ' + ${partida.timeVisitante}">Brasil × Argentina</td>
-                        <td th:text="${partida.fase}">Grupo A</td>
-                        <td th:text="${#temporals.format(partida.dataHora, 'dd/MM/yyyy HH:mm')}">18/06/2026 15:00</td>
-                        <td>
-                            <span class="ci-badge"
-                                  th:classappend="${partida.status == 'ABERTA'} ? 'ci-badge--green' : 'ci-badge--gray'"
-                                  th:text="${partida.status}">ABERTA</span>
-                        </td>
-                        <td>
-                            <a th:href="@{/admin/partidas/{id}/editar(id=${partida.id})}"
-                               class="ci-btn ci-btn--ghost ci-btn--xs">Editar</a>
-                            <a th:href="@{/admin/partidas/{id}/resultado(id=${partida.id})}"
-                               class="ci-btn ci-btn--outline ci-btn--xs">Resultado</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <p th:if="${proximasPartidas == null or proximasPartidas.empty}" class="ci-empty">
-                Nenhuma partida cadastrada. <a th:href="@{/admin/partidas/nova}">Criar primeira partida</a>
-            </p>
-        </section>
-
-        <!-- Usuários recentes -->
-        <section class="ci-admin-section">
-            <div class="ci-admin-section__header">
-                <h2 class="ci-admin-section__title">Usuários recentes</h2>
+                <h2 class="ci-admin-section__title">Utilizadores recentes</h2>
                 <a th:href="@{/admin/usuarios}" class="ci-btn ci-btn--ghost ci-btn--sm">Ver todos</a>
             </div>
             <table class="ci-table" th:if="${usuariosRecentes != null and !usuariosRecentes.empty}">
@@ -81,24 +42,25 @@
                     <tr>
                         <th>Nome</th>
                         <th>E-mail</th>
-                        <th>Cadastro</th>
-                        <th>Pontos</th>
+                        <th>Registado em</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="u : ${usuariosRecentes}">
-                        <td th:text="${u.nome}">João Silva</td>
-                        <td th:text="${u.email}">joao@email.com</td>
-                        <td th:text="${#temporals.format(u.criadoEm, 'dd/MM/yyyy')}">01/06/2026</td>
-                        <td th:text="${u.pontos}">0</td>
+                        <td th:text="${u.nome()}">Nome</td>
+                        <td th:text="${u.email()}">email@exemplo.com</td>
+                        <td th:text="${u.criadoEm() != null ? #temporals.format(u.criadoEm(), 'dd/MM/yyyy') : '—'}">01/06/2026</td>
                     </tr>
                 </tbody>
             </table>
+            <p th:if="${usuariosRecentes == null or usuariosRecentes.empty}" class="ci-empty">
+                Nenhum utilizador registado ainda.
+            </p>
         </section>
+
     </main>
 </div>
 
 <script th:src="@{/js/main.js}"></script>
-<script th:src="@{/js/admin.js}"></script>
 </body>
 </html>

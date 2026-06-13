@@ -1,0 +1,385 @@
+/* ─── Copa Insider — Admin UI ───────────────────────────────────────────── */
+
+/* Layout raiz */
+.ci-body.ci-admin {
+  display: flex;
+  min-height: 100vh;
+  background: #0b1220;
+  color: #e2e8f0;
+  font-family: var(--font-sans, 'DM Sans', system-ui, sans-serif);
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.ci-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #0f172a;
+  border-right: 1px solid rgba(255,255,255,.07);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.ci-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.ci-sidebar__logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.ci-sidebar__label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #e8b930;
+}
+
+.ci-sidebar__nav {
+  flex: 1;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ci-sidebar__section {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 14px 18px 6px;
+  margin: 0;
+}
+
+.ci-sidebar__link {
+  display: block;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 0;
+  transition: background .15s, color .15s;
+  border-left: 3px solid transparent;
+}
+
+.ci-sidebar__link:hover {
+  background: rgba(255,255,255,.05);
+  color: #e2e8f0;
+}
+
+.ci-sidebar__link.is-active {
+  background: rgba(232,185,48,.08);
+  color: #e8b930;
+  border-left-color: #e8b930;
+}
+
+.ci-sidebar__footer {
+  padding: 14px 18px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+
+.ci-sidebar__logout {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255,255,255,.05);
+  color: #94a3b8;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+.ci-sidebar__logout:hover {
+  background: rgba(255,255,255,.1);
+  color: #e2e8f0;
+}
+
+/* ── Main area ───────────────────────────────────────────────────────────── */
+.ci-admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.ci-admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.ci-admin-header__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.ci-admin-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ci-admin-header__user {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ── Content ─────────────────────────────────────────────────────────────── */
+.ci-admin-content {
+  flex: 1;
+  padding: 28px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ── Flash messages ──────────────────────────────────────────────────────── */
+.ci-flash-container {
+  padding: 0 28px;
+}
+
+.ci-flash {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 12px;
+}
+
+.ci-flash--success {
+  background: rgba(34,197,94,.12);
+  border: 1px solid rgba(34,197,94,.3);
+  color: #4ade80;
+}
+
+.ci-flash--error {
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.3);
+  color: #f87171;
+}
+
+.ci-flash--info {
+  background: rgba(59,130,246,.12);
+  border: 1px solid rgba(59,130,246,.3);
+  color: #60a5fa;
+}
+
+/* ── Stats grid ──────────────────────────────────────────────────────────── */
+.ci-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.ci-stat-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ci-stat-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin: 0;
+}
+
+.ci-stat-card__value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #e8b930;
+  line-height: 1;
+  margin: 0;
+}
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
+.ci-admin-section {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ci-admin-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.ci-admin-section__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.ci-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.ci-table thead th {
+  padding: 10px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: #64748b;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.ci-table tbody td {
+  padding: 12px 20px;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+
+.ci-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ci-table tbody tr:hover td {
+  background: rgba(255,255,255,.03);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.ci-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity .15s, background .15s;
+  border: none;
+}
+
+.ci-btn--primary {
+  background: #e8b930;
+  color: #0b1220;
+}
+
+.ci-btn--primary:hover { opacity: .9; }
+
+.ci-btn--ghost {
+  background: rgba(255,255,255,.06);
+  color: #94a3b8;
+}
+
+.ci-btn--ghost:hover {
+  background: rgba(255,255,255,.1);
+  color: #e2e8f0;
+}
+
+.ci-btn--outline {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.15);
+  color: #94a3b8;
+}
+
+.ci-btn--outline:hover {
+  border-color: rgba(255,255,255,.3);
+  color: #e2e8f0;
+}
+
+.ci-btn--sm  { padding: 7px 14px; font-size: 13px; }
+.ci-btn--xs  { padding: 5px 10px; font-size: 12px; }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.ci-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.ci-badge--green {
+  background: rgba(34,197,94,.15);
+  color: #4ade80;
+}
+
+.ci-badge--gray {
+  background: rgba(255,255,255,.08);
+  color: #94a3b8;
+}
+
+.ci-badge--yellow {
+  background: rgba(232,185,48,.15);
+  color: #e8b930;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.ci-empty {
+  padding: 32px 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.ci-empty a {
+  color: #e8b930;
+  text-decoration: underline;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .ci-body.ci-admin { flex-direction: column; }
+
+  .ci-sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .ci-sidebar__nav { flex-direction: row; flex-wrap: wrap; padding: 4px; }
+  .ci-sidebar__section { display: none; }
+  .ci-sidebar__link { padding: 8px 12px; font-size: 13px; border-left: none; border-bottom: 3px solid transparent; }
+  .ci-sidebar__link.is-active { border-bottom-color: #e8b930; border-left-color: transparent; }
+
+  .ci-admin-content { padding: 16px; }
+  .ci-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
