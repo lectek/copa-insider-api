@@ -22,7 +22,7 @@
     <!-- SEO -->
     <meta name="description" th:content="${description ?: 'Copa Insider — tudo sobre a Copa do Mundo 2026.'}"/>
     <meta name="robots" content="index, follow"/>
-    <link rel="canonical" th:href="${#httpServletRequest.requestURL}"/>
+    <link rel="canonical" th:href="${baseUrl + #request.getRequestURI()}"/>
 
     <!-- Open Graph -->
     <meta property="og:type" content="website"/>

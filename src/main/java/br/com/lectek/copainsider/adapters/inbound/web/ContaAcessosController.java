@@ -67,9 +67,9 @@ public class ContaAcessosController {
         return switch (slug) {
             case "copa-pass", "acesso-calendario-comparador", "historico-confronto" -> "/comparar";
             case "copa-em-20-factos" -> "/factos";
-            case "guia-selecao-portugal" -> "/guia/guia-selecao-portugal";
-            case "guia-selecao-brasil"   -> "/guia/guia-selecao-brasil";
-            default -> slug.startsWith("guia-") ? "/guia/" + slug : "/loja";
+            default -> slug.startsWith("guia-selecao-")
+                       ? "/selecoes/" + slug.replace("guia-selecao-", "")
+                       : "/loja";
         };
     }
 

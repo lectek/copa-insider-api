@@ -6,69 +6,57 @@
     'Produtos Copa Insider que adquiriste — acede ao teu conteúdo.',
     null,
     'conta',
-    null)}"></head>
+    '/css/conta.css')}"></head>
 <body>
 
 <nav th:replace="~{fragments/site-nav :: nav('conta')}"></nav>
 <th:block th:replace="~{fragments/site-nav :: lang-js}"></th:block>
 
-<main style="max-width:800px;margin:0 auto;padding:2rem 1.5rem 5rem;">
+<main class="conta-main">
 
-    <!-- Cabeçalho -->
-    <div style="margin-bottom:2rem;">
-        <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:.25rem;">Os meus acessos</h1>
-        <p style="color:var(--muted);font-size:.9rem;" th:text="${email}"></p>
+    <div class="conta-header">
+        <h1 class="conta-heading">Os meus acessos</h1>
+        <p class="conta-email" th:text="${email}"></p>
     </div>
 
     <!-- Banner Copa Pass -->
-    <div th:if="${temCopaPass}"
-         style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;gap:1rem;">
-        <span style="font-size:1.8rem;">⭐</span>
+    <div th:if="${temCopaPass}" class="copa-pass-banner">
+        <span class="copa-pass-icon">⭐</span>
         <div>
-            <div style="font-weight:800;font-size:1rem;color:var(--gold);">Copa Pass activo</div>
-            <div style="font-size:.85rem;color:var(--muted);margin-top:.2rem;">Tens acesso completo — Calendário, Comparador e todos os guias incluídos.</div>
+            <div class="copa-pass-titulo">Copa Pass activo</div>
+            <div class="copa-pass-texto">Tens acesso completo — Calendário, Comparador e todos os guias incluídos.</div>
         </div>
     </div>
 
     <!-- Lista de acessos -->
     <div th:if="${!acessos.isEmpty()}">
-        <div th:each="item : ${acessos}"
-             style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
-            <div style="display:flex;align-items:center;gap:1rem;">
-                <span style="font-size:1.6rem;line-height:1;" th:text="${item.icon}">📄</span>
+        <div th:each="item : ${acessos}" class="acesso-row">
+            <div class="acesso-info">
+                <span class="acesso-icone" th:text="${item.icon}">📄</span>
                 <div>
-                    <div style="font-weight:700;font-size:.95rem;" th:text="${item.nome}">Produto</div>
-                    <div style="font-size:.78rem;color:var(--muted);margin-top:.15rem;"
+                    <div class="acesso-nome" th:text="${item.nome}">Produto</div>
+                    <div class="acesso-data"
                          th:text="'Acesso desde ' + ${#temporals.format(item.concedidoEm, 'dd MMM yyyy')}">
                     </div>
                 </div>
             </div>
-            <a th:href="${item.url}"
-               style="background:var(--gold);color:#0a0a0f;padding:.45rem 1.1rem;border-radius:6px;font-weight:700;font-size:.85rem;white-space:nowrap;text-decoration:none;transition:opacity .15s;"
-               onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-                Abrir →
-            </a>
+            <a th:href="${item.url}" class="btn-abrir">Abrir →</a>
         </div>
     </div>
 
     <!-- Estado vazio -->
-    <div th:if="${acessos.isEmpty()}"
-         style="text-align:center;padding:4rem 2rem;background:var(--card);border:1px dashed var(--border);border-radius:var(--radius-lg);">
-        <div style="font-size:2.5rem;margin-bottom:1rem;">🔒</div>
-        <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem;">Ainda sem produtos</h2>
-        <p style="color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;max-width:360px;margin-left:auto;margin-right:auto;">
+    <div th:if="${acessos.isEmpty()}" class="conta-vazio">
+        <div class="conta-vazio-icon">🔒</div>
+        <h2 class="conta-vazio-titulo">Ainda sem produtos</h2>
+        <p class="conta-vazio-desc">
             Os teus acessos aparecem aqui após a compra ser confirmada pelo Hotmart.
         </p>
-        <a th:href="@{/loja}"
-           style="display:inline-block;background:var(--gold);color:#0a0a0f;padding:.65rem 1.5rem;border-radius:8px;font-weight:700;text-decoration:none;">
-            Ver guias disponíveis →
-        </a>
+        <a th:href="@{/loja}" class="btn-loja">Ver guias disponíveis →</a>
     </div>
 
-    <!-- Link de suporte -->
-    <p style="text-align:center;margin-top:2rem;font-size:.82rem;color:var(--muted);">
+    <p class="conta-suporte">
         Problema com um acesso?
-        <a href="mailto:suporte@allaboutworldcup2026.com" style="color:var(--gold);">suporte@allaboutworldcup2026.com</a>
+        <a href="mailto:suporte@allaboutworldcup2026.com">suporte@allaboutworldcup2026.com</a>
     </p>
 
 </main>
