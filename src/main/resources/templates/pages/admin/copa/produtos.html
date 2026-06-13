@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Produtos Copa')}"></head>
+<body class="ci-body ci-admin">
+
+<div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+<div class="ci-admin-main">
+    <div th:replace="~{fragments/admin-header :: header('Produtos Copa 2026')}"></div>
+    <div th:replace="~{fragments/flash :: flash}"></div>
+
+    <main class="ci-admin-content">
+
+        <table class="ci-table" th:if="${produtos != null and !produtos.empty}">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Slug</th>
+                    <th>Nome</th>
+                    <th>Tipo</th>
+                    <th>Preço EUR</th>
+                    <th>Hotmart ID</th>
+                    <th>Ativo</th>
+                    <th>URL Hotmart</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${produtos}">
+                    <td th:text="${p.ordem}">0</td>
+                    <td><code th:text="${p.slug}">slug</code></td>
+                    <td th:text="${p.nomePtPt ?: p.nomePtBr ?: p.slug}">Nome</td>
+                    <td th:text="${p.tipo}">TIPO</td>
+                    <td th:text="${p.precoEur != null ? '€' + p.precoEur : '—'}">€0,00</td>
+                    <td th:text="${p.hotmartProductId ?: '—'}">—</td>
+                    <td>
+                        <span class="ci-badge" th:classappend="${p.ativo} ? 'ci-badge--green' : 'ci-badge--gray'"
+                              th:text="${p.ativo} ? 'Ativo' : 'Inativo'">Ativo</span>
+                    </td>
+                    <td>
+                        <span th:if="${p.hotmartUrl != null and p.hotmartUrl != '#'}">
+                            <a th:href="${p.hotmartUrl}" target="_blank" rel="noopener"
+                               style="font-size:0.8rem;word-break:break-all"
+                               th:text="${#strings.abbreviate(p.hotmartUrl, 40)}">url</a>
+                        </span>
+                        <span th:if="${p.hotmartUrl == null or p.hotmartUrl == '#'}" style="color:#888">—</span>
+                    </td>
+                    <td>
+                        <!-- Toggle ativo -->
+                        <form th:action="@{/admin/copa/produtos/{id}/toggle-ativo(id=${p.id})}" method="post" style="display:inline">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="ci-btn ci-btn--sm"
+                                    th:classappend="${p.ativo} ? 'ci-btn--ghost' : 'ci-btn--primary'"
+                                    th:text="${p.ativo} ? 'Desativar' : 'Ativar'">Toggle</button>
+                        </form>
+                        <!-- Editar URL -->
+                        <button type="button" class="ci-btn ci-btn--ghost ci-btn--sm"
+                                th:onclick="'abrirEditUrl(' + ${p.id} + ', \'' + (${p.hotmartUrl} ?: '') + '\')'">
+                            URL
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${produtos == null or produtos.empty}" class="ci-empty">
+            Nenhum produto encontrado.
+        </p>
+
+    </main>
+</div>
+
+<!-- Modal edição URL Hotmart -->
+<div id="modal-url" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center">
+    <div style="background:#1e293b;padding:2rem;border-radius:8px;width:480px;max-width:95%">
+        <h3 style="margin:0 0 1rem;color:#e8b930">Editar URL Hotmart</h3>
+        <form id="form-url" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="url" id="input-url" name="hotmartUrl" required
+                   placeholder="https://pay.hotmart.com/..."
+                   style="width:100%;padding:.6rem;border-radius:4px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:.9rem;box-sizing:border-box"/>
+            <div style="display:flex;gap:.5rem;margin-top:1rem;justify-content:flex-end">
+                <button type="button" onclick="fecharModal()" class="ci-btn ci-btn--ghost ci-btn--sm">Cancelar</button>
+                <button type="submit" class="ci-btn ci-btn--primary ci-btn--sm">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+function abrirEditUrl(id, urlAtual) {
+    document.getElementById('form-url').action = '/admin/copa/produtos/' + id + '/hotmart-url';
+    document.getElementById('input-url').value = urlAtual;
+    var modal = document.getElementById('modal-url');
+    modal.style.display = 'flex';
+}
+function fecharModal() {
+    document.getElementById('modal-url').style.display = 'none';
+}
+document.getElementById('modal-url').addEventListener('click', function(e) {
+    if (e.target === this) fecharModal();
+});
+</script>
+</body>
+</html>

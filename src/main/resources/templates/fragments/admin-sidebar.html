@@ -14,27 +14,25 @@
            th:classappend="${#strings.startsWith(#request.requestURI, '/admin/dashboard')} ? 'is-active'">
             Dashboard
         </a>
-        <a th:href="@{/admin/partidas}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/partidas')} ? 'is-active'">
-            Partidas
+
+        <p class="ci-sidebar__section">Copa 2026</p>
+        <a th:href="@{/admin/copa/produtos}" class="ci-sidebar__link"
+           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/copa/produtos')} ? 'is-active'">
+            Produtos
         </a>
-        <a th:href="@{/admin/times}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/times')} ? 'is-active'">
-            Times
+        <a th:href="@{/admin/copa/compras}" class="ci-sidebar__link"
+           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/copa/compras')} ? 'is-active'">
+            Compras
+        </a>
+        <a th:href="@{/admin/copa/acessos}" class="ci-sidebar__link"
+           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/copa/acessos')} ? 'is-active'">
+            Acessos
         </a>
 
-        <p class="ci-sidebar__section">Usuários</p>
+        <p class="ci-sidebar__section">Utilizadores</p>
         <a th:href="@{/admin/usuarios}" class="ci-sidebar__link"
            th:classappend="${#strings.startsWith(#request.requestURI, '/admin/usuarios')} ? 'is-active'">
-            Usuários
-        </a>
-        <a th:href="@{/admin/grupos}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/grupos')} ? 'is-active'">
-            Grupos
-        </a>
-        <a th:href="@{/admin/ranking}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/ranking')} ? 'is-active'">
-            Ranking
+            Utilizadores
         </a>
 
         <p class="ci-sidebar__section">Comunicação</p>
