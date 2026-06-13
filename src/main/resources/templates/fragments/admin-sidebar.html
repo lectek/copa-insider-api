@@ -11,43 +11,43 @@
     <nav class="ci-sidebar__nav">
         <p class="ci-sidebar__section">Visão Geral</p>
         <a th:href="@{/admin/dashboard}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/dashboard')} ? 'is-active'">
+           th:classappend="${#strings.startsWith(currentUri, '/admin/dashboard')} ? 'is-active'">
             Dashboard
         </a>
 
         <p class="ci-sidebar__section">Copa 2026</p>
         <a th:href="@{/admin/copa/produtos}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/copa/produtos')} ? 'is-active'">
+           th:classappend="${#strings.startsWith(currentUri, '/admin/copa/produtos')} ? 'is-active'">
             Produtos
         </a>
         <a th:href="@{/admin/copa/compras}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/copa/compras')} ? 'is-active'">
+           th:classappend="${#strings.startsWith(currentUri, '/admin/copa/compras')} ? 'is-active'">
             Compras
         </a>
         <a th:href="@{/admin/copa/acessos}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/copa/acessos')} ? 'is-active'">
+           th:classappend="${#strings.startsWith(currentUri, '/admin/copa/acessos')} ? 'is-active'">
             Acessos
         </a>
 
         <p class="ci-sidebar__section">Utilizadores</p>
         <a th:href="@{/admin/usuarios}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/usuarios')} ? 'is-active'">
+           th:classappend="${#strings.startsWith(currentUri, '/admin/usuarios')} ? 'is-active'">
             Utilizadores
         </a>
 
         <p class="ci-sidebar__section">Comunicação</p>
         <a th:href="@{/admin/notificacoes}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/notificacoes')} ? 'is-active'">
+           th:classappend="${#strings.startsWith(currentUri, '/admin/notificacoes')} ? 'is-active'">
             Notificações
         </a>
         <a th:href="@{/admin/marketing}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/marketing')} ? 'is-active'">
+           th:classappend="${#strings.startsWith(currentUri, '/admin/marketing')} ? 'is-active'">
             Marketing
         </a>
 
         <p class="ci-sidebar__section">Sistema</p>
         <a th:href="@{/admin/configuracoes}" class="ci-sidebar__link"
-           th:classappend="${#strings.startsWith(#request.requestURI, '/admin/configuracoes')} ? 'is-active'">
+           th:classappend="${#strings.startsWith(currentUri, '/admin/configuracoes')} ? 'is-active'">
             Configurações
         </a>
     </nav>

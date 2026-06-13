@@ -1,5 +1,6 @@
 package br.com.lectek.copainsider.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,5 +17,10 @@ public class SeoModelAdvice {
     @ModelAttribute("baseUrl")
     public String baseUrl() {
         return baseUrl;
+    }
+
+    @ModelAttribute("currentUri")
+    public String currentUri(HttpServletRequest request) {
+        return request.getRequestURI();
     }
 }
