@@ -139,7 +139,8 @@
                     <span class="grupo-letter" th:text="${grupoSelecionado}"></span>
                 </div>
                 <div class="partidas-list">
-                    <div class="partida-row" th:each="p : ${partidasFiltradas}">
+                    <a class="partida-row" th:href="@{/partida/{id}(id=${p.id()})}"
+                       th:each="p : ${partidasFiltradas}">
                         <div class="partida-date">
                             <span th:text="${#temporals.format(p.dataHora(), 'dd/MM')}"></span>
                             <span th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></span>
@@ -164,7 +165,7 @@
                                   th:text="${p.aoVivo()} ? 'AO VIVO' : (${p.encerrada()} ? 'ENCERRADO' : 'AGENDADO')"></span>
                             <span class="estadio" th:text="${p.cidade()}"></span>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -182,7 +183,8 @@
                     </span>
                 </div>
                 <div class="partidas-list">
-                    <div class="partida-row" th:each="p : ${entry.value}">
+                    <a class="partida-row" th:href="@{/partida/{id}(id=${p.id()})}"
+                       th:each="p : ${entry.value}">
                         <div class="partida-date">
                             <span th:text="${#temporals.format(p.dataHora(), 'dd/MM')}"></span>
                             <span th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></span>
@@ -207,7 +209,7 @@
                                   th:text="${p.aoVivo()} ? 'AO VIVO' : (${p.encerrada()} ? 'ENCERRADO' : 'AGENDADO')"></span>
                             <span class="estadio" th:text="${p.cidade()}"></span>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>

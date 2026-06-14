@@ -1,5 +1,7 @@
 package br.com.lectek.copainsider.application.copa;
 
+import br.com.lectek.copainsider.application.copa.EspnScoreClient.ESCompetitor;
+import br.com.lectek.copainsider.application.copa.EspnScoreClient.ESEvent;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,14 +196,17 @@ public class Copa2026DataService {
     // ── Estado dinâmico ──────────────────────────────────────────────────────
 
     private final OpenFootballClient client;
-    private volatile List<PartidaVM>  partidas  = List.of();
+    private final EspnScoreClient    espnClient;
+    private volatile List<PartidaVM>                      partidas      = List.of();
+    private volatile List<OpenFootballClient.OFMatch>     ofMatches2026 = List.of();
     // Pré-populado com os 48 estáticos; enriquecido com dados dinâmicos no refresh()
     private volatile List<SelecaoVM>  selecoes  = buildSelecoes(List.of());
     private final    List<JogadorVM>  jogadores;
     private final    List<RivalidadeVM> rivalidades;
 
-    public Copa2026DataService(OpenFootballClient client) {
-        this.client = client;
+    public Copa2026DataService(OpenFootballClient client, EspnScoreClient espnClient) {
+        this.client     = client;
+        this.espnClient = espnClient;
         this.jogadores   = buildJogadores();
         this.rivalidades = buildRivalidades();
     }
@@ -209,11 +214,12 @@ public class Copa2026DataService {
     @PostConstruct
     public void init() { refresh(); }
 
-    @Scheduled(fixedDelay = 1_800_000) // 30 min
+    @Scheduled(fixedDelay = 1_800_000) // 30 min — dados estáticos do OpenFootball
     public void refresh() {
         try {
             List<OpenFootballClient.OFMatch> matches = client.fetchMatches();
             if (!matches.isEmpty()) {
+                ofMatches2026 = matches;
                 partidas = buildPartidas(matches);
                 selecoes = buildSelecoes(matches);
                 log.info("Copa 2026: {} partidas carregadas", partidas.size());
@@ -221,6 +227,115 @@ public class Copa2026DataService {
         } catch (Exception e) {
             log.error("Erro ao atualizar dados Copa 2026: {}", e.getMessage());
         }
+        overlayLiveScores(); // aplica scores ao vivo imediatamente após cada refresh
+    }
+
+    @Scheduled(fixedDelay = 60_000) // 1 min — scores ao vivo do SofaScore
+    public void liveRefresh() {
+        overlayLiveScores();
+    }
+
+    private void overlayLiveScores() {
+        try {
+            List<ESEvent> events = espnClient.fetchToday();
+            if (events == null || events.isEmpty()) return;
+
+            List<ESEvent> copa = events.stream()
+                    .filter(e -> e != null && e.comp() != null)
+                    .toList();
+            if (copa.isEmpty()) return;
+
+            partidas = partidas.stream().map(p -> {
+                if (p.dataHora() == null) return p;
+                if (!p.dataHora().toLocalDate().equals(LocalDate.now())) return p;
+                return copa.stream()
+                        .filter(e -> espnMatchesBySlug(e, p))
+                        .findFirst()
+                        .map(e -> applyEspnScore(p, e))
+                        .orElse(p);
+            }).toList();
+        } catch (Exception e) {
+            log.warn("overlayLiveScores falhou: {} ({})", e.getMessage(), e.getClass().getSimpleName(), e);
+        }
+    }
+
+    private boolean espnMatchesBySlug(ESEvent e, PartidaVM p) {
+        var comp = e.comp();
+        if (comp == null || comp.competitors() == null || comp.competitors().size() < 2) return false;
+        for (var c : comp.competitors()) {
+            if (c.team() == null) return false;
+        }
+        String nameHome = comp.competitors().stream().filter(ESCompetitor::isHome)
+                .map(c -> c.team().displayName()).findFirst().orElse("");
+        String nameAway = comp.competitors().stream().filter(c -> !c.isHome())
+                .map(c -> c.team().displayName()).findFirst().orElse("");
+        String h = ENGLISH_TO_SLUG.get(nameHome.toLowerCase(Locale.ROOT));
+        String a = ENGLISH_TO_SLUG.get(nameAway.toLowerCase(Locale.ROOT));
+        if (h == null || a == null) return false;
+        return (h.equals(p.slugCasa()) && a.equals(p.slugVisitante()))
+                || (h.equals(p.slugVisitante()) && a.equals(p.slugCasa()));
+    }
+
+    private PartidaVM applyEspnScore(PartidaVM p, ESEvent e) {
+        var comp = e.comp();
+        if (comp == null) return p;
+
+        ESCompetitor homeComp = comp.competitors().stream().filter(ESCompetitor::isHome).findFirst().orElse(null);
+        ESCompetitor awayComp = comp.competitors().stream().filter(c -> !c.isHome()).findFirst().orElse(null);
+        if (homeComp == null || awayComp == null) return p;
+
+        String nameHome = homeComp.team() != null ? homeComp.team().displayName() : "";
+        boolean homeIsHome = ENGLISH_TO_SLUG.getOrDefault(nameHome.toLowerCase(Locale.ROOT), "")
+                .equals(p.slugCasa());
+
+        Integer golsCasa      = homeIsHome ? homeComp.scoreInt() : awayComp.scoreInt();
+        Integer golsVisitante = homeIsHome ? awayComp.scoreInt() : homeComp.scoreInt();
+
+        PartidaVM.StatusPartida status = p.status();
+        if (comp.status() != null && comp.status().type() != null) {
+            if (comp.status().type().isLive())     status = AO_VIVO;
+            else if (comp.status().type().isFinished()) status = ENCERRADA;
+        }
+
+        log.warn("ESPN liveScore {}-{}: {}-{} [{}]",
+                p.slugCasa(), p.slugVisitante(), golsCasa, golsVisitante, status);
+
+        return new PartidaVM(
+                p.id(), p.selecaoCasa(), p.slugCasa(), p.bandeiraCasa(),
+                p.selecaoVisitante(), p.slugVisitante(), p.bandeiraVisitante(),
+                p.dataHora(), p.fase(), p.grupo(),
+                golsCasa, golsVisitante, p.golsCasaHT(), p.golsVisitanteHT(),
+                status, p.estadio(), p.cidade());
+    }
+
+    // ── Golos (OpenFootball) ─────────────────────────────────────────────────
+
+    public List<GoloVM> golosPartida(Long id) {
+        return findPartida(id)
+                .flatMap(p -> ofMatches2026.stream()
+                        .filter(m -> ofMatchMatchesPartida(m, p))
+                        .findFirst())
+                .map(this::buildGolos)
+                .orElse(List.of());
+    }
+
+    private boolean ofMatchMatchesPartida(OpenFootballClient.OFMatch m, PartidaVM p) {
+        if (m.team1() == null || m.team2() == null) return false;
+        String slugHome = ENGLISH_TO_SLUG.get(m.team1().toLowerCase(Locale.ROOT));
+        String slugAway = ENGLISH_TO_SLUG.get(m.team2().toLowerCase(Locale.ROOT));
+        return p.slugCasa().equals(slugHome) && p.slugVisitante().equals(slugAway);
+    }
+
+    private List<GoloVM> buildGolos(OpenFootballClient.OFMatch m) {
+        List<GoloVM> golos = new ArrayList<>();
+        if (m.goals1() != null)
+            m.goals1().forEach(g -> golos.add(new GoloVM(g.name(), g.minute(),
+                    Boolean.TRUE.equals(g.penalty()), Boolean.TRUE.equals(g.og()), true)));
+        if (m.goals2() != null)
+            m.goals2().forEach(g -> golos.add(new GoloVM(g.name(), g.minute(),
+                    Boolean.TRUE.equals(g.penalty()), Boolean.TRUE.equals(g.og()), false)));
+        golos.sort(Comparator.comparingInt(GoloVM::minuteInt));
+        return golos;
     }
 
     // ── API pública ──────────────────────────────────────────────────────────

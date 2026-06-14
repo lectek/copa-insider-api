@@ -11,7 +11,7 @@ PREPARE stmt FROM @add_col; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 -- Preços EUR psicológicos (sem conversão automática de BRL)
 UPDATE copa_produto SET preco_eur = 3.99 WHERE slug = 'guia-selecao-portugal';
 UPDATE copa_produto SET preco_eur = 3.99 WHERE slug = 'guia-selecao-brasil';
-UPDATE copa_produto SET preco_eur = 1.99 WHERE slug = 'historico-confronto';
+UPDATE copa_produto SET preco_eur = 4.90 WHERE slug = 'historico-confronto';
 UPDATE copa_produto SET preco_eur = 2.49 WHERE slug = 'copa-em-20-factos';
 UPDATE copa_produto SET preco_eur = 7.99 WHERE slug = 'copa-pass';
 

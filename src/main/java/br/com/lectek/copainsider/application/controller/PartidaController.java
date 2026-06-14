@@ -1,31 +1,66 @@
 package br.com.lectek.copainsider.application.controller;
 
 import br.com.lectek.copainsider.application.copa.Copa2026DataService;
+import br.com.lectek.copainsider.application.copa.PartidaVM;
+import br.com.lectek.copainsider.application.copa.vm.NotaJogadorVM;
+import br.com.lectek.copainsider.application.service.NotasJogadorService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Comparator;
+import java.util.List;
+
 @Controller
 public class PartidaController {
 
-    private final Copa2026DataService copaData;
+    private final Copa2026DataService  copaData;
+    private final NotasJogadorService  notasService;
 
-    public PartidaController(Copa2026DataService copaData) {
-        this.copaData = copaData;
+    public PartidaController(Copa2026DataService copaData, NotasJogadorService notasService) {
+        this.copaData     = copaData;
+        this.notasService = notasService;
     }
 
     @GetMapping("/partida/{id}")
-    public String partida(@PathVariable Long id, Model model) {
+    public String partida(@PathVariable Long id, HttpSession session, Model model) {
         return copaData.findPartida(id)
                 .map(partida -> {
-                    model.addAttribute("partida", partida);
-                    model.addAttribute("selecaoCasa",
-                            copaData.findSelecao(partida.slugCasa()).orElse(null));
-                    model.addAttribute("selecaoVisitante",
-                            copaData.findSelecao(partida.slugVisitante()).orElse(null));
+                    model.addAttribute("partida",          partida);
+                    model.addAttribute("selecaoCasa",      copaData.findSelecao(partida.slugCasa()).orElse(null));
+                    model.addAttribute("selecaoVisitante", copaData.findSelecao(partida.slugVisitante()).orElse(null));
+
+                    // Golos (OpenFootball — disponíveis para jogos encerrados)
+                    model.addAttribute("golos", copaData.golosPartida(id));
+
+                    // H2H histórico (partidas agendadas e encerradas)
+                    copaData.comparar(partida.slugCasa(), partida.slugVisitante())
+                            .ifPresent(h2h -> model.addAttribute("h2h", h2h));
+
+                    // Notas dos adeptos
+                    model.addAttribute("topCasa",      topJogadores(id, partida.slugCasa(),        session.getId()));
+                    model.addAttribute("topVisitante", topJogadores(id, partida.slugVisitante(),   session.getId()));
+
+                    // Outras partidas recentes encerradas
+                    List<PartidaVM> maisPartidas = copaData.listPartidas().stream()
+                            .filter(p -> !p.id().equals(id) && p.encerrada())
+                            .sorted(Comparator.comparing(PartidaVM::dataHora).reversed())
+                            .limit(4)
+                            .toList();
+                    model.addAttribute("maisPartidas", maisPartidas);
+
                     return "pages/site/partida";
                 })
                 .orElse("redirect:/calendario");
+    }
+
+    private List<NotaJogadorVM> topJogadores(Long jogoId, String selecaoSlug, String sessionId) {
+        return notasService.estado(jogoId, selecaoSlug, sessionId).stream()
+                .filter(NotaJogadorVM::votoMinimo)
+                .sorted(Comparator.comparingDouble(NotaJogadorVM::media).reversed())
+                .limit(5)
+                .toList();
     }
 }

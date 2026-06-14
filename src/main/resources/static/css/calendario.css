@@ -146,10 +146,14 @@ main { max-width: 960px; margin: 0 auto; padding: 0 1rem 4rem; }
     gap: .75rem;
     padding: .75rem 1.25rem;
     border-bottom: 1px solid var(--border);
-    transition: background .15s;
+    transition: background .15s, border-color .15s;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
 }
 .partida-row:last-child { border-bottom: none; }
-.partida-row:hover { background: var(--bg3); }
+.partida-row:hover { background: var(--bg3); border-left: 2px solid rgba(232,185,48,.4); padding-left: calc(1.25rem - 2px); }
+.partida-row:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 
 .partida-date {
     display: flex;

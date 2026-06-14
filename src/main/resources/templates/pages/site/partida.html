@@ -2,8 +2,8 @@
 <html lang="pt" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/public-head :: head(
-    ${partida.selecaoCasa() + ' vs ' + partida.selecaoVisitante()},
-    'Detalhes e estatísticas da partida na Copa do Mundo 2026.',
+    ${partida.selecaoCasa() + ' vs ' + partida.selecaoVisitante() + ' — Copa 2026'},
+    'Detalhes, golos e histórico da partida na Copa do Mundo 2026.',
     '/img/og-copa.webp',
     'calendario',
     '/css/partida.css')}"></head>
@@ -14,124 +14,321 @@
 
 <main>
 
-    <a th:href="@{/calendario}" class="back-link">← Voltar ao calendário</a>
+<a th:href="@{/calendario}" class="back-link">← Calendário</a>
 
-    <!-- Cabeçalho da partida -->
-    <section class="match-header">
-        <div class="match-meta-top">
-            <span class="fase-badge" th:text="${partida.fase()}"></span>
-            <span th:if="${partida.grupo() != null}" class="grupo-badge" th:text="'Grupo ' + ${partida.grupo()}"></span>
-            <span class="status-badge"
-                  th:classappend="${partida.aoVivo()} ? ' live' : (${partida.encerrada()} ? ' done' : ' upcoming')"
-                  th:text="${partida.aoVivo()} ? 'AO VIVO' : (${partida.encerrada()} ? 'ENCERRADO' : 'AGENDADO')"></span>
+<!-- ══ CABEÇALHO DA PARTIDA ══════════════════════════════════════════════ -->
+<section class="match-header"
+         th:classappend="${partida.aoVivo()} ? ' match-header--live' :
+                          (${partida.encerrada()} ? ' match-header--done' : '')">
+
+    <div class="match-meta-top">
+        <span class="fase-badge" th:text="${partida.fase()}"></span>
+        <span th:if="${partida.grupo() != null}" class="grupo-badge"
+              th:text="'Grupo ' + ${partida.grupo()}"></span>
+        <span class="status-badge"
+              th:classappend="${partida.aoVivo()} ? ' live' : (${partida.encerrada()} ? ' done' : ' upcoming')"
+              th:text="${partida.aoVivo()} ? '🔴 AO VIVO' : (${partida.encerrada()} ? 'ENCERRADO' : 'AGENDADO')"></span>
+    </div>
+
+    <div class="match-scoreboard">
+        <div class="match-team">
+            <span class="match-flag" th:text="${partida.bandeiraCasa()}"></span>
+            <a th:href="@{/selecoes/{slug}(slug=${partida.slugCasa()})}"
+               class="match-team-name" th:text="${partida.selecaoCasa()}"></a>
         </div>
 
-        <div class="match-scoreboard">
-            <!-- Casa -->
-            <div class="match-team">
-                <span class="match-flag" th:text="${partida.bandeiraCasa()}"></span>
-                <a th:href="@{/selecoes/{slug}(slug=${partida.slugCasa()})}"
-                   class="match-team-name" th:text="${partida.selecaoCasa()}"></a>
+        <div class="match-center">
+            <!-- Resultado final -->
+            <div th:if="${partida.temResultado()}" class="placar-block">
+                <span class="placar-num" th:text="${partida.golsCasa()}"></span>
+                <span class="placar-sep">:</span>
+                <span class="placar-num" th:text="${partida.golsVisitante()}"></span>
             </div>
+            <div th:if="${partida.temHalfTime()}" class="placar-ht">
+                Intervalo: <span th:text="${partida.placarHT()}"></span>
+            </div>
+            <!-- Horário (jogo não encerrado) -->
+            <div th:if="${!partida.temResultado()}" class="horario-block">
+                <span class="horario-hora"
+                      th:text="${#temporals.format(partida.dataHora(), 'HH:mm')}"></span>
+                <span class="horario-data"
+                      th:text="${#temporals.format(partida.dataHora(), 'dd MMM yyyy')}"></span>
+            </div>
+        </div>
 
-            <!-- Placar / horário -->
-            <div class="match-center">
-                <div th:if="${partida.temResultado()}" class="placar-live">
-                    <span th:text="${partida.golsCasa()}"></span>
-                    <span class="placar-sep">:</span>
-                    <span th:text="${partida.golsVisitante()}"></span>
+        <div class="match-team match-team-right">
+            <span class="match-flag" th:text="${partida.bandeiraVisitante()}"></span>
+            <a th:href="@{/selecoes/{slug}(slug=${partida.slugVisitante()})}"
+               class="match-team-name" th:text="${partida.selecaoVisitante()}"></a>
+        </div>
+    </div>
+
+    <div class="match-venue">
+        <span th:text="${partida.estadio()}"></span>
+        <span class="venue-sep" th:if="${partida.estadio() != null and partida.cidade() != null}">·</span>
+        <span th:text="${partida.cidade()}"></span>
+        <span class="venue-sep">·</span>
+        <span th:text="${#temporals.format(partida.dataHora(), 'dd/MM/yyyy')}"></span>
+    </div>
+</section>
+
+<!-- ══ AÇÕES RÁPIDAS ═════════════════════════════════════════════════════ -->
+<div class="match-actions">
+    <a th:href="@{/jogo/{id}/sala(id=${partida.id()})}" class="action-btn action-btn--primary">
+        💬 Sala do Jogo
+    </a>
+    <a th:href="@{/jogo/{id}/notas(id=${partida.id()})}" class="action-btn">
+        ⭐ Notas ao Vivo
+    </a>
+    <a th:href="@{/segunda-tela/{id}(id=${partida.id()})}" class="action-btn">
+        📱 2ª Tela
+    </a>
+    <a th:href="@{/jogo/{id}/resumo(id=${partida.id()})}"
+       th:if="${partida.encerrada()}" class="action-btn action-btn--green">
+        📊 Resumo Completo
+    </a>
+</div>
+
+<!-- ══ CONTEÚDO PRINCIPAL (2 colunas no desktop) ═════════════════════════ -->
+<div class="match-body">
+
+    <!-- ── COLUNA ESQUERDA ─────────────────────────────────────────────── -->
+    <div class="match-col-main">
+
+        <!-- GOLOS (jogo encerrado) -->
+        <section class="match-section" th:if="${partida.encerrada() and !golos.isEmpty()}">
+            <h2 class="section-title">⚽ Marcadores</h2>
+            <div class="goals-list">
+                <div class="goal-item" th:each="g : ${golos}">
+                    <!-- Marcadores da casa (alinhados à esquerda) -->
+                    <div th:if="${g.isCasa()}" class="goal-home">
+                        <span class="goal-player" th:text="${g.jogador()}"></span>
+                        <span class="goal-icon" th:text="${g.icone()}"></span>
+                        <span class="goal-min" th:text="|${g.minuto()}'|"></span>
+                    </div>
+                    <!-- Marcadores visitante (alinhados à direita) -->
+                    <div th:if="${!g.isCasa()}" class="goal-away">
+                        <span class="goal-min" th:text="|${g.minuto()}'|"></span>
+                        <span class="goal-icon" th:text="${g.icone()}"></span>
+                        <span class="goal-player" th:text="${g.jogador()}"></span>
+                    </div>
                 </div>
-                <div th:if="${!partida.temResultado()}" class="horario-block">
-                    <span class="horario-hora" th:text="${#temporals.format(partida.dataHora(), 'HH:mm')}"></span>
-                    <span class="horario-data" th:text="${#temporals.format(partida.dataHora(), 'dd MMM yyyy')}"></span>
+            </div>
+        </section>
+
+        <!-- SEM GOLOS REGISTADOS (jogo encerrado mas sem dados) -->
+        <section class="match-section" th:if="${partida.encerrada() and golos.isEmpty()}">
+            <h2 class="section-title">⚽ Marcadores</h2>
+            <p class="empty-note">Marcadores ainda não registados — os dados são atualizados pelo OpenFootball.</p>
+        </section>
+
+        <!-- NOTAS DOS ADEPTOS (jogo encerrado) -->
+        <section class="match-section" th:if="${partida.encerrada()}">
+            <h2 class="section-title">⭐ Melhores avaliados pelos adeptos</h2>
+            <div class="ratings-grid">
+                <div class="ratings-col">
+                    <div class="ratings-header">
+                        <span th:text="${partida.bandeiraCasa()}"></span>
+                        <span th:text="${partida.selecaoCasa()}"></span>
+                    </div>
+                    <p th:if="${topCasa.isEmpty()}" class="empty-note">
+                        Sem votos suficientes (mín. 10 por jogador).
+                    </p>
+                    <div th:each="j, iter : ${topCasa}" class="rating-row">
+                        <span class="rating-pos" th:text="${iter.index + 1} + 'º'"></span>
+                        <span class="rating-name" th:text="${j.nome()}"></span>
+                        <span class="rating-pos-label" th:text="${j.posicaoLabel()}"></span>
+                        <span class="rating-score"
+                              th:text="${#numbers.formatDecimal(j.media(), 1, 1)}"></span>
+                    </div>
+                </div>
+                <div class="ratings-col">
+                    <div class="ratings-header">
+                        <span th:text="${partida.bandeiraVisitante()}"></span>
+                        <span th:text="${partida.selecaoVisitante()}"></span>
+                    </div>
+                    <p th:if="${topVisitante.isEmpty()}" class="empty-note">
+                        Sem votos suficientes (mín. 10 por jogador).
+                    </p>
+                    <div th:each="j, iter : ${topVisitante}" class="rating-row">
+                        <span class="rating-pos" th:text="${iter.index + 1} + 'º'"></span>
+                        <span class="rating-name" th:text="${j.nome()}"></span>
+                        <span class="rating-pos-label" th:text="${j.posicaoLabel()}"></span>
+                        <span class="rating-score"
+                              th:text="${#numbers.formatDecimal(j.media(), 1, 1)}"></span>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Visitante -->
-            <div class="match-team match-team-right">
-                <span class="match-flag" th:text="${partida.bandeiraVisitante()}"></span>
-                <a th:href="@{/selecoes/{slug}(slug=${partida.slugVisitante()})}"
-                   class="match-team-name" th:text="${partida.selecaoVisitante()}"></a>
-            </div>
-        </div>
-
-        <div class="match-venue">
-            <span th:text="${partida.estadio()}"></span>
-            <span class="venue-sep">·</span>
-            <span th:text="${partida.cidade()}"></span>
-        </div>
-    </section>
-
-    <!-- Seleções envolvidas -->
-    <section class="selecoes-info" th:if="${selecaoCasa != null or selecaoVisitante != null}">
-        <div class="sel-card" th:if="${selecaoCasa != null}">
-            <div class="sel-card-top">
-                <span th:text="${selecaoCasa.bandeira()}"></span>
-                <div>
-                    <span class="sel-card-nome" th:text="${selecaoCasa.nome()}"></span>
-                    <span class="sel-card-conf" th:text="${selecaoCasa.confederacao()}"></span>
+        <!-- PRÉ-JOGO: COUNTDOWN + CTA (jogo agendado) -->
+        <section class="match-section" th:if="${partida.agendada()}">
+            <h2 class="section-title">⏰ Data e hora</h2>
+            <div class="upcoming-card">
+                <div class="upcoming-date"
+                     th:text="${#temporals.format(partida.dataHora(), 'dd MMM yyyy')} + ' — ' + ${#temporals.format(partida.dataHora(), 'HH:mm')}">
+                </div>
+                <div class="upcoming-venue"
+                     th:text="${(partida.estadio() != null ? partida.estadio() + ' · ' : '') + (partida.cidade() != null ? partida.cidade() : '')}">
+                </div>
+                <div class="upcoming-cta">
+                    <a th:href="@{/jogo/{id}/sala(id=${partida.id()})}" class="action-btn action-btn--primary">
+                        Entrar na Sala do Jogo →
+                    </a>
                 </div>
             </div>
-            <div class="sel-chips">
-                <span class="chip"><span class="chip-l">Participações</span><span class="chip-v" th:text="${selecaoCasa.participacoes()}"></span></span>
-                <span class="chip"><span class="chip-l">Melhor</span><span class="chip-v" th:text="${selecaoCasa.melhorResultado()}"></span></span>
+        </section>
+
+        <!-- OUTROS RESULTADOS RECENTES -->
+        <section class="match-section" th:if="${!maisPartidas.isEmpty()}">
+            <h2 class="section-title">📋 Outros resultados recentes</h2>
+            <div class="recent-grid">
+                <a th:each="p : ${maisPartidas}"
+                   th:href="@{/partida/{id}(id=${p.id()})}"
+                   class="recent-card">
+                    <div class="recent-score" th:text="${p.placar()}"></div>
+                    <div class="recent-teams"
+                         th:text="${p.bandeiraCasa() + ' ' + p.selecaoCasa() + '  ×  ' + p.bandeiraVisitante() + ' ' + p.selecaoVisitante()}">
+                    </div>
+                    <div class="recent-meta"
+                         th:text="${p.fase() + (p.cidade() != null ? ' · ' + p.cidade() : '')}">
+                    </div>
+                </a>
             </div>
-            <a th:href="@{/selecoes/{slug}(slug=${selecaoCasa.slug()})}" class="sel-link">Ver seleção →</a>
-        </div>
+        </section>
 
-        <div class="vs-divider">VS</div>
+    </div>
 
-        <div class="sel-card" th:if="${selecaoVisitante != null}">
-            <div class="sel-card-top">
-                <span th:text="${selecaoVisitante.bandeira()}"></span>
-                <div>
-                    <span class="sel-card-nome" th:text="${selecaoVisitante.nome()}"></span>
-                    <span class="sel-card-conf" th:text="${selecaoVisitante.confederacao()}"></span>
+    <!-- ── COLUNA DIREITA (H2H) ────────────────────────────────────────── -->
+    <div class="match-col-side" th:if="${h2h != null}">
+
+        <!-- H2H (para jogos com histórico) -->
+        <section class="match-section" th:if="${h2h.temHistorico()}">
+            <h2 class="section-title">⚔️ Histórico direto</h2>
+            <div class="h2h-card">
+                <!-- Barra de vitórias -->
+                <div class="h2h-names">
+                    <span th:text="${h2h.selecao1().bandeira() + ' ' + h2h.selecao1().nome()}"></span>
+                    <span class="h2h-emp-label">Empates</span>
+                    <span th:text="${h2h.selecao2().nome() + ' ' + h2h.selecao2().bandeira()}"></span>
+                </div>
+                <div class="h2h-numbers">
+                    <span class="h2h-num h2h-num--blue" th:text="${h2h.vitorias1()}"></span>
+                    <span class="h2h-num h2h-num--mid" th:text="${h2h.empates()}"></span>
+                    <span class="h2h-num h2h-num--red" th:text="${h2h.vitorias2()}"></span>
+                </div>
+                <div class="h2h-bar" th:if="${h2h.totalJogos() > 0}">
+                    <div class="h2h-bar-s1"
+                         th:style="'width:' + ${h2h.pct1()} + '%'"></div>
+                    <div class="h2h-bar-emp"
+                         th:style="'width:' + ${(h2h.empates() * 100 / h2h.totalJogos())} + '%'"></div>
+                    <div class="h2h-bar-s2"
+                         th:style="'width:' + ${(100 - h2h.pct1() - (h2h.empates() * 100 / h2h.totalJogos()))} + '%'"></div>
+                </div>
+                <div class="h2h-summary"
+                     th:text="${h2h.totalJogos()} + ' jogos · ' + ${h2h.golsTotal1()} + '–' + ${h2h.golsTotal2()} + ' em golos'">
+                </div>
+
+                <!-- Probabilidade (para jogos agendados) -->
+                <div class="h2h-prob" th:if="${partida.agendada() and h2h.totalJogos() > 0}">
+                    <div class="h2h-prob-title">Probabilidade histórica</div>
+                    <div class="h2h-prob-bars">
+                        <div class="h2h-prob-item">
+                            <span class="h2h-prob-label" th:text="${h2h.selecao1().nome()}"></span>
+                            <div class="h2h-prob-bar-wrap">
+                                <div class="h2h-prob-fill h2h-prob-fill--blue"
+                                     th:style="'width:' + ${h2h.pct1()} + '%'"></div>
+                            </div>
+                            <span class="h2h-prob-pct" th:text="${h2h.pct1()} + '%'"></span>
+                        </div>
+                        <div class="h2h-prob-item">
+                            <span class="h2h-prob-label">Empate</span>
+                            <div class="h2h-prob-bar-wrap">
+                                <div class="h2h-prob-fill h2h-prob-fill--grey"
+                                     th:style="'width:' + ${(h2h.empates() * 100 / h2h.totalJogos())} + '%'"></div>
+                            </div>
+                            <span class="h2h-prob-pct"
+                                  th:text="${(h2h.empates() * 100 / h2h.totalJogos())} + '%'"></span>
+                        </div>
+                        <div class="h2h-prob-item">
+                            <span class="h2h-prob-label" th:text="${h2h.selecao2().nome()}"></span>
+                            <div class="h2h-prob-bar-wrap">
+                                <div class="h2h-prob-fill h2h-prob-fill--red"
+                                     th:style="'width:' + ${(h2h.vitorias2() * 100 / h2h.totalJogos())} + '%'"></div>
+                            </div>
+                            <span class="h2h-prob-pct"
+                                  th:text="${(h2h.vitorias2() * 100 / h2h.totalJogos())} + '%'"></span>
+                        </div>
+                    </div>
+                    <p class="h2h-prob-note">* Baseado em Copas do Mundo, Copa América e UEFA Euro</p>
+                </div>
+
+                <!-- Últimos confrontos -->
+                <div class="h2h-title-sub">Últimos confrontos</div>
+                <div class="h2h-list">
+                    <div th:each="enc, i : ${h2h.encontros()}" th:if="${i.index < 5}"
+                         class="h2h-item">
+                        <span class="h2h-item-comp"
+                              th:text="${enc.competicao() + ' ' + enc.ano()}"></span>
+                        <span class="h2h-item-teams"
+                              th:text="${enc.bandeira1() + ' ' + enc.selecao1() + ' vs ' + enc.bandeira2() + ' ' + enc.selecao2()}"></span>
+                        <span class="h2h-item-score"
+                              th:text="${enc.gols1() + '-' + enc.gols2()}"></span>
+                    </div>
                 </div>
             </div>
-            <div class="sel-chips">
-                <span class="chip"><span class="chip-l">Participações</span><span class="chip-v" th:text="${selecaoVisitante.participacoes()}"></span></span>
-                <span class="chip"><span class="chip-l">Melhor</span><span class="chip-v" th:text="${selecaoVisitante.melhorResultado()}"></span></span>
-            </div>
-            <a th:href="@{/selecoes/{slug}(slug=${selecaoVisitante.slug()})}" class="sel-link">Ver seleção →</a>
-        </div>
-    </section>
+        </section>
 
-    <!-- Ferramentas ao vivo -->
-    <section class="cta-section" style="margin-bottom:0;">
-        <div class="cta-card" style="display:flex;flex-direction:column;gap:14px;">
-            <p style="font-size:16px;font-weight:800;">📺 Acompanha este jogo em directo</p>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
-                <a th:href="@{/jogo/{id}/sala(id=${partida.id()})}" class="cta-btn-big"
-                   style="text-decoration:none;padding:10px 20px;font-size:14px;">
-                    💬 Sala do Jogo
-                </a>
-                <a th:href="@{/jogo/{id}/notas(id=${partida.id()})}" class="cta-btn-big"
-                   style="text-decoration:none;padding:10px 20px;font-size:14px;background:#1a1508;border:1px solid #b8922a;color:#e8b930;">
-                    ⭐ Notas ao Vivo
-                </a>
-                <a th:href="@{/segunda-tela/{id}(id=${partida.id()})}" class="cta-btn-big"
-                   style="text-decoration:none;padding:10px 20px;font-size:14px;background:#1a1a1a;border:1px solid #3a3a3a;color:#e8e8f0;">
-                    📱 Segunda Tela
-                </a>
-                <a th:href="@{/jogo/{id}/resumo(id=${partida.id()})}"
-                   th:if="${partida.encerrada()}"
-                   class="cta-btn-big"
-                   style="text-decoration:none;padding:10px 20px;font-size:14px;background:#0f1a0f;border:1px solid #2a5a2a;color:#4ade80;">
-                    📊 Ver Resumo
-                </a>
+        <!-- Sem histórico (estreias) -->
+        <section class="match-section" th:if="${!h2h.temHistorico()}">
+            <h2 class="section-title">⚔️ Histórico direto</h2>
+            <div class="h2h-card">
+                <p class="empty-note" style="text-align:center;padding:20px 0;">
+                    Não há encontros anteriores registados entre estas selecções.
+                </p>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- CTA guia -->
-    <section class="cta-section">
-        <div class="cta-card">
-            <p>Análise completa deste jogo por <strong>€1,00</strong></p>
-            <span>Escalações prováveis, histórico de confrontos, estatísticas e muito mais</span>
-            <a href="/" class="cta-btn-big">Obter guia pré-jogo</a>
-        </div>
-    </section>
+        <!-- Seleções -->
+        <section class="match-section sel-section">
+            <h2 class="section-title">🏴 As seleções</h2>
+            <div class="sel-duo">
+                <div class="sel-card" th:if="${selecaoCasa != null}">
+                    <div class="sel-flag" th:text="${selecaoCasa.bandeira()}"></div>
+                    <div class="sel-name" th:text="${selecaoCasa.nome()}"></div>
+                    <div class="sel-conf" th:text="${selecaoCasa.confederacao()}"></div>
+                    <div class="sel-stat">
+                        <span class="sel-stat-l">Participações</span>
+                        <span class="sel-stat-v" th:text="${selecaoCasa.participacoes()}"></span>
+                    </div>
+                    <div class="sel-stat">
+                        <span class="sel-stat-l">Melhor</span>
+                        <span class="sel-stat-v" th:text="${selecaoCasa.melhorResultado()}"></span>
+                    </div>
+                    <a th:href="@{/selecoes/{slug}(slug=${selecaoCasa.slug()})}"
+                       class="sel-link">Ver perfil →</a>
+                </div>
+                <div class="sel-card" th:if="${selecaoVisitante != null}">
+                    <div class="sel-flag" th:text="${selecaoVisitante.bandeira()}"></div>
+                    <div class="sel-name" th:text="${selecaoVisitante.nome()}"></div>
+                    <div class="sel-conf" th:text="${selecaoVisitante.confederacao()}"></div>
+                    <div class="sel-stat">
+                        <span class="sel-stat-l">Participações</span>
+                        <span class="sel-stat-v" th:text="${selecaoVisitante.participacoes()}"></span>
+                    </div>
+                    <div class="sel-stat">
+                        <span class="sel-stat-l">Melhor</span>
+                        <span class="sel-stat-v" th:text="${selecaoVisitante.melhorResultado()}"></span>
+                    </div>
+                    <a th:href="@{/selecoes/{slug}(slug=${selecaoVisitante.slug()})}"
+                       class="sel-link">Ver perfil →</a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+</div>
 
 </main>
 

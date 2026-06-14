@@ -71,6 +71,8 @@ public class OpenFootballClient {
             String team1,
             String team2,
             OFScore score,
+            @JsonProperty("goals1") List<OFGoal> goals1,
+            @JsonProperty("goals2") List<OFGoal> goals2,
             String group,
             String ground
     ) {
@@ -85,5 +87,13 @@ public class OpenFootballClient {
     public record OFScore(
             @JsonProperty("ft") List<Integer> ft,
             @JsonProperty("ht") List<Integer> ht
+    ) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record OFGoal(
+            String name,
+            String minute,
+            @JsonProperty("penalty") Boolean penalty,
+            @JsonProperty("og") Boolean og
     ) {}
 }

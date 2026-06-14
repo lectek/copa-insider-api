@@ -181,18 +181,24 @@
                 <!-- Card destacado (primeiro tipo) -->
                 <div th:if="${iter.index == 0}" class="card card--highlight">
                     <div class="card__top">
-                        <span class="card__tag">MAIS PROCURADO</span>
+                        <span class="card__tag">MELHOR VALOR</span>
                         <span class="card__price"
                               th:text="'desde €' + ${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}"
                               th:if="${p.categoriaComMultiplos()}">desde €3,99</span>
                         <span class="card__price"
                               th:unless="${p.categoriaComMultiplos()}"
-                              th:text="'€' + ${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">€3,99</span>
+                              th:text="'€' + ${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">€7,99</span>
                     </div>
                     <h2 class="card__title"
-                        th:text="${p.categoriaComMultiplos()} ? 'Guia da Tua Seleção' : ${p.nome()}">Guia da Tua Seleção</h2>
+                        th:text="${p.categoriaComMultiplos()} ? 'Guia da Tua Seleção' : ${p.nome()}">Copa Pass — Acesso Total</h2>
                     <p class="card__desc"
-                       th:text="${p.categoriaComMultiplos()} ? 'A história completa da tua seleção nas Copas: Portugal, Brasil e mais países disponíveis.' : ${p.descricao()}">Descrição</p>
+                       th:text="${p.descricao()}">Todos os guias de seleções, duelos históricos e análises premium.</p>
+                    <ul class="card__features">
+                        <li>Todos os guias de seleções incluídos</li>
+                        <li>Copa em 20 Factos + Histórico do Confronto</li>
+                        <li>Acesso vitalício a todo o conteúdo</li>
+                        <li>Entregue imediatamente após compra</li>
+                    </ul>
                     <!-- Categoria com múltiplos: explorar lista -->
                     <a th:if="${p.categoriaComMultiplos()}"
                        th:href="@{/loja(tipo=${p.tipo().name()})}"
