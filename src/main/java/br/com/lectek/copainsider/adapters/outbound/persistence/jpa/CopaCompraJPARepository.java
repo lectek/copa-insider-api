@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public interface CopaCompraJPARepository extends JpaRepository<CopaCompraEntity, Long> {
     Optional<CopaCompraEntity> findByTransacao(String transacao);
+    Optional<CopaCompraEntity> findByTransacaoIgnoreCase(String transacao);
     boolean existsByTransacao(String transacao);
     Page<CopaCompraEntity> findAllByOrderByCriadoEmDesc(Pageable pageable);
     List<CopaCompraEntity> findTop5ByOrderByCriadoEmDesc();

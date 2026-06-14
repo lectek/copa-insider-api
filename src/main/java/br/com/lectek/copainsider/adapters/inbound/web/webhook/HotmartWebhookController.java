@@ -105,6 +105,7 @@ public class HotmartWebhookController {
         // ── Guardar compra ─────────────────────────────────────────────────
         CopaCompraEntity compra = new CopaCompraEntity(
                 transacao, email, nome, produtoNome, valor, moeda, "APPROVED");
+        compra.setProdutoSlug(produtoSlug);
         compraRepo.save(compra);
 
         if (email == null || email.isBlank()) {
@@ -129,7 +130,7 @@ public class HotmartWebhookController {
         if (usuarioRepo.existsByEmailIgnoreCase(email)) {
             return new ContaCriada(email, nome, "", "", false, null);
         }
-        String senhaTemp = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+        String senhaTemp = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         try {
             var u = userAccountService.register(nome, email, cpf, senhaTemp);
             if (fone != null) u.setTelefone(fone);

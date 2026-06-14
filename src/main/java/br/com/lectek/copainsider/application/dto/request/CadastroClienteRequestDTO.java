@@ -15,6 +15,7 @@ public class CadastroClienteRequestDTO {
     private String otpDeliveryId;
     private String otpToken;
     private String website;
+    private String codigoAcesso;
 
     public String getNome() {
         return nome;
@@ -102,5 +103,13 @@ public class CadastroClienteRequestDTO {
 
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+    public String getCodigoAcesso() {
+        return codigoAcesso;
+    }
+
+    public void setCodigoAcesso(String codigoAcesso) {
+        this.codigoAcesso = codigoAcesso;
     }
 }

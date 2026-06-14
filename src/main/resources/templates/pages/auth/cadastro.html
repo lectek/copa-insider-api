@@ -47,6 +47,18 @@
                        autocomplete="new-password" required/>
             </div>
 
+            <div class="ci-form__field">
+                <label class="ci-form__label" for="codigoAcesso">
+                    Código de acesso
+                    <span class="ci-form__optional">(opcional)</span>
+                </label>
+                <input id="codigoAcesso" name="codigoAcesso" type="text"
+                       class="ci-form__input" placeholder="XXXXXXXXXXXXXXXX"
+                       maxlength="20" autocomplete="off"
+                       style="text-transform:uppercase;letter-spacing:.12em;font-family:monospace;font-size:15px;"/>
+                <span class="ci-form__hint">Recebeste um código após a compra? Introduz aqui para ativar o acesso.</span>
+            </div>
+
             <button type="submit" class="ci-btn ci-btn--primary ci-btn--full">Criar conta</button>
         </form>
 

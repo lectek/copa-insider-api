@@ -158,6 +158,20 @@
     box-shadow: 0 0 0 3px rgba(232,185,48,.1);
 }
 
+.ci-form__optional {
+    font-weight: 400;
+    color: #555;
+    text-transform: none;
+    font-size: .75rem;
+    margin-left: .3rem;
+}
+
+.ci-form__hint {
+    font-size: .75rem;
+    color: #555;
+    line-height: 1.4;
+}
+
 /* ── Forgot link ────────────────────────────────────── */
 .ci-auth-card__forgot {
     font-size: .8rem;

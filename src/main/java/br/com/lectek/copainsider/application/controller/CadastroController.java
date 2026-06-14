@@ -4,6 +4,7 @@ import br.com.lectek.copainsider.application.core.exception.CpfDuplicadoExceptio
 import br.com.lectek.copainsider.application.core.exception.EmailDuplicadoException;
 import br.com.lectek.copainsider.application.dto.request.CadastroClienteRequestDTO;
 import br.com.lectek.copainsider.application.port.inbound.RegistrationAppService;
+import br.com.lectek.copainsider.application.service.CopaAcessoService;
 import br.com.lectek.copainsider.application.service.otp.OtpServicePort;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -24,11 +25,15 @@ public class CadastroController {
     private static final String ERROR_MESSAGE = "errorMessage";
 
     private final RegistrationAppService registrationService;
-    private final OtpServicePort otpService;
+    private final OtpServicePort         otpService;
+    private final CopaAcessoService      acessoService;
 
-    public CadastroController(RegistrationAppService registrationService, OtpServicePort otpService) {
+    public CadastroController(RegistrationAppService registrationService,
+                               OtpServicePort otpService,
+                               CopaAcessoService acessoService) {
         this.registrationService = registrationService;
-        this.otpService = otpService;
+        this.otpService          = otpService;
+        this.acessoService       = acessoService;
     }
 
     @GetMapping
@@ -65,8 +70,20 @@ public class CadastroController {
             return REDIRECT_CADASTRO;
         }
 
-        // Conta criada — tenta enviar OTP de verificação
         String email = dto.getEmail().trim().toLowerCase();
+
+        // Tentar resgatar código de acesso, se fornecido
+        String codigo = dto.getCodigoAcesso();
+        if (codigo != null && !codigo.isBlank()) {
+            try {
+                var resultado = acessoService.resgatar(email, codigo.trim());
+                log.info("[cadastro] resgate código '{}' para {} → {}", codigo, email, resultado);
+            } catch (Exception ex) {
+                log.warn("[cadastro] falha ao resgatar código '{}' para {}: {}", codigo, email, ex.getMessage());
+            }
+        }
+
+        // OTP de verificação de email
         try {
             OtpServicePort.StartResult otp = otpService.start("email", email, null);
             session.setAttribute("pendingVerifEmail", email);
@@ -77,7 +94,6 @@ public class CadastroController {
             }
             return "redirect:/verificar-email";
         } catch (Exception ex) {
-            // E-mail desabilitado ou SMTP indisponível → ativa conta diretamente
             log.warn("OTP indisponível para {}; ativando conta sem verificação", email);
             registrationService.ativarEmailVerificado(email);
             ra.addFlashAttribute("successMessage", "Conta criada! Faça login para entrar.");

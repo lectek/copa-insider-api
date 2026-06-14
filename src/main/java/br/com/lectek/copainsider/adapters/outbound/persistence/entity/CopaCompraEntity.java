@@ -24,6 +24,9 @@ public class CopaCompraEntity {
     @Column(name = "produto_nome", length = 200)
     private String produtoNome;
 
+    @Column(name = "produto_slug", length = 100)
+    private String produtoSlug;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
 
@@ -62,6 +65,8 @@ public class CopaCompraEntity {
     public String getCompradorEmail() { return compradorEmail; }
     public String getCompradorNome() { return compradorNome; }
     public String getProdutoNome() { return produtoNome; }
+    public String getProdutoSlug() { return produtoSlug; }
+    public void setProdutoSlug(String slug) { this.produtoSlug = slug; }
     public BigDecimal getValor() { return valor; }
     public String getMoeda() { return moeda; }
     public String getStatus() { return status; }
