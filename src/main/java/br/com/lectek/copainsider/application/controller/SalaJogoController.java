@@ -1,39 +1,53 @@
 package br.com.lectek.copainsider.application.controller;
 
+import br.com.lectek.copainsider.adapters.outbound.persistence.repository.UsuarioRepository;
 import br.com.lectek.copainsider.application.copa.Copa2026DataService;
 import br.com.lectek.copainsider.application.service.SalaJogoService;
 import br.com.lectek.copainsider.application.service.NotasJogadorService;
 import br.com.lectek.copainsider.application.service.SalaJogoSseRegistry;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import java.util.List;
 import java.util.Map;
 
 @Controller
 public class SalaJogoController {
 
-    private final Copa2026DataService copaData;
-    private final SalaJogoService chatService;
-    private final NotasJogadorService notasService;
-    private final SalaJogoSseRegistry sse;
+    private final Copa2026DataService  copaData;
+    private final SalaJogoService      chatService;
+    private final NotasJogadorService  notasService;
+    private final SalaJogoSseRegistry  sse;
+    private final UsuarioRepository    usuarioRepo;
 
     public SalaJogoController(Copa2026DataService copaData,
                               SalaJogoService chatService,
                               NotasJogadorService notasService,
-                              SalaJogoSseRegistry sse) {
-        this.copaData     = copaData;
-        this.chatService  = chatService;
+                              SalaJogoSseRegistry sse,
+                              UsuarioRepository usuarioRepo) {
+        this.copaData    = copaData;
+        this.chatService = chatService;
         this.notasService = notasService;
-        this.sse          = sse;
+        this.sse         = sse;
+        this.usuarioRepo = usuarioRepo;
     }
 
     @GetMapping("/jogo/{id}/sala")
-    public String sala(@PathVariable Long id, HttpSession session, Model model) {
+    public String sala(@PathVariable Long id,
+                       Authentication auth,
+                       HttpSession session, Model model) {
+        if (auth == null || !auth.isAuthenticated()
+                || "anonymousUser".equals(auth.getName())) {
+            return "redirect:/auth/login?redirect=/jogo/" + id + "/sala";
+        }
         return copaData.findPartida(id).map(partida -> {
-            model.addAttribute("partida",  partida);
+            model.addAttribute("partida",   partida);
             model.addAttribute("historico", chatService.historico(id));
             model.addAttribute("notasCasa",
                     notasService.estado(id, partida.slugCasa(), session.getId()));
@@ -44,6 +58,7 @@ public class SalaJogoController {
             model.addAttribute("selecaoVisitante",
                     copaData.findSelecao(partida.slugVisitante()).orElse(null));
             model.addAttribute("sessionId", session.getId());
+            model.addAttribute("nomeUtilizador", nomeParaChat(auth.getName()));
             return "pages/site/sala-do-jogo";
         }).orElse("redirect:/calendario");
     }
@@ -53,12 +68,17 @@ public class SalaJogoController {
     @GetMapping("/jogo/{id}/notas")
     public String notas(@PathVariable Long id,
                         @RequestParam(defaultValue = "") String selecao,
+                        Authentication auth,
                         HttpSession session, Model model) {
+        if (auth == null || !auth.isAuthenticated()
+                || "anonymousUser".equals(auth.getName())) {
+            return "redirect:/auth/login?redirect=/jogo/" + id + "/notas";
+        }
         return copaData.findPartida(id).map(partida -> {
             String slug = selecao.isBlank() ? partida.slugCasa() : selecao;
-            model.addAttribute("partida",  partida);
+            model.addAttribute("partida",      partida);
             model.addAttribute("selecaoAtiva", slug);
-            model.addAttribute("jogadores", notasService.estado(id, slug, session.getId()));
+            model.addAttribute("jogadores",    notasService.estado(id, slug, session.getId()));
             model.addAttribute("selecaoCasa",
                     copaData.findSelecao(partida.slugCasa()).orElse(null));
             model.addAttribute("selecaoVisitante",
@@ -72,11 +92,14 @@ public class SalaJogoController {
 
     @PostMapping("/api/jogo/{id}/chat")
     @ResponseBody
-    public Map<String, Object> enviarMensagem(@PathVariable Long id,
-                                              @RequestParam String nome,
-                                              @RequestParam String mensagem,
-                                              HttpSession session) {
+    public Map<String, Object> enviarMensagem(
+            @PathVariable Long id,
+            @RequestParam String mensagem,
+            @AuthenticationPrincipal UserDetails user,
+            HttpSession session) {
+        if (user == null) return Map.of("ok", false, "erro", "Login obrigatório");
         try {
+            String nome = nomeParaChat(user.getUsername());
             var vm = chatService.enviar(id, session.getId(), nome, mensagem);
             return Map.of("ok", true, "id", vm.id());
         } catch (IllegalArgumentException e) {
@@ -119,5 +142,15 @@ public class SalaJogoController {
     @GetMapping("/api/jogo/{id}/notas/stream")
     public SseEmitter notasStream(@PathVariable Long id) {
         return sse.subscribeNotasEmitter(id);
+    }
+
+    // ── Helpers ──
+
+    private String nomeParaChat(String email) {
+        return usuarioRepo.findByEmailIgnoreCase(email)
+                .map(u -> u.getNome() != null && !u.getNome().isBlank()
+                        ? u.getNome().split(" ")[0]   // primeiro nome apenas
+                        : email.split("@")[0])
+                .orElseGet(() -> email.split("@")[0]);
     }
 }

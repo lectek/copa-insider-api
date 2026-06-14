@@ -276,9 +276,6 @@
         </div>
 
         <div class="chat-form">
-            <div class="chat-nome-row">
-                <input type="text" id="chatNome" class="chat-input" placeholder="O teu nome" maxlength="40"/>
-            </div>
             <div class="chat-msg-row">
                 <input type="text" id="chatMsg" class="chat-input" placeholder="Escreve uma mensagem…" maxlength="300"
                        onkeydown="if(event.key==='Enter')enviar()"/>
@@ -328,14 +325,12 @@
     }
 
     function enviar() {
-        const nome = document.getElementById('chatNome').value.trim();
-        const msg  = document.getElementById('chatMsg').value.trim();
-        if (!nome || !msg) return;
-        localStorage.setItem('copa_chat_nome', nome);
+        const msg = document.getElementById('chatMsg').value.trim();
+        if (!msg) return;
         fetch('/api/jogo/' + JOGO_ID + '/chat', {
             method:'POST',
             headers:{'Content-Type':'application/x-www-form-urlencoded'},
-            body:'nome='+encodeURIComponent(nome)+'&mensagem='+encodeURIComponent(msg)
+            body:'mensagem='+encodeURIComponent(msg)
         }).then(r => r.json()).then(d => {
             if (d.ok) document.getElementById('chatMsg').value = '';
         });
@@ -387,10 +382,6 @@
     function escHtml(s) {
         return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
-
-    // Restore name
-    const stored = localStorage.getItem('copa_chat_nome');
-    if (stored) document.getElementById('chatNome').value = stored;
 
     // Auto-scroll chat on load
     const chatBox = document.getElementById('chatMessages');

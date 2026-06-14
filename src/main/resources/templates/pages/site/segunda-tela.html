@@ -137,7 +137,6 @@
         <button class="react-btn" onclick="reagir('🎉')">🎉</button>
     </div>
     <div class="chat-form">
-        <input id="chatNome" class="chat-input" placeholder="O teu nome" maxlength="40"/>
         <div class="chat-row">
             <input id="chatMsg" class="chat-input" placeholder="Mensagem…" maxlength="300"
                    onkeydown="if(event.key==='Enter')enviar()"/>
@@ -207,9 +206,6 @@
     const reacaoCount = {'⚽':0,'🔥':0,'👏':0,'😱':0,'💛':0,'💪':0,'🎉':0};
     const rcIds = {'⚽':'rc-golo','🔥':'rc-fogo','👏':'rc-palmas','😱':'rc-wow','💛':'rc-amor','💪':'rc-forca','🎉':'rc-festa'};
 
-    // Restore name
-    const stored = localStorage.getItem('copa_chat_nome');
-    if (stored) document.getElementById('chatNome').value = stored;
     document.getElementById('chatMsgs').scrollTop = 999999;
 
     // ── SSE ──
@@ -305,13 +301,11 @@
     }
 
     function enviar() {
-        const nome = document.getElementById('chatNome').value.trim();
-        const msg  = document.getElementById('chatMsg').value.trim();
-        if (!nome || !msg) return;
-        localStorage.setItem('copa_chat_nome', nome);
+        const msg = document.getElementById('chatMsg').value.trim();
+        if (!msg) return;
         fetch('/api/jogo/' + JOGO_ID + '/chat', {
             method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
-            body:'nome='+encodeURIComponent(nome)+'&mensagem='+encodeURIComponent(msg)
+            body:'mensagem='+encodeURIComponent(msg)
         }).then(r=>r.json()).then(d=>{ if(d.ok) document.getElementById('chatMsg').value=''; });
     }
 
