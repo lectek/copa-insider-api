@@ -15,7 +15,7 @@
 <!-- Hero -->
 <section class="av-hero">
     <div class="av-hero__inner">
-        <div class="av-live-pill">
+        <div class="av-live-pill" th:if="${not #lists.isEmpty(aoVivo)}">
             <span class="av-dot"></span> AO VIVO AGORA
         </div>
         <h1>Jogos <span class="av-hl">em Direto</span></h1>
