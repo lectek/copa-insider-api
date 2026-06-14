@@ -22,6 +22,8 @@
     </a>
 
     <div class="nav-links">
+        <a th:href="@{/ao-vivo}" class="nav-live-link"
+           th:classappend="${pagina == 'ao-vivo'} ? 'active'">🔴 Ao Vivo</a>
         <a th:href="@{/calendario}" th:text="#{copa.nav.calendario}"
            th:classappend="${pagina == 'calendario'} ? 'active'">Calendário</a>
         <a th:href="@{/selecoes}" th:text="#{copa.nav.selecoes}"

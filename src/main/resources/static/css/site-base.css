@@ -82,6 +82,18 @@ a { text-decoration: none; color: inherit; }
 .nav-links a:hover,
 .nav-links a.active { color: var(--gold); }
 
+.nav-live-link {
+    color: #ff4444 !important; /* NOSONAR — live red badge, intentional */
+    font-weight: 700 !important;
+    animation: nav-live-pulse 2s ease infinite;
+}
+.nav-live-link:hover,
+.nav-live-link.active { color: #ff6666 !important; animation: none; } /* NOSONAR */
+@keyframes nav-live-pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .7; }
+}
+
 .navbar__actions {
     display: flex;
     align-items: center;
