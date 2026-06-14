@@ -3,15 +3,14 @@ package br.com.lectek.copainsider.application.controller;
 import br.com.lectek.copainsider.adapters.outbound.persistence.entity.CopaProdutoEntity;
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CopaProdutoJPARepository;
 import br.com.lectek.copainsider.application.copa.CopaProdutoVM;
-import br.com.lectek.copainsider.domain.enums.TipoCopaProduto;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Locale;
 
 @Controller
 public class SiteController {
@@ -22,27 +21,17 @@ public class SiteController {
         this.produtoRepo = produtoRepo;
     }
 
+    @GetMapping("/onde-assistir")
+    public String ondeAssistir() {
+        return "pages/site/onde-assistir";
+    }
+
     @GetMapping("/")
     public String landing(Model model, Locale locale) {
-        List<CopaProdutoEntity> todos = produtoRepo.findByAtivoTrueOrderByOrdemAsc();
-
-        // Agrupa por tipo → 1 card representativo por tipo (para a landing)
-        Map<TipoCopaProduto, List<CopaProdutoEntity>> porTipo = todos.stream()
-                .collect(Collectors.groupingBy(
-                        CopaProdutoEntity::getTipo,
-                        LinkedHashMap::new,
-                        Collectors.toList()));
-
-        List<CopaProdutoVM> produtos = porTipo.entrySet().stream()
-                .map(entry -> {
-                    List<CopaProdutoEntity> grupo = entry.getValue();
-                    CopaProdutoEntity rep = grupo.get(0); // representativo: primeiro por ordem
-                    boolean multiplos = grupo.size() > 1;
-                    return toVM(rep, locale, multiplos, grupo.size());
-                })
-                .limit(4)
+        List<CopaProdutoVM> produtos = produtoRepo.findByAtivoTrueOrderByOrdemAsc()
+                .stream()
+                .map(p -> toVM(p, locale, false, 1))
                 .toList();
-
         model.addAttribute("produtos", produtos);
         return "pages/site/landing";
     }

@@ -209,6 +209,23 @@ main { max-width: 960px; margin: 0 auto; padding: 0 1rem 4rem; }
 .estadio { font-size: .7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
 
 
+/* ── Live card actions ───────────────────────────────── */
+.live-card-actions {
+    display: flex; gap: .5rem; margin-top: .75rem;
+}
+.live-action-btn {
+    flex: 1; text-align: center;
+    padding: .45rem .75rem; border-radius: 6px;
+    font-size: .75rem; font-weight: 700; text-decoration: none;
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text); transition: border-color .2s;
+}
+.live-action-btn:hover { border-color: var(--gold); color: var(--gold); }
+.live-action-btn--tv {
+    background: rgba(232,185,48,.08); border-color: rgba(232,185,48,.25); color: var(--gold);
+}
+.live-action-btn--tv:hover { background: rgba(232,185,48,.18); }
+
 /* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 640px) {
     .hero h1 { font-size: 1.6rem; }

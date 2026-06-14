@@ -46,6 +46,10 @@
                 <div class="match-meta">
                     <span th:text="${p.estadio() + ', ' + p.cidade()}"></span>
                 </div>
+                <div class="live-card-actions">
+                    <a th:href="@{/partida/{id}(id=${p.id()})}" class="live-action-btn">Ver detalhes</a>
+                    <a th:href="@{/onde-assistir}" class="live-action-btn live-action-btn--tv">📺 Onde Assistir</a>
+                </div>
             </div>
         </div>
     </section>

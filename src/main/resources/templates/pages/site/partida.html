@@ -87,6 +87,9 @@
        th:if="${partida.encerrada()}" class="action-btn action-btn--green">
         📊 Resumo Completo
     </a>
+    <a th:href="@{/onde-assistir}" th:if="${!partida.encerrada()}" class="action-btn">
+        📺 Onde Assistir
+    </a>
 </div>
 
 <!-- ══ CONTEÚDO PRINCIPAL (2 colunas no desktop) ═════════════════════════ -->

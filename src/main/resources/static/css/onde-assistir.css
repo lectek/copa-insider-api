@@ -1,0 +1,114 @@
+/* ─── onde-assistir.css ──────────────────────────────────────────────────── */
+
+/* ── Hero com banner TV ─────────────────────────────────────────────────── */
+.oa-hero {
+    background:
+        linear-gradient(rgba(8,8,18,.72) 0%, rgba(8,8,18,.95) 100%),
+        url('/img/tv-banner-bg.jpg') center 35% / cover no-repeat;
+    padding: 5rem 1.5rem 3.5rem;
+    text-align: center;
+    position: relative;
+}
+
+.oa-hero__inner { max-width: 700px; margin: 0 auto; }
+
+.oa-live-dot {
+    width: 10px; height: 10px;
+    background: #ef4444; border-radius: 50%;
+    margin: 0 auto 1rem;
+    animation: pulse-dot 1.4s infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239,68,68,.5); }
+    50%       { opacity: .8; box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+}
+
+.oa-hero__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900; margin-bottom: .5rem;
+}
+.oa-hl { color: var(--gold); }
+.oa-hero__sub { color: var(--muted); font-size: 1rem; }
+
+/* ── Layout principal ────────────────────────────────────────────────────── */
+.oa-main {
+    max-width: 1100px; margin: 0 auto;
+    padding: 2.5rem 1.25rem 5rem;
+    display: flex; flex-direction: column; gap: 2.5rem;
+}
+
+/* ── Secção por país ─────────────────────────────────────────────────────── */
+.oa-country__header {
+    display: flex; align-items: center; gap: .6rem;
+    margin-bottom: 1rem;
+}
+.oa-flag  { font-size: 1.8rem; line-height: 1; }
+.oa-country__header h2 {
+    font-size: 1.1rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .06em;
+}
+
+/* ── Grid de cards ───────────────────────────────────────────────────────── */
+.oa-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.oa-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem;
+    text-decoration: none; display: flex; flex-direction: column; gap: .5rem;
+    transition: border-color .2s, transform .15s;
+}
+.oa-card:hover { transform: translateY(-2px); }
+.oa-card--free:hover  { border-color: rgba(74,222,128,.4); }
+.oa-card--paid:hover  { border-color: rgba(232,185,48,.4); }
+
+.oa-card__top {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: .5rem;
+}
+.oa-card__name { font-size: .95rem; font-weight: 700; color: var(--text); }
+
+.oa-badge {
+    font-size: .62rem; font-weight: 800;
+    padding: 2px 8px; border-radius: 3px;
+    letter-spacing: .06em; text-transform: uppercase;
+    white-space: nowrap; flex-shrink: 0;
+}
+.oa-badge--free { background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.3); } /* NOSONAR */
+.oa-badge--paid { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(232,185,48,.3); }
+
+.oa-card__desc { font-size: .82rem; color: var(--muted); line-height: 1.5; flex: 1; }
+.oa-card__link { font-size: .8rem; font-weight: 700; color: var(--gold); margin-top: .25rem; }
+
+/* ── Nota legal ──────────────────────────────────────────────────────────── */
+.oa-legal {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem 1.25rem;
+    font-size: .78rem; color: var(--muted); line-height: 1.5;
+}
+
+/* ── CTA final ───────────────────────────────────────────────────────────── */
+.oa-cta {
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    padding: 2rem 1rem;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.oa-cta p { color: var(--muted); font-size: .9rem; }
+.oa-cta__btn {
+    background: var(--gold); color: #000;
+    font-weight: 800; font-size: .9rem;
+    padding: .75rem 2rem; border-radius: var(--radius-sm);
+    text-decoration: none; transition: opacity .2s;
+}
+.oa-cta__btn:hover { opacity: .88; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .oa-hero { padding: 3.5rem 1rem 2.5rem; }
+    .oa-cards { grid-template-columns: 1fr; }
+}

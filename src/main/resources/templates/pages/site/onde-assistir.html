@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/public-head :: head(
+    'Onde Assistir Copa 2026 — Links Oficiais',
+    'Todos os canais e plataformas de streaming para ver a Copa do Mundo 2026 ao vivo. Links gratuitos e pagos por país.',
+    '/img/og-copa.webp',
+    'calendario',
+    '/css/onde-assistir.css')}"></head>
+<body>
+
+<nav th:replace="~{fragments/site-nav :: nav('calendario')}"></nav>
+<th:block th:replace="~{fragments/site-nav :: lang-js}"></th:block>
+
+<!-- Hero banner -->
+<section class="oa-hero">
+    <div class="oa-hero__inner">
+        <div class="oa-live-dot"></div>
+        <h1 class="oa-hero__title">Onde Assistir <span class="oa-hl">Copa 2026</span></h1>
+        <p class="oa-hero__sub">Links oficiais de transmissão por país — gratuitos e pagos</p>
+    </div>
+</section>
+
+<main class="oa-main">
+
+    <!-- BRASIL -->
+    <section class="oa-country">
+        <div class="oa-country__header">
+            <span class="oa-flag">🇧🇷</span>
+            <h2>Brasil</h2>
+        </div>
+        <div class="oa-cards">
+            <a href="https://globoplay.globo.com" target="_blank" rel="noopener" class="oa-card oa-card--free">
+                <div class="oa-card__top">
+                    <span class="oa-card__name">Globo / Globoplay</span>
+                    <span class="oa-badge oa-badge--free">GRÁTIS</span>
+                </div>
+                <p class="oa-card__desc">TV aberta + streaming online. Cobre todos os jogos do Brasil e grandes duelos.</p>
+                <span class="oa-card__link">Assistir agora →</span>
+            </a>
+            <a href="https://www.cazetv.com.br" target="_blank" rel="noopener" class="oa-card oa-card--free">
+                <div class="oa-card__top">
+                    <span class="oa-card__name">CazéTV (YouTube)</span>
+                    <span class="oa-badge oa-badge--free">GRÁTIS</span>
+                </div>
+                <p class="oa-card__desc">Transmissão online gratuita com comentários ao vivo. Sem necessidade de conta.</p>
+                <span class="oa-card__link">Assistir agora →</span>
+            </a>
+            <a href="https://sportv.globo.com" target="_blank" rel="noopener" class="oa-card oa-card--paid">
+                <div class="oa-card__top">
+                    <span class="oa-card__name">SporTV</span>
+                    <span class="oa-badge oa-badge--paid">CABO/SATÉLITE</span>
+                </div>
+                <p class="oa-card__desc">Canal por assinatura com cobertura completa, bastidores e análises.</p>
+                <span class="oa-card__link">Ver canais →</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- PORTUGAL -->
+    <section class="oa-country">
+        <div class="oa-country__header">
+            <span class="oa-flag">🇵🇹</span>
+            <h2>Portugal</h2>
+        </div>
+        <div class="oa-cards">
+            <a href="https://www.rtp.pt/play" target="_blank" rel="noopener" class="oa-card oa-card--free">
+                <div class="oa-card__top">
+                    <span class="oa-card__name">RTP 1 / RTP Play</span>
+                    <span class="oa-badge oa-badge--free">GRÁTIS</span>
+                </div>
+                <p class="oa-card__desc">Televisão pública portuguesa. Transmite os jogos de Portugal e selecionados.</p>
+                <span class="oa-card__link">Assistir agora →</span>
+            </a>
+            <a href="https://www.sporttv.pt" target="_blank" rel="noopener" class="oa-card oa-card--paid">
+                <div class="oa-card__top">
+                    <span class="oa-card__name">Sport TV</span>
+                    <span class="oa-badge oa-badge--paid">ASSINATURA</span>
+                </div>
+                <p class="oa-card__desc">Cobertura completa de todos os 104 jogos da Copa 2026.</p>
+                <span class="oa-card__link">Ver pacotes →</span>
+            </a>
+            <a href="https://www.tvi.iol.pt" target="_blank" rel="noopener" class="oa-card oa-card--free">
+                <div class="oa-card__top">
+                    <span class="oa-card__name">TVI / CNN Portugal</span>
+                    <span class="oa-badge oa-badge--free">TV ABERTA</span>
+                </div>
+                <p class="oa-card__desc">Canal generalista com cobertura selecionada e programas de análise.</p>
+                <span class="oa-card__link">Ver em direto →</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- INTERNACIONAL -->
+    <section class="oa-country">
+        <div class="oa-country__header">
+            <span class="oa-flag">🌍</span>
+            <h2>Internacional</h2>
+        </div>
+        <div class="oa-cards">
+            <a href="https://www.fifa.com/fifaplus" target="_blank" rel="noopener" class="oa-card oa-card--free">
+                <div class="oa-card__top">
+                    <span class="oa-card__name">FIFA+</span>
+                    <span class="oa-badge oa-badge--free">GRÁTIS</span>
+                </div>
+                <p class="oa-card__desc">Plataforma oficial da FIFA. Jogos ao vivo e a pedido em regiões selecionadas.</p>
+                <span class="oa-card__link">Assistir agora →</span>
+            </a>
+            <a href="https://www.foxsports.com" target="_blank" rel="noopener" class="oa-card oa-card--paid">
+                <div class="oa-card__top">
+                    <span class="oa-card__name">Fox Sports (EUA)</span>
+                    <span class="oa-badge oa-badge--paid">ASSINATURA</span>
+                </div>
+                <p class="oa-card__desc">Transmissão oficial nos EUA. Disponível em cabo e via Fubo/Hulu Live.</p>
+                <span class="oa-card__link">Ver opções →</span>
+            </a>
+            <a href="https://www.telemundo.com/deportes" target="_blank" rel="noopener" class="oa-card oa-card--free">
+                <div class="oa-card__top">
+                    <span class="oa-card__name">Telemundo (EUA)</span>
+                    <span class="oa-badge oa-badge--free">GRÁTIS (em espanhol)</span>
+                </div>
+                <p class="oa-card__desc">Transmissão gratuita em espanhol nos EUA, via TV aberta e online.</p>
+                <span class="oa-card__link">Assistir agora →</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- NOTA LEGAL -->
+    <div class="oa-legal">
+        <p>⚠️ Links de terceiros — a Copa Insider não detém direitos de transmissão. Verifica a disponibilidade no teu país antes de aceder.</p>
+    </div>
+
+    <!-- CTA sala do jogo -->
+    <div class="oa-cta">
+        <p>Enquanto assistis, entra na sala do jogo e comenta com outros adeptos em tempo real.</p>
+        <a th:href="@{/calendario}" class="oa-cta__btn">Ver jogos de hoje →</a>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
+
+</body>
+</html>
