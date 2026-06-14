@@ -116,6 +116,11 @@
 <!-- ── CHAT ── -->
 <div class="panel active" id="panel-chat">
     <div class="chat-msgs" id="chatMsgs">
+        <div th:if="${historico == null or historico.isEmpty()}"
+             style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:#555;font-size:13px;text-align:center;padding:20px;">
+            <span style="font-size:2rem;">💬</span>
+            <span>Nenhuma mensagem ainda.<br/>Sê o primeiro a comentar!</span>
+        </div>
         <div class="msg" th:each="m : ${historico}">
             <span class="msg__nome" th:text="${m.autorNome()}"></span>
             <span th:text="${m.mensagem()}"></span>
