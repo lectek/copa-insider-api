@@ -32,10 +32,19 @@ public class PartidaController {
                     model.addAttribute("selecaoCasa",      copaData.findSelecao(partida.slugCasa()).orElse(null));
                     model.addAttribute("selecaoVisitante", copaData.findSelecao(partida.slugVisitante()).orElse(null));
 
-                    // Golos (OpenFootball — disponíveis para jogos encerrados)
-                    model.addAttribute("golos", copaData.golosPartida(id));
+                    if (partida.aoVivo()) {
+                        // Stats ao vivo da ESPN (golos com minuto, cartões, posse, remates, faltas)
+                        copaData.findEspnId(partida.slugCasa(), partida.slugVisitante())
+                                .ifPresent(espnId -> {
+                                    var ls = copaData.liveStats(espnId, partida.slugCasa());
+                                    if (ls != null) model.addAttribute("liveStats", ls);
+                                });
+                    } else {
+                        // Golos via OpenFootball (apenas para jogos encerrados)
+                        model.addAttribute("golos", copaData.golosPartida(id));
+                    }
 
-                    // H2H histórico (partidas agendadas e encerradas)
+                    // H2H histórico
                     copaData.comparar(partida.slugCasa(), partida.slugVisitante())
                             .ifPresent(h2h -> model.addAttribute("h2h", h2h));
 

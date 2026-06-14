@@ -203,6 +203,8 @@ public class Copa2026DataService {
     private volatile List<SelecaoVM>  selecoes  = buildSelecoes(List.of());
     private final    List<JogadorVM>  jogadores;
     private final    List<RivalidadeVM> rivalidades;
+    // slugCasa|slugVisitante → ESPN event ID (atualizado a cada liveRefresh)
+    private volatile java.util.Map<String, String> espnIdMap = java.util.Map.of();
 
     public Copa2026DataService(OpenFootballClient client, EspnScoreClient espnClient) {
         this.client     = client;
@@ -245,18 +247,96 @@ public class Copa2026DataService {
                     .toList();
             if (copa.isEmpty()) return;
 
+            java.util.Map<String, String> newIdMap = new java.util.HashMap<>();
+
             partidas = partidas.stream().map(p -> {
                 if (p.dataHora() == null) return p;
                 if (!p.dataHora().toLocalDate().equals(LocalDate.now())) return p;
                 return copa.stream()
                         .filter(e -> espnMatchesBySlug(e, p))
                         .findFirst()
-                        .map(e -> applyEspnScore(p, e))
+                        .map(e -> {
+                            String key = p.slugCasa() + "|" + p.slugVisitante();
+                            if (e.id() != null) newIdMap.put(key, e.id());
+                            return applyEspnScore(p, e);
+                        })
                         .orElse(p);
             }).toList();
+
+            if (!newIdMap.isEmpty()) espnIdMap = java.util.Map.copyOf(newIdMap);
         } catch (Exception e) {
             log.warn("overlayLiveScores falhou: {} ({})", e.getMessage(), e.getClass().getSimpleName(), e);
         }
+    }
+
+    public Optional<String> findEspnId(String slugCasa, String slugVisitante) {
+        String id = espnIdMap.get(slugCasa + "|" + slugVisitante);
+        if (id == null) id = espnIdMap.get(slugVisitante + "|" + slugCasa);
+        return Optional.ofNullable(id);
+    }
+
+    public LiveStatsVM liveStats(String espnId, String slugCasa) {
+        EspnScoreClient.ESSummary summary = espnClient.fetchSummary(espnId);
+        if (summary == null) return null;
+
+        // Minuto atual
+        String minuto = "";
+        EspnScoreClient.ESHeaderCompetition hComp = summary.headerComp();
+        if (hComp != null && hComp.status() != null && hComp.status().type() != null)
+            minuto = hComp.status().type().minuto();
+
+        // Eventos (golos, cartões)
+        List<EspnScoreClient.ESDetail> eventos = hComp != null && hComp.details() != null
+                ? hComp.details() : List.of();
+
+        // Estatísticas por equipa
+        String possCasa = "0", possVis = "0";
+        String remCasa = "0", remVis = "0";
+        String remAlvoCasa = "0", remAlvoVis = "0";
+        String faltasCasa = "0", faltasVis = "0";
+        String amarCasa = "0", amarVis = "0";
+        String vermCasa = "0", vermVis = "0";
+        String cantoCasa = "0", cantoVis = "0";
+        String offCasa = "0", offVis = "0";
+
+        if (summary.boxscore() != null && summary.boxscore().teams() != null) {
+            for (EspnScoreClient.ESBoxTeam bt : summary.boxscore().teams()) {
+                if (bt.team() == null) continue;
+                boolean isCasa = isCasaByTeam(bt, slugCasa);
+                if (isCasa) {
+                    possCasa   = bt.stat("possessionPct");
+                    remCasa    = bt.stat("totalShots");
+                    remAlvoCasa= bt.stat("shotsOnTarget");
+                    faltasCasa = bt.stat("fouls");
+                    amarCasa   = bt.stat("yellowCards");
+                    vermCasa   = bt.stat("redCards");
+                    cantoCasa  = bt.stat("corners");
+                    offCasa    = bt.stat("offsides");
+                } else {
+                    possVis    = bt.stat("possessionPct");
+                    remVis     = bt.stat("totalShots");
+                    remAlvoVis = bt.stat("shotsOnTarget");
+                    faltasVis  = bt.stat("fouls");
+                    amarVis    = bt.stat("yellowCards");
+                    vermVis    = bt.stat("redCards");
+                    cantoVis   = bt.stat("corners");
+                    offVis     = bt.stat("offsides");
+                }
+            }
+        }
+
+        return new LiveStatsVM(minuto, possCasa, possVis, remCasa, remVis,
+                remAlvoCasa, remAlvoVis, faltasCasa, faltasVis,
+                amarCasa, amarVis, vermCasa, vermVis,
+                cantoCasa, cantoVis, offCasa, offVis, eventos);
+    }
+
+    private boolean isCasaByTeam(EspnScoreClient.ESBoxTeam bt, String slugCasa) {
+        if (bt.isHome()) return true;
+        String nome = bt.team().displayName();
+        if (nome == null) return false;
+        String slug = ENGLISH_TO_SLUG.get(nome.toLowerCase(Locale.ROOT));
+        return slugCasa.equals(slug);
     }
 
     private boolean espnMatchesBySlug(ESEvent e, PartidaVM p) {

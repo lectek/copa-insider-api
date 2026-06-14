@@ -1,0 +1,347 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   ao-vivo.css — Página de jogos ao vivo / Copa Insider
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Variáveis ───────────────────────────────────────────────────────────── */
+:root {
+    --c-gold:    #f0c040;
+    --c-red:     #e03030;
+    --c-green:   #22c55e;
+    --c-blue:    #3b82f6;
+    --c-bg:      #06060e;
+    --c-surface: #0e0e1a;
+    --c-card:    #12121f;
+    --c-border:  rgba(255,255,255,.08);
+    --c-text:    #e8e8f0;
+    --c-muted:   #888;
+    --c-live:    #ff3b3b;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+}
+
+/* ── Dot animado ─────────────────────────────────────────────────────────── */
+.av-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--c-live);
+    animation: av-pulse 1.4s ease infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+@keyframes av-pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: .5; transform: scale(.75); }
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.av-hero {
+    background: linear-gradient(135deg, #0a0a18 0%, #12122a 100%);
+    border-bottom: 1px solid var(--c-border);
+    padding: 56px 20px 40px;
+    text-align: center;
+}
+.av-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,59,59,.12);
+    border: 1px solid rgba(255,59,59,.35);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--c-live);
+    margin-bottom: 20px;
+}
+.av-hero h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: #fff;
+}
+.av-hl { color: var(--c-gold); }
+.av-hero__sub {
+    margin-top: 10px;
+    color: var(--c-muted);
+    font-size: .9rem;
+}
+
+/* ── Main container ──────────────────────────────────────────────────────── */
+.av-main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+/* ── Section label ───────────────────────────────────────────────────────── */
+.av-section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--c-live);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+.av-section-label--muted {
+    color: var(--c-muted);
+}
+.av-section-label--muted .av-dot {
+    background: var(--c-muted);
+    animation: none;
+}
+
+/* ── Live cards grid ─────────────────────────────────────────────────────── */
+.av-live-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.av-live-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--c-card);
+    border: 1px solid rgba(255,59,59,.25);
+    border-radius: 14px;
+    padding: 18px 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform .18s, border-color .18s, box-shadow .18s;
+}
+.av-live-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,59,59,.6);
+    box-shadow: 0 8px 28px rgba(255,59,59,.12);
+}
+
+/* Card head */
+.av-live-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.av-fase {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    color: var(--c-muted);
+    text-transform: uppercase;
+}
+.av-badge-live {
+    font-size: .7rem;
+    font-weight: 700;
+    color: var(--c-live);
+    letter-spacing: .05em;
+}
+
+/* Scoreboard */
+.av-scoreboard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.av-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+}
+.av-team--right {
+    align-items: center;
+}
+.av-flag { font-size: 2.2rem; }
+.av-team-name {
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--c-text);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+.av-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    min-width: 70px;
+    justify-content: center;
+}
+.av-score-sep {
+    color: var(--c-muted);
+    font-weight: 300;
+}
+
+/* Card foot */
+.av-live-card__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--c-border);
+}
+.av-estadio {
+    font-size: .72rem;
+    color: var(--c-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 65%;
+}
+.av-cta-text {
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--c-gold);
+    white-space: nowrap;
+}
+
+/* ── Estado vazio ────────────────────────────────────────────────────────── */
+.av-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 16px;
+}
+.av-empty__icon { font-size: 3rem; }
+.av-empty h2    { font-size: 1.2rem; font-weight: 700; color: #fff; }
+.av-empty p     { color: var(--c-muted); font-size: .9rem; }
+.av-btn {
+    display: inline-block;
+    padding: 10px 24px;
+    background: var(--c-gold);
+    color: #000;
+    font-weight: 700;
+    font-size: .85rem;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-top: 6px;
+    transition: opacity .15s;
+}
+.av-btn:hover { opacity: .88; }
+
+/* ── Outros jogos hoje ───────────────────────────────────────────────────── */
+.av-today { display: flex; flex-direction: column; gap: 12px; }
+
+.av-today-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.av-today-row {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .15s, background .15s;
+}
+.av-today-row:hover {
+    border-color: rgba(240,192,64,.3);
+    background: rgba(240,192,64,.04);
+}
+
+.av-today-time {
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--c-gold);
+    text-align: center;
+}
+.av-today-teams {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .88rem;
+    color: var(--c-text);
+    flex-wrap: wrap;
+}
+.av-vs {
+    color: var(--c-muted);
+    font-size: .75rem;
+}
+.av-today-status { text-align: right; }
+.av-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+}
+.av-status-badge--upcoming {
+    background: rgba(59,130,246,.15);
+    color: var(--c-blue);
+}
+.av-status-badge--done {
+    background: rgba(136,136,136,.12);
+    color: var(--c-muted);
+}
+
+/* ── Links rápidos ───────────────────────────────────────────────────────── */
+.av-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.av-link-btn {
+    flex: 1;
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--c-text);
+    font-size: .88rem;
+    font-weight: 600;
+    gap: 8px;
+    transition: border-color .15s, color .15s;
+}
+.av-link-btn:hover {
+    border-color: var(--c-gold);
+    color: var(--c-gold);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 540px) {
+    .av-live-grid { grid-template-columns: 1fr; }
+    .av-today-row { grid-template-columns: 48px 1fr; }
+    .av-today-status { display: none; }
+    .av-hero { padding: 40px 16px 28px; }
+    .av-main { padding: 24px 16px 60px; }
+}

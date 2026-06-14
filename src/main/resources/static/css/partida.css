@@ -39,7 +39,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem 5rem; }
     font-size: .65rem; font-weight: 700; padding: 2px 8px;
     border-radius: 3px; letter-spacing: .06em; text-transform: uppercase;
 }
-.status-badge.live     { background: #ef4444; color: #fff; }
+.status-badge.live     { background: #ef4444; color: #fff; } /* NOSONAR — red badge, dark theme */
 .status-badge.done     { background: var(--bg3); color: #b0b0c0; border: 1px solid var(--border); } /* NOSONAR — dark theme, bg3 resolves to ~#1e1e2e */
 .status-badge.upcoming { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(232,185,48,.3); }
 
@@ -261,6 +261,124 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem 5rem; }
 .sel-stat-v { font-weight: 700; color: var(--gold); }
 .sel-link   { font-size: .78rem; color: var(--gold); font-weight: 600; text-decoration: none; transition: opacity .2s; }
 .sel-link:hover { opacity: .75; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Live Stats (ESPN — secção AO VIVO em partida.html)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Cabeçalho live */
+.live-minute {
+    display: inline-block;
+    margin-left: 10px;
+    background: rgba(255,59,59,.15);
+    color: #ff3b3b; /* NOSONAR — live red on near-black dark background */
+    border: 1px solid rgba(255,59,59,.35);
+    border-radius: 6px;
+    padding: 1px 8px;
+    font-size: .8rem;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+/* Timeline de eventos */
+.live-events {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: rgba(255,59,59,.05);
+    border: 1px solid rgba(255,59,59,.12);
+    border-radius: 10px;
+}
+.live-event {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: .88rem;
+    padding: 4px 0;
+}
+.live-event__min {
+    min-width: 38px;
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--muted); /* NOSONAR */
+    text-align: right;
+}
+.live-event__icon { font-size: 1rem; }
+.live-event__player { color: var(--text); font-weight: 500; } /* NOSONAR */
+
+/* Barra de posse */
+.live-poss {
+    margin-bottom: 20px;
+}
+.live-poss__label {
+    display: flex;
+    justify-content: space-between;
+    font-size: .78rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text); /* NOSONAR */
+}
+.live-poss__title {
+    color: var(--muted); /* NOSONAR */
+    font-weight: 500;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+.live-poss__bar {
+    display: flex;
+    height: 8px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(255,255,255,.05); /* NOSONAR */
+}
+.live-poss__fill {
+    height: 100%;
+    transition: width .4s ease;
+}
+.live-poss__fill--home { background: var(--gold); }     /* NOSONAR */
+.live-poss__fill--away { background: var(--blue, #3b82f6); } /* NOSONAR */
+
+/* Grelha de estatísticas */
+.live-stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.ls-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05); /* NOSONAR */
+}
+.ls-row:last-child { border-bottom: none; }
+
+.ls-val {
+    font-size: .95rem;
+    font-weight: 800;
+    text-align: center;
+}
+.ls-val--home { color: var(--gold); }      /* NOSONAR */
+.ls-val--away { color: #e8e8f0; }          /* NOSONAR */
+.ls-label {
+    font-size: .8rem;
+    color: var(--muted); /* NOSONAR */
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Nota de rodapé */
+.live-stats__note {
+    margin-top: 16px;
+    font-size: .7rem;
+    color: var(--muted); /* NOSONAR */
+    text-align: center;
+    opacity: .7;
+}
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {

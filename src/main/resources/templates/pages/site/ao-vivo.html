@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/public-head :: head(
+    'Jogos ao Vivo — Copa 2026',
+    'Acompanha em tempo real todos os jogos da Copa do Mundo 2026.',
+    '/img/og-copa.webp',
+    'calendario',
+    '/css/ao-vivo.css')}"></head>
+<body>
+
+<nav th:replace="~{fragments/site-nav :: nav('calendario')}"></nav>
+<th:block th:replace="~{fragments/site-nav :: lang-js}"></th:block>
+
+<!-- Hero -->
+<section class="av-hero">
+    <div class="av-hero__inner">
+        <div class="av-live-pill">
+            <span class="av-dot"></span> AO VIVO AGORA
+        </div>
+        <h1>Jogos <span class="av-hl">em Direto</span></h1>
+        <p class="av-hero__sub">Clica num jogo para ver todos os detalhes, golos e estatísticas</p>
+    </div>
+</section>
+
+<main class="av-main">
+
+    <!-- ── JOGOS AO VIVO ─────────────────────────────────────────────────── -->
+    <section th:if="${not #lists.isEmpty(aoVivo)}">
+        <div class="av-section-label">
+            <span class="av-dot"></span> A decorrer agora
+        </div>
+        <div class="av-live-grid">
+            <a th:each="p : ${aoVivo}"
+               th:href="@{/partida/{id}(id=${p.id()})}"
+               class="av-live-card">
+                <!-- Cabeçalho: fase + minuto -->
+                <div class="av-live-card__head">
+                    <span class="av-fase" th:text="${p.fase()}"></span>
+                    <span class="av-badge-live">🔴 AO VIVO</span>
+                </div>
+                <!-- Placar central -->
+                <div class="av-scoreboard">
+                    <div class="av-team">
+                        <span class="av-flag" th:text="${p.bandeiraCasa()}"></span>
+                        <span class="av-team-name" th:text="${p.selecaoCasa()}"></span>
+                    </div>
+                    <div class="av-score">
+                        <span th:text="${p.golsCasa() != null ? p.golsCasa() : '-'}"></span>
+                        <span class="av-score-sep">:</span>
+                        <span th:text="${p.golsVisitante() != null ? p.golsVisitante() : '-'}"></span>
+                    </div>
+                    <div class="av-team av-team--right">
+                        <span class="av-flag" th:text="${p.bandeiraVisitante()}"></span>
+                        <span class="av-team-name" th:text="${p.selecaoVisitante()}"></span>
+                    </div>
+                </div>
+                <!-- Rodapé: estadio + CTA -->
+                <div class="av-live-card__foot">
+                    <span class="av-estadio" th:text="${p.estadio() + (p.cidade() != null ? ' · ' + p.cidade() : '')}"></span>
+                    <span class="av-cta-text">Ver detalhes →</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Sem jogos ao vivo -->
+    <section th:if="${#lists.isEmpty(aoVivo)}" class="av-empty">
+        <div class="av-empty__icon">📺</div>
+        <h2>Nenhum jogo a decorrer agora</h2>
+        <p>Consulta abaixo os jogos de hoje ou vai ao calendário completo.</p>
+        <a th:href="@{/calendario}" class="av-btn">Ver calendário →</a>
+    </section>
+
+    <!-- ── OUTROS JOGOS DE HOJE ───────────────────────────────────────────── -->
+    <section th:if="${not #lists.isEmpty(hoje)}" class="av-today">
+        <div class="av-section-label av-section-label--muted">Outros jogos hoje</div>
+        <div class="av-today-list">
+            <a th:each="p : ${hoje}"
+               th:href="@{/partida/{id}(id=${p.id()})}"
+               class="av-today-row">
+                <div class="av-today-time"
+                     th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></div>
+                <div class="av-today-teams">
+                    <span th:text="${p.bandeiraCasa() + ' ' + p.selecaoCasa()}"></span>
+                    <span class="av-vs">×</span>
+                    <span th:text="${p.bandeiraVisitante() + ' ' + p.selecaoVisitante()}"></span>
+                </div>
+                <div class="av-today-status">
+                    <span class="av-status-badge av-status-badge--upcoming"
+                          th:if="${p.agendada()}">AGENDADO</span>
+                    <span class="av-status-badge av-status-badge--done"
+                          th:if="${p.encerrada()}" th:text="${p.placar()}"></span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Links rápidos -->
+    <div class="av-links">
+        <a th:href="@{/onde-assistir}" class="av-link-btn">📺 Onde Assistir</a>
+        <a th:href="@{/calendario}" class="av-link-btn">📅 Calendário Completo</a>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
+
+<!-- Auto-refresh a cada 60s quando há jogos ao vivo -->
+<script th:if="${not #lists.isEmpty(aoVivo)}">
+    setTimeout(() => location.reload(), 60000);
+</script>
+
+</body>
+</html>

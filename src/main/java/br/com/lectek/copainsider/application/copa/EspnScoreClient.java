@@ -1,6 +1,7 @@
 package br.com.lectek.copainsider.application.copa;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,15 +12,18 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 /**
- * Unofficial ESPN scoreboard API — no key needed, works from cloud servers.
- * Endpoint: site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard
+ * Unofficial ESPN scoreboard + summary API — no key needed.
+ * Scoreboard: site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard
+ * Summary:    site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event={id}
  */
 @Component
 public class EspnScoreClient {
 
     private static final Logger log = LoggerFactory.getLogger(EspnScoreClient.class);
-    private static final String URL =
+    private static final String SCOREBOARD =
             "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
+    private static final String SUMMARY =
+            "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=";
 
     private final RestTemplate rest;
     private final ObjectMapper  mapper;
@@ -29,9 +33,11 @@ public class EspnScoreClient {
         this.mapper = mapper;
     }
 
+    // ── Scoreboard (lista de jogos do dia) ──────────────────────────────────
+
     public List<ESEvent> fetchToday() {
         try {
-            String body = rest.getForObject(URL, String.class);
+            String body = rest.getForObject(SCOREBOARD, String.class);
             if (body == null) return List.of();
             ESResponse resp = mapper.readValue(body, ESResponse.class);
             return resp != null && resp.events() != null ? resp.events() : List.of();
@@ -41,7 +47,22 @@ public class EspnScoreClient {
         }
     }
 
-    // ── DTOs ─────────────────────────────────────────────────────────────────
+    // ── Summary (detalhes de um evento específico) ───────────────────────────
+
+    public ESSummary fetchSummary(String espnEventId) {
+        try {
+            String body = rest.getForObject(SUMMARY + espnEventId, String.class);
+            if (body == null) return null;
+            return mapper.readValue(body, ESSummary.class);
+        } catch (Exception e) {
+            log.warn("ESPN summary {} falhou: {}", espnEventId, e.getMessage());
+            return null;
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // DTOs — Scoreboard
+    // ══════════════════════════════════════════════════════════════════════════
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ESResponse(List<ESEvent> events) {}
@@ -56,28 +77,117 @@ public class EspnScoreClient {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ESCompetition(
             List<ESCompetitor> competitors,
-            ESStatus status
+            ESStatus status,
+            ESSituation situation,
+            List<ESDetail> details
     ) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record ESCompetitor(
-            String homeAway,
-            String score,
-            ESTeam team
-    ) {
+    public record ESCompetitor(String homeAway, String score, ESTeam team) {
         public boolean isHome() { return "home".equalsIgnoreCase(homeAway); }
         public int scoreInt()   { try { return Integer.parseInt(score); } catch (Exception e) { return 0; } }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record ESTeam(String displayName) {}
+    public record ESTeam(String id, String displayName, String abbreviation) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ESStatus(ESStatusType type) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record ESStatusType(String state, String name) {
+    public record ESStatusType(String state, String name, String displayClock, Integer period) {
         public boolean isLive()     { return "in".equalsIgnoreCase(state); }
         public boolean isFinished() { return "post".equalsIgnoreCase(state); }
+        public String minuto() {
+            if (displayClock != null && !displayClock.isBlank()) return displayClock;
+            return period != null ? (period == 1 ? "1ª Parte" : "2ª Parte") : "";
+        }
     }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESSituation(String displayClock, Integer period) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESDetail(
+            ESDetailType type,
+            ESClock clock,
+            ESTeam team,
+            List<ESAthlete> athletesInvolved,
+            Boolean scoringPlay,
+            Boolean yellowCard,
+            Boolean redCard,
+            Boolean ownGoal,
+            @JsonProperty("penaltyKick") Boolean penalty
+    ) {
+        public boolean isGolo()          { return Boolean.TRUE.equals(scoringPlay); }
+        public boolean isCartaoAmarelo() { return Boolean.TRUE.equals(yellowCard) && !Boolean.TRUE.equals(redCard); }
+        public boolean isCartaoVermelho(){ return Boolean.TRUE.equals(redCard); }
+        public boolean isOwnGoal()       { return Boolean.TRUE.equals(ownGoal); }
+        public boolean isPenalty()       { return Boolean.TRUE.equals(penalty); }
+        public String minuto()           { return clock != null ? clock.displayValue() : ""; }
+        public String jogadorNome() {
+            if (athletesInvolved == null || athletesInvolved.isEmpty()) return "";
+            return athletesInvolved.get(0).displayName();
+        }
+        public String tipoIcone() {
+            if (!isGolo()) {
+                if (isCartaoVermelho()) return "🟥";
+                if (isCartaoAmarelo()) return "🟨";
+                return "▶";
+            }
+            if (isOwnGoal())  return "⚽🔴";
+            if (isPenalty())  return "⚽(P)";
+            return "⚽";
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESDetailType(String id, String text) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESClock(String displayValue) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESAthlete(String displayName, String id) {}
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // DTOs — Summary
+    // ══════════════════════════════════════════════════════════════════════════
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESSummary(ESBoxscore boxscore, ESHeader header) {
+        public ESHeaderCompetition headerComp() {
+            if (header == null || header.competitions() == null || header.competitions().isEmpty()) return null;
+            return header.competitions().get(0);
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESBoxscore(List<ESBoxTeam> teams) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESBoxTeam(String homeAway, ESTeam team, List<ESStat> statistics) {
+        public boolean isHome() { return "home".equalsIgnoreCase(homeAway); }
+        public String stat(String name) {
+            if (statistics == null) return "0";
+            return statistics.stream()
+                    .filter(s -> name.equals(s.name()))
+                    .map(ESStat::displayValue)
+                    .findFirst().orElse("0");
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESStat(String name, String displayValue, String label) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESHeader(List<ESHeaderCompetition> competitions) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESHeaderCompetition(
+            ESStatus status,
+            ESSituation situation,
+            List<ESDetail> details,
+            List<ESCompetitor> competitors
+    ) {}
 }

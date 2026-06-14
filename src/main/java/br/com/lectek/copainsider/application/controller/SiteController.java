@@ -2,7 +2,9 @@ package br.com.lectek.copainsider.application.controller;
 
 import br.com.lectek.copainsider.adapters.outbound.persistence.entity.CopaProdutoEntity;
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CopaProdutoJPARepository;
+import br.com.lectek.copainsider.application.copa.Copa2026DataService;
 import br.com.lectek.copainsider.application.copa.CopaProdutoVM;
+import br.com.lectek.copainsider.application.copa.PartidaVM;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +18,26 @@ import java.util.Locale;
 public class SiteController {
 
     private final CopaProdutoJPARepository produtoRepo;
+    private final Copa2026DataService      copaData;
 
-    public SiteController(CopaProdutoJPARepository produtoRepo) {
+    public SiteController(CopaProdutoJPARepository produtoRepo, Copa2026DataService copaData) {
         this.produtoRepo = produtoRepo;
+        this.copaData    = copaData;
+    }
+
+    @GetMapping("/ao-vivo")
+    public String aoVivo(Model model) {
+        List<PartidaVM> aoVivo = copaData.listPartidas().stream()
+                .filter(PartidaVM::aoVivo)
+                .toList();
+        List<PartidaVM> hoje = copaData.listPartidas().stream()
+                .filter(p -> !p.aoVivo() && p.dataHora() != null
+                        && p.dataHora().toLocalDate().equals(java.time.LocalDate.now()))
+                .sorted(java.util.Comparator.comparing(PartidaVM::dataHora))
+                .toList();
+        model.addAttribute("aoVivo", aoVivo);
+        model.addAttribute("hoje",   hoje);
+        return "pages/site/ao-vivo";
     }
 
     @GetMapping("/onde-assistir")

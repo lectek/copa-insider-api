@@ -98,6 +98,84 @@
     <!-- ── COLUNA ESQUERDA ─────────────────────────────────────────────── -->
     <div class="match-col-main">
 
+        <!-- ══ STATS AO VIVO (ESPN) ══════════════════════════════════════ -->
+        <section class="match-section live-stats-section" th:if="${liveStats != null}">
+
+            <!-- Cabeçalho com minuto actual -->
+            <h2 class="section-title">
+                🔴 Em Jogo
+                <span class="live-minute"
+                      th:if="${liveStats.minutoAtual() != null and !liveStats.minutoAtual().isEmpty()}"
+                      th:text="|${liveStats.minutoAtual()}'|"></span>
+            </h2>
+
+            <!-- Timeline de eventos (golos e cartões) -->
+            <div class="live-events" th:if="${not #lists.isEmpty(liveStats.eventos())}">
+                <div th:each="ev : ${liveStats.eventos()}" class="live-event">
+                    <span class="live-event__min"
+                          th:text="${not #strings.isEmpty(ev.minuto())} ? |${ev.minuto()}'| : ''"></span>
+                    <span class="live-event__icon" th:text="${ev.tipoIcone()}"></span>
+                    <span class="live-event__player" th:text="${ev.jogadorNome()}"></span>
+                </div>
+            </div>
+
+            <!-- Barra de posse de bola -->
+            <div class="live-poss" th:if="${liveStats.temEstatisticas()}">
+                <div class="live-poss__label">
+                    <span th:text="${liveStats.possessaoCasa()}"></span>
+                    <span class="live-poss__title">Posse de Bola</span>
+                    <span th:text="${liveStats.possessaoVisitante()}"></span>
+                </div>
+                <div class="live-poss__bar">
+                    <div class="live-poss__fill live-poss__fill--home"
+                         th:style="|width:${liveStats.possessaoCasaInt()}%|"></div>
+                    <div class="live-poss__fill live-poss__fill--away"
+                         th:style="|width:${liveStats.possessaoVisitanteInt()}%|"></div>
+                </div>
+            </div>
+
+            <!-- Grelha de estatísticas -->
+            <div class="live-stats-grid" th:if="${liveStats.temEstatisticas()}">
+                <div class="ls-row">
+                    <span class="ls-val ls-val--home" th:text="${liveStats.remastesCasa()}"></span>
+                    <span class="ls-label">Remates</span>
+                    <span class="ls-val ls-val--away" th:text="${liveStats.remastesVisitante()}"></span>
+                </div>
+                <div class="ls-row">
+                    <span class="ls-val ls-val--home" th:text="${liveStats.remastesAlvoCasa()}"></span>
+                    <span class="ls-label">Remates ao Alvo</span>
+                    <span class="ls-val ls-val--away" th:text="${liveStats.remastesAlvoVisitante()}"></span>
+                </div>
+                <div class="ls-row">
+                    <span class="ls-val ls-val--home" th:text="${liveStats.faltasCasa()}"></span>
+                    <span class="ls-label">Faltas</span>
+                    <span class="ls-val ls-val--away" th:text="${liveStats.faltasVisitante()}"></span>
+                </div>
+                <div class="ls-row">
+                    <span class="ls-val ls-val--home" th:text="${liveStats.cartõesAmarelosCasa()}"></span>
+                    <span class="ls-label">🟨 Amarelos</span>
+                    <span class="ls-val ls-val--away" th:text="${liveStats.cartõesAmarelosVisitante()}"></span>
+                </div>
+                <div class="ls-row">
+                    <span class="ls-val ls-val--home" th:text="${liveStats.cartõesVermelhosCasa()}"></span>
+                    <span class="ls-label">🟥 Vermelhos</span>
+                    <span class="ls-val ls-val--away" th:text="${liveStats.cartõesVermelhosVisitante()}"></span>
+                </div>
+                <div class="ls-row">
+                    <span class="ls-val ls-val--home" th:text="${liveStats.cantoCasa()}"></span>
+                    <span class="ls-label">Cantos</span>
+                    <span class="ls-val ls-val--away" th:text="${liveStats.cantoVisitante()}"></span>
+                </div>
+                <div class="ls-row">
+                    <span class="ls-val ls-val--home" th:text="${liveStats.offisidesCasa()}"></span>
+                    <span class="ls-label">Foras de Jogo</span>
+                    <span class="ls-val ls-val--away" th:text="${liveStats.offisidesVisitante()}"></span>
+                </div>
+            </div>
+
+            <p class="live-stats__note">Dados ESPN • actualizados a cada carregamento de página</p>
+        </section>
+
         <!-- GOLOS (jogo encerrado) -->
         <section class="match-section" th:if="${partida.encerrada() and !golos.isEmpty()}">
             <h2 class="section-title">⚽ Marcadores</h2>
