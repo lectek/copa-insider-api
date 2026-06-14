@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head(${usuario.id() != null ? 'Editar Utilizador' : 'Novo Utilizador'})}"></head>
+<body class="ci-body ci-admin">
+
+<div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+<div class="ci-admin-main">
+    <div th:replace="~{fragments/admin-header :: header(${usuario.id() != null ? 'Editar Utilizador' : 'Novo Utilizador'})}"></div>
+    <div th:replace="~{fragments/flash :: flash}"></div>
+
+    <main class="ci-admin-content">
+
+        <div style="margin-bottom:1.2rem">
+            <a th:href="@{/admin/usuarios}" class="ci-btn ci-btn--ghost ci-btn--sm">← Utilizadores</a>
+        </div>
+
+        <div class="ci-card" style="max-width:520px">
+            <form th:action="@{/admin/usuarios}" th:object="${usuario}" method="post"
+                  style="display:flex;flex-direction:column;gap:1.2rem">
+
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="ci-form-group">
+                    <label class="ci-label" for="nome">Nome</label>
+                    <input id="nome" class="ci-input" type="text" th:field="*{nome}"
+                           placeholder="Nome completo" required />
+                </div>
+
+                <div class="ci-form-group">
+                    <label class="ci-label" for="email">E-mail</label>
+                    <input id="email" class="ci-input" type="email" th:field="*{email}"
+                           placeholder="utilizador@exemplo.com" required />
+                </div>
+
+                <div class="ci-form-group">
+                    <label class="ci-label" for="papel">Papel</label>
+                    <select id="papel" class="ci-input" th:field="*{papel}">
+                        <option value="">Utilizador (sem papel especial)</option>
+                        <option value="ROLE_ADMIN">Admin</option>
+                        <option value="ROLE_DEVELOPER">Developer</option>
+                    </select>
+                </div>
+
+                <div class="ci-form-group" style="display:flex;align-items:center;gap:.6rem">
+                    <input id="ativo" type="checkbox" th:field="*{ativo}" style="width:18px;height:18px;accent-color:#22c55e"/>
+                    <label class="ci-label" for="ativo" style="margin:0;cursor:pointer">Conta ativa</label>
+                </div>
+
+                <div style="display:flex;gap:.6rem;padding-top:.5rem">
+                    <button type="submit" class="ci-btn ci-btn--primary">
+                        <span th:text="${usuario.id() != null ? 'Guardar alterações' : 'Criar utilizador'}">Guardar</span>
+                    </button>
+                    <a th:href="@{/admin/usuarios}" class="ci-btn ci-btn--ghost">Cancelar</a>
+                </div>
+
+            </form>
+        </div>
+
+    </main>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

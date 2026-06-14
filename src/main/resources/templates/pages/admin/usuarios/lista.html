@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Utilizadores')}"></head>
+<body class="ci-body ci-admin">
+
+<div th:replace="~{fragments/admin-sidebar :: sidebar}"></div>
+
+<div class="ci-admin-main">
+    <div th:replace="~{fragments/admin-header :: header('Utilizadores')}"></div>
+    <div th:replace="~{fragments/flash :: flash}"></div>
+
+    <main class="ci-admin-content">
+
+        <!-- Filtros -->
+        <form th:action="@{/admin/usuarios}" method="get"
+              style="display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center">
+            <input type="text" name="q" th:value="${param.q}"
+                   placeholder="Pesquisar por nome ou e-mail…"
+                   style="flex:1;min-width:200px;max-width:360px;padding:.5rem .75rem;border-radius:4px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:.9rem"/>
+            <select name="papel"
+                    style="padding:.5rem .75rem;border-radius:4px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:.9rem">
+                <option value="">Todos os papéis</option>
+                <option value="ROLE_ADMIN"    th:selected="${param.papel == 'ROLE_ADMIN'}">Admin</option>
+                <option value="ROLE_DEVELOPER" th:selected="${param.papel == 'ROLE_DEVELOPER'}">Developer</option>
+                <option value="ROLE_USER"     th:selected="${param.papel == 'ROLE_USER'}">Utilizador</option>
+            </select>
+            <button type="submit" class="ci-btn ci-btn--primary ci-btn--sm">Pesquisar</button>
+            <a th:if="${param.q != null or param.papel != null}"
+               th:href="@{/admin/usuarios}" class="ci-btn ci-btn--ghost ci-btn--sm">Limpar</a>
+        </form>
+
+        <div class="ci-stats-grid" style="margin-bottom:1.5rem">
+            <div class="ci-stat-card">
+                <p class="ci-stat-card__label">Resultados</p>
+                <p class="ci-stat-card__value" th:text="${usuarios != null ? #lists.size(usuarios) : 0}">0</p>
+            </div>
+        </div>
+
+        <table class="ci-table" th:if="${usuarios != null and !usuarios.empty}">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Papel</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="u : ${usuarios}">
+                    <td th:text="${u.nome() ?: '—'}">Nome</td>
+                    <td th:text="${u.email()}">email@exemplo.com</td>
+                    <td>
+                        <span class="ci-badge"
+                              th:classappend="${u.papel() != null and u.papel().contains('ADMIN')} ? 'ci-badge--green' :
+                                              (${u.papel() != null and u.papel().contains('DEVELOPER')} ? 'ci-badge--green' : 'ci-badge--gray')"
+                              th:text="${u.papel() ?: 'Utilizador'}">Utilizador</span>
+                    </td>
+                    <td style="display:flex;gap:.5rem;flex-wrap:wrap">
+                        <a th:href="@{/admin/usuarios/{id}(id=${u.id()})}"
+                           class="ci-btn ci-btn--ghost ci-btn--xs">Ver</a>
+                        <a th:href="@{/admin/usuarios/{id}/editar(id=${u.id()})}"
+                           class="ci-btn ci-btn--ghost ci-btn--xs">Editar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${usuarios == null or usuarios.empty}" class="ci-empty">
+            <span th:if="${param.q != null and param.q != ''}">Nenhum utilizador encontrado para "<span th:text="${param.q}"></span>".</span>
+            <span th:if="${param.q == null or param.q == ''}">Nenhum utilizador registado ainda.</span>
+        </p>
+
+    </main>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -54,10 +54,17 @@ public class SofaScoreClient {
     private <T> T get(String url, Class<T> type) {
         try {
             HttpHeaders headers = new HttpHeaders();
-            // SofaScore exige um User-Agent razoável
             headers.set("User-Agent",
-                    "Mozilla/5.0 (compatible; CopaInsider/1.0; +https://copainsider.com)");
-            headers.set("Accept", "application/json");
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36");
+            headers.set("Accept", "application/json, text/plain, */*");
+            headers.set("Accept-Language", "pt-PT,pt;q=0.9,en-US;q=0.8,en;q=0.7");
+            headers.set("Accept-Encoding", "gzip, deflate, br");
+            headers.set("Referer", "https://www.sofascore.com/");
+            headers.set("Origin", "https://www.sofascore.com");
+            headers.set("Cache-Control", "no-cache");
+            headers.set("Sec-Fetch-Dest", "empty");
+            headers.set("Sec-Fetch-Mode", "cors");
+            headers.set("Sec-Fetch-Site", "same-site");
             ResponseEntity<String> resp = rest.exchange(
                     url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
             if (resp.getBody() == null) return null;
