@@ -90,6 +90,26 @@
   border-top: 1px solid rgba(255,255,255,.07);
 }
 
+.ci-sidebar__site-link {
+  display: block;
+  text-align: center;
+  padding: 7px 12px;
+  margin-bottom: 8px;
+  background: rgba(240,192,64,.08);
+  color: #e8b930;
+  border: 1px solid rgba(240,192,64,.2);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s, border-color .15s;
+}
+
+.ci-sidebar__site-link:hover {
+  background: rgba(240,192,64,.15);
+  border-color: rgba(240,192,64,.4);
+}
+
 .ci-sidebar__logout {
   width: 100%;
   padding: 8px 12px;

@@ -53,6 +53,7 @@
     </nav>
 
     <div class="ci-sidebar__footer">
+        <a th:href="@{/}" class="ci-sidebar__site-link">← Ir para o site</a>
         <form th:action="@{/logout}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button type="submit" class="ci-sidebar__logout">Sair</button>
