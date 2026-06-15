@@ -240,12 +240,27 @@ public class Copa2026DataService {
     private void overlayLiveScores() {
         try {
             List<ESEvent> events = espnClient.fetchToday();
-            if (events == null || events.isEmpty()) return;
+            if (events == null || events.isEmpty()) {
+                // ESPN sem dados — inferir status por tempo
+                partidas = partidas.stream()
+                        .map(p -> withTimeBasedStatus(p, p.status()))
+                        .toList();
+                return;
+            }
 
             List<ESEvent> copa = events.stream()
                     .filter(e -> e != null && e.comp() != null)
                     .toList();
-            if (copa.isEmpty()) return;
+
+            // Log diagnóstico: nomes que a ESPN devolve
+            copa.forEach(e -> {
+                var comp = e.comp();
+                if (comp != null && comp.competitors() != null) {
+                    comp.competitors().forEach(c -> {
+                        if (c.team() != null) log.debug("[ESPN teams] {}", c.team().displayName());
+                    });
+                }
+            });
 
             java.util.Map<String, String> newIdMap = new java.util.HashMap<>();
 
@@ -260,13 +275,47 @@ public class Copa2026DataService {
                             if (e.id() != null) newIdMap.put(key, e.id());
                             return applyEspnScore(p, e);
                         })
-                        .orElse(p);
+                        // Fallback: sem match ESPN → inferir por tempo
+                        .orElse(withTimeBasedStatus(p, p.status()));
             }).toList();
 
             if (!newIdMap.isEmpty()) espnIdMap = java.util.Map.copyOf(newIdMap);
         } catch (Exception e) {
             log.warn("overlayLiveScores falhou: {} ({})", e.getMessage(), e.getClass().getSimpleName(), e);
         }
+    }
+
+    /**
+     * Quando a ESPN não consegue fazer match, infere status pelo tempo do relógio:
+     *   - 0–130 min após início → AO_VIVO
+     *   - 130+ min após início sem resultado → ENCERRADA (estimativa)
+     *   - Antes do início → mantém status atual
+     */
+    private PartidaVM withTimeBasedStatus(PartidaVM p, PartidaVM.StatusPartida current) {
+        if (current == ENCERRADA) return p; // já encerrado, não tocar
+        if (p.dataHora() == null) return p;
+        LocalDateTime now = LocalDateTime.now();
+        long minDecorridos = java.time.Duration.between(p.dataHora(), now).toMinutes();
+        if (minDecorridos >= 0 && minDecorridos < 130) {
+            if (current == AO_VIVO) return p;
+            log.info("[time-fallback] {} × {} → AO_VIVO (+{}min)",
+                    p.slugCasa(), p.slugVisitante(), minDecorridos);
+            return new PartidaVM(p.id(), p.selecaoCasa(), p.slugCasa(), p.bandeiraCasa(),
+                    p.selecaoVisitante(), p.slugVisitante(), p.bandeiraVisitante(),
+                    p.dataHora(), p.fase(), p.grupo(),
+                    p.golsCasa(), p.golsVisitante(), p.golsCasaHT(), p.golsVisitanteHT(),
+                    AO_VIVO, p.estadio(), p.cidade());
+        }
+        if (minDecorridos >= 130 && current == AGENDADA) {
+            log.info("[time-fallback] {} × {} → ENCERRADA (+{}min)",
+                    p.slugCasa(), p.slugVisitante(), minDecorridos);
+            return new PartidaVM(p.id(), p.selecaoCasa(), p.slugCasa(), p.bandeiraCasa(),
+                    p.selecaoVisitante(), p.slugVisitante(), p.bandeiraVisitante(),
+                    p.dataHora(), p.fase(), p.grupo(),
+                    p.golsCasa(), p.golsVisitante(), p.golsCasaHT(), p.golsVisitanteHT(),
+                    ENCERRADA, p.estadio(), p.cidade());
+        }
+        return p;
     }
 
     public Optional<String> findEspnId(String slugCasa, String slugVisitante) {
