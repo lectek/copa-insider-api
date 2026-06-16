@@ -177,6 +177,11 @@
     <div class="actions">
         <a th:href="@{/jogo/{id}/sala(id=${partida.id()})}" class="btn btn--gold">💬 Sala do Jogo</a>
         <a th:href="@{/jogo/{id}/notas(id=${partida.id()})}" class="btn btn--outline">⭐ Notas ao Vivo</a>
+        <a th:if="${urlDestaques != null}"
+           th:href="${urlDestaques}" target="_blank" rel="noopener"
+           class="btn btn--outline" style="color:#ff4444;border-color:rgba(255,68,68,.35);">
+            ▶ Ver destaques no YouTube
+        </a>
         <a th:href="@{/segunda-tela/{id}(id=${partida.id()})}" class="btn btn--outline">📱 Segunda Tela</a>
         <a th:href="@{/calendario}" class="btn btn--outline">← Calendário</a>
     </div>

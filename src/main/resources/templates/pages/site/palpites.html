@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/public-head :: head(
+    'Previsões — Copa 2026',
+    'Ranking de palpites da Copa do Mundo 2026. Acerta no resultado e sobe na tabela.',
+    '/img/og-copa.webp',
+    'palpites',
+    '/css/palpites.css')}"></head>
+<body>
+
+<nav th:replace="~{fragments/site-nav :: nav('palpites')}"></nav>
+<th:block th:replace="~{fragments/site-nav :: lang-js}"></th:block>
+
+<!-- Hero -->
+<section class="pp-hero">
+    <div class="pp-hero__inner">
+        <h1>🎯 Previsões <span class="pp-hl">Copa 2026</span></h1>
+        <p class="pp-hero__sub">Faz o teu palpite antes do apito e sobe no ranking</p>
+        <div class="pp-hero__stats">
+            <div class="pp-stat">
+                <span class="pp-stat__n" th:text="${totalParticipantes}">0</span>
+                <span class="pp-stat__l">Participantes</span>
+            </div>
+            <div class="pp-stat">
+                <span class="pp-stat__n">3</span>
+                <span class="pp-stat__l">pts por acerto exacto</span>
+            </div>
+            <div class="pp-stat">
+                <span class="pp-stat__n">1</span>
+                <span class="pp-stat__l">pt por acerto de resultado</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<main class="pp-main">
+
+    <!-- CTA para fazer palpite -->
+    <div class="pp-cta-bar">
+        <span class="pp-cta-bar__txt">Ainda não fizeste palpites?</span>
+        <a th:href="@{/calendario}" class="pp-cta-btn">Ver jogos e apostar →</a>
+    </div>
+
+    <!-- Ranking vazio -->
+    <div th:if="${#lists.isEmpty(ranking)}" class="pp-empty">
+        <div class="pp-empty__icon">🎯</div>
+        <p>Nenhum palpite registado ainda.</p>
+        <p class="pp-empty__sub">Sê o primeiro! Vai ao calendário e faz o teu palpite antes do apito.</p>
+        <a th:href="@{/calendario}" class="pp-btn">Ver calendário →</a>
+    </div>
+
+    <!-- Tabela ranking -->
+    <div th:if="${not #lists.isEmpty(ranking)}" class="pp-table-wrap">
+        <table class="pp-table">
+            <thead>
+            <tr>
+                <th class="pp-th pp-th--pos">#</th>
+                <th class="pp-th pp-th--name">Participante</th>
+                <th class="pp-th pp-th--num">Palpites</th>
+                <th class="pp-th pp-th--num pp-th--hide-sm">Exactos</th>
+                <th class="pp-th pp-th--num pp-th--hide-sm">Resultado</th>
+                <th class="pp-th pp-th--pts">Pontos</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v, stat : ${ranking}"
+                th:classappend="${stat.index == 0} ? 'pp-tr--ouro' : (${stat.index == 1} ? 'pp-tr--prata' : (${stat.index == 2} ? 'pp-tr--bronze' : ''))"
+                class="pp-tr">
+                <td class="pp-td pp-td--pos">
+                    <span th:if="${stat.index == 0}" class="pp-medal">🥇</span>
+                    <span th:if="${stat.index == 1}" class="pp-medal">🥈</span>
+                    <span th:if="${stat.index == 2}" class="pp-medal">🥉</span>
+                    <span th:if="${stat.index >= 3}" class="pp-pos-n" th:text="${stat.index + 1}"></span>
+                </td>
+                <td class="pp-td pp-td--name" th:text="${v.nomeExibicao()}"></td>
+                <td class="pp-td pp-td--num" th:text="${v.totalPalpites()}"></td>
+                <td class="pp-td pp-td--num pp-td--hide-sm">
+                    <span class="pp-exacto" th:text="${v.acertosExatos()}"></span>
+                </td>
+                <td class="pp-td pp-td--num pp-td--hide-sm" th:text="${v.acertosResultado()}"></td>
+                <td class="pp-td pp-td--pts">
+                    <span class="pp-pts" th:text="${v.pontos()}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Legenda -->
+    <div class="pp-legenda">
+        <div class="pp-leg-item"><span class="pp-leg-badge pp-leg-badge--ouro">3 pts</span> Acerto exacto (placar certo)</div>
+        <div class="pp-leg-item"><span class="pp-leg-badge pp-leg-badge--prata">1 pt</span> Acerto de resultado (V/E/D certo)</div>
+        <div class="pp-leg-item"><span class="pp-leg-badge">0 pts</span> Resultado errado</div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

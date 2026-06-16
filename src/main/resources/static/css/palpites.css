@@ -1,0 +1,122 @@
+/* ─── palpites.css ────────────────────────────────────────────────────────────
+   Base: site-base.css (via public-head fragment)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Hero ─────────────────────────────────────────────────────────────────── */
+.pp-hero {
+    background: linear-gradient(160deg, var(--bg2) 0%, var(--bg3) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 3.5rem 1.25rem 2.5rem;
+    text-align: center;
+}
+.pp-hero__inner { max-width: 700px; margin: 0 auto; }
+.pp-hero h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: .5rem; }
+.pp-hl { color: var(--gold); }
+.pp-hero__sub { color: var(--muted); font-size: .95rem; margin-bottom: 1.75rem; }
+
+.pp-hero__stats {
+    display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;
+}
+.pp-stat {
+    display: flex; flex-direction: column; align-items: center; gap: .2rem;
+}
+.pp-stat__n {
+    font-size: 1.6rem; font-weight: 900; color: var(--gold);
+}
+.pp-stat__l { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+
+/* ── Main ─────────────────────────────────────────────────────────────────── */
+.pp-main { max-width: 860px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+
+/* ── CTA bar ──────────────────────────────────────────────────────────────── */
+.pp-cta-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: .9rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.pp-cta-bar__txt { font-size: .88rem; color: var(--muted); }
+.pp-cta-btn {
+    background: var(--gold); color: #000;
+    padding: .5rem 1.25rem; border-radius: 8px;
+    font-size: .82rem; font-weight: 800; text-decoration: none;
+    white-space: nowrap; transition: background .2s;
+}
+.pp-cta-btn:hover { background: var(--gold-hover); }
+
+/* ── Empty ────────────────────────────────────────────────────────────────── */
+.pp-empty {
+    text-align: center; padding: 4rem 2rem;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.pp-empty__icon { font-size: 3rem; margin-bottom: 1rem; }
+.pp-empty p { color: var(--muted); margin-bottom: .5rem; }
+.pp-empty__sub { font-size: .82rem; }
+.pp-btn {
+    display: inline-block; margin-top: 1.25rem;
+    background: var(--gold); color: #000;
+    padding: .55rem 1.5rem; border-radius: 8px;
+    font-size: .85rem; font-weight: 800; text-decoration: none;
+    transition: background .2s;
+}
+.pp-btn:hover { background: var(--gold-hover); }
+
+/* ── Tabela ───────────────────────────────────────────────────────────────── */
+.pp-table-wrap {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+.pp-table { width: 100%; border-collapse: collapse; }
+.pp-th {
+    padding: .75rem 1rem;
+    font-size: .68rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .07em;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3); text-align: left;
+}
+.pp-th--pos  { width: 52px; text-align: center; }
+.pp-th--num  { width: 80px; text-align: center; }
+.pp-th--pts  { width: 80px; text-align: center; }
+.pp-th--hide-sm { }
+
+.pp-tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+.pp-tr:last-child { border-bottom: none; }
+.pp-tr:hover { background: var(--bg3); }
+.pp-tr--ouro   { border-left: 3px solid var(--gold); }
+.pp-tr--prata  { border-left: 3px solid #94a3b8; }
+.pp-tr--bronze { border-left: 3px solid #cd7f32; }
+
+.pp-td { padding: .85rem 1rem; font-size: .88rem; color: var(--text); }
+.pp-td--pos  { text-align: center; }
+.pp-td--name { font-weight: 600; }
+.pp-td--num  { text-align: center; color: var(--muted); }
+.pp-td--pts  { text-align: center; }
+.pp-td--hide-sm { }
+
+.pp-medal  { font-size: 1.3rem; }
+.pp-pos-n  { font-size: .85rem; color: var(--muted); font-weight: 700; }
+.pp-exacto { color: var(--gold); font-weight: 800; }
+.pp-pts    { font-size: 1.1rem; font-weight: 900; color: var(--gold); }
+
+/* ── Legenda ──────────────────────────────────────────────────────────────── */
+.pp-legenda {
+    display: flex; gap: 1.25rem; flex-wrap: wrap;
+    padding: 1rem 0;
+}
+.pp-leg-item { display: flex; align-items: center; gap: .5rem; font-size: .78rem; color: var(--muted); }
+.pp-leg-badge {
+    padding: 2px 8px; border-radius: 4px; font-size: .72rem; font-weight: 700;
+    background: var(--bg3); border: 1px solid var(--border); color: var(--muted);
+}
+.pp-leg-badge--ouro  { background: var(--gold-dim); color: var(--gold); border-color: rgba(232,185,48,.3); }
+.pp-leg-badge--prata { background: rgba(148,163,184,.1); color: #94a3b8; border-color: rgba(148,163,184,.25); } /* NOSONAR — dark theme */
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .pp-hero h1 { font-size: 1.6rem; }
+    .pp-th--hide-sm, .pp-td--hide-sm { display: none; }
+    .pp-cta-bar { flex-direction: column; align-items: flex-start; }
+}

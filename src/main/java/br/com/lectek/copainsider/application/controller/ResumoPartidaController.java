@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 
@@ -53,6 +55,15 @@ public class ResumoPartidaController {
             // Contexto histórico H2H
             copaData.comparar(partida.slugCasa(), partida.slugVisitante())
                     .ifPresent(h2h -> model.addAttribute("h2h", h2h));
+
+            // URL de pesquisa YouTube para destaques (só para jogos encerrados)
+            if (partida.encerrada()) {
+                String query = partida.selecaoCasa() + " " + partida.selecaoVisitante()
+                        + " Copa do Mundo 2026 gols";
+                String urlDestaques = "https://www.youtube.com/results?search_query="
+                        + URLEncoder.encode(query, StandardCharsets.UTF_8);
+                model.addAttribute("urlDestaques", urlDestaques);
+            }
 
             // Outras partidas da fase
             List<PartidaVM> maisPartidas = copaData.listPartidas().stream()

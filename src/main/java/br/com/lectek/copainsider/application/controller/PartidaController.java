@@ -1,10 +1,13 @@
 package br.com.lectek.copainsider.application.controller;
 
+import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CopaPalpiteJPARepository;
 import br.com.lectek.copainsider.application.copa.Copa2026DataService;
 import br.com.lectek.copainsider.application.copa.PartidaVM;
 import br.com.lectek.copainsider.application.copa.vm.NotaJogadorVM;
 import br.com.lectek.copainsider.application.service.NotasJogadorService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,16 +19,22 @@ import java.util.List;
 @Controller
 public class PartidaController {
 
-    private final Copa2026DataService  copaData;
-    private final NotasJogadorService  notasService;
+    private final Copa2026DataService      copaData;
+    private final NotasJogadorService      notasService;
+    private final CopaPalpiteJPARepository palpiteRepo;
 
-    public PartidaController(Copa2026DataService copaData, NotasJogadorService notasService) {
+    public PartidaController(Copa2026DataService copaData,
+                              NotasJogadorService notasService,
+                              CopaPalpiteJPARepository palpiteRepo) {
         this.copaData     = copaData;
         this.notasService = notasService;
+        this.palpiteRepo  = palpiteRepo;
     }
 
     @GetMapping("/partida/{id}")
-    public String partida(@PathVariable Long id, HttpSession session, Model model) {
+    public String partida(@PathVariable Long id,
+                          @AuthenticationPrincipal UserDetails user,
+                          HttpSession session, Model model) {
         return copaData.findPartida(id)
                 .map(partida -> {
                     model.addAttribute("partida",          partida);
@@ -59,6 +68,19 @@ public class PartidaController {
                             .limit(4)
                             .toList();
                     model.addAttribute("maisPartidas", maisPartidas);
+
+                    // Palpite do utilizador autenticado
+                    if (user != null) {
+                        String email = user.getUsername().toLowerCase();
+                        palpiteRepo.findByEmailIgnoreCaseAndPartidaId(email, id)
+                                .ifPresent(p -> {
+                                    model.addAttribute("meuPalpite", p);
+                                    if (partida.encerrada() && partida.temResultado()) {
+                                        model.addAttribute("pontosGanhos",
+                                                PalpiteController.calcularPontos(p, partida));
+                                    }
+                                });
+                    }
 
                     return "pages/site/partida";
                 })
