@@ -89,6 +89,26 @@
     gap: 1rem;
     flex-wrap: wrap;
 }
+.acesso-box--owner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.1rem;
+}
+.acesso-box__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+.acesso-box__ver-tudo {
+    font-size: .8rem;
+    color: rgba(74,222,128,.7);
+    text-decoration: none;
+    transition: color .15s;
+}
+.acesso-box__ver-tudo:hover { color: #4ade80; }
+
 .acesso-badge {
     display: inline-flex;
     align-items: center;
@@ -103,7 +123,45 @@
     white-space: nowrap;
 }
 .acesso-desc { font-size: .9rem; color: #c0c0d8; flex: 1; }
+
+/* Grid de links — Copa Pass */
+.acesso-links-grid {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+.acesso-link-item {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .75rem 1rem;
+    background: rgba(74,222,128,.04);
+    border: 1px solid rgba(74,222,128,.12);
+    border-radius: 9px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .15s, background .15s;
+}
+.acesso-link-item:hover {
+    border-color: rgba(74,222,128,.35);
+    background: rgba(74,222,128,.08);
+}
+.acesso-link-item__icon { font-size: 1.4rem; flex-shrink: 0; width: 1.8rem; text-align: center; }
+.acesso-link-item__body { flex: 1; }
+.acesso-link-item__body strong { display: block; font-size: .9rem; color: #e8e8f0; }
+.acesso-link-item__body span { font-size: .78rem; color: var(--muted); }
+.acesso-link-item__arrow { color: #4ade80; font-size: .85rem; }
+
+/* CTAs para guia/confronto */
+.acesso-ctas {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
 .btn-aceder {
+    display: inline-flex;
+    align-items: center;
     background: #4ade80;
     color: #0a0a0f;
     padding: .75rem 1.5rem;
@@ -114,6 +172,12 @@
     transition: opacity .15s;
     white-space: nowrap;
 }
+.btn-aceder--outline {
+    background: transparent;
+    color: #4ade80;
+    border: 1px solid rgba(74,222,128,.4);
+}
+.btn-aceder--outline:hover { background: rgba(74,222,128,.08); opacity: 1; }
 .btn-aceder:hover { opacity: .88; }
 
 /* ── Benefícios ── */

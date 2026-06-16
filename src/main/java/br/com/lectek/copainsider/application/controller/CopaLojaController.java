@@ -2,10 +2,14 @@ package br.com.lectek.copainsider.application.controller;
 
 import br.com.lectek.copainsider.adapters.outbound.persistence.entity.CopaProdutoEntity;
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CopaProdutoJPARepository;
+import br.com.lectek.copainsider.application.copa.Copa2026DataService;
 import br.com.lectek.copainsider.application.copa.CopaProdutoVM;
+import br.com.lectek.copainsider.application.copa.PartidaVM;
 import br.com.lectek.copainsider.application.service.CopaAcessoService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import org.springframework.stereotype.Controller;
@@ -18,12 +22,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CopaLojaController {
 
     private final CopaProdutoJPARepository repository;
-    private final CopaAcessoService acessoService;
+    private final CopaAcessoService        acessoService;
+    private final Copa2026DataService      copaData;
 
     public CopaLojaController(CopaProdutoJPARepository repository,
-                               CopaAcessoService acessoService) {
-        this.repository    = repository;
+                               CopaAcessoService acessoService,
+                               Copa2026DataService copaData) {
+        this.repository   = repository;
         this.acessoService = acessoService;
+        this.copaData     = copaData;
     }
 
     @GetMapping("/loja")
@@ -53,6 +60,18 @@ public class CopaLojaController {
                                    ? auth.getName() : null;
                     model.addAttribute("temAcesso", acessoService.temAcesso(email, p.getSlug()));
                     model.addAttribute("urlConteudo", urlConteudo(p.getSlug()));
+
+                    // Próximo jogo da seleção (só para guias de seleção)
+                    if (p.getSlugTime1() != null) {
+                        String slugTime = p.getSlugTime1();
+                        LocalDateTime now = LocalDateTime.now();
+                        copaData.listPartidas().stream()
+                                .filter(j -> j.agendada() && j.dataHora() != null && j.dataHora().isAfter(now)
+                                        && (slugTime.equals(j.slugCasa()) || slugTime.equals(j.slugVisitante())))
+                                .min(Comparator.comparing(PartidaVM::dataHora))
+                                .ifPresent(j -> model.addAttribute("proximoJogo", j));
+                    }
+
                     return "pages/site/produto";
                 })
                 .orElse("redirect:/loja");

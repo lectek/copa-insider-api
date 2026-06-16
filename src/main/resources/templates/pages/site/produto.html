@@ -29,10 +29,115 @@
         <div class="produto-desc" th:text="${produto.descricao()}">Descrição completa do produto.</div>
 
         <!-- Estado: já tem acesso -->
-        <div class="acesso-box" th:if="${temAcesso}">
-            <span class="acesso-badge">✓ Já tens acesso</span>
-            <span class="acesso-desc">Este produto está activo na tua conta. Clica para aceder ao conteúdo.</span>
-            <a th:href="${urlConteudo}" class="btn-aceder">Aceder agora →</a>
+        <div class="acesso-box acesso-box--owner" th:if="${temAcesso}">
+            <div class="acesso-box__top">
+                <span class="acesso-badge">✓ Tens acesso a este produto</span>
+                <a th:href="@{/conta/acessos}" class="acesso-box__ver-tudo">Ver todos os meus acessos →</a>
+            </div>
+
+            <!-- Copa Pass: lista de conteúdos incluídos -->
+            <div th:if="${produto.tipo().name() == 'COPA_PASS'}" class="acesso-links-grid">
+                <a href="/comparar" class="acesso-link-item">
+                    <span class="acesso-link-item__icon">⚔️</span>
+                    <div class="acesso-link-item__body">
+                        <strong>Comparador histórico</strong>
+                        <span>Histórico de qualquer rivalidade</span>
+                    </div>
+                    <span class="acesso-link-item__arrow">→</span>
+                </a>
+                <a href="/calendario" class="acesso-link-item">
+                    <span class="acesso-link-item__icon">📅</span>
+                    <div class="acesso-link-item__body">
+                        <strong>Calendário completo</strong>
+                        <span>Todos os jogos e horários</span>
+                    </div>
+                    <span class="acesso-link-item__arrow">→</span>
+                </a>
+                <a href="/factos" class="acesso-link-item">
+                    <span class="acesso-link-item__icon">📊</span>
+                    <div class="acesso-link-item__body">
+                        <strong>Copa em 20 Factos</strong>
+                        <span>Análises e curiosidades</span>
+                    </div>
+                    <span class="acesso-link-item__arrow">→</span>
+                </a>
+                <a href="/selecoes/portugal" class="acesso-link-item">
+                    <span class="acesso-link-item__icon">🇵🇹</span>
+                    <div class="acesso-link-item__body">
+                        <strong>Guia Portugal</strong>
+                        <span>Perfil completo da seleção</span>
+                    </div>
+                    <span class="acesso-link-item__arrow">→</span>
+                </a>
+                <a href="/selecoes/brasil" class="acesso-link-item">
+                    <span class="acesso-link-item__icon">🇧🇷</span>
+                    <div class="acesso-link-item__body">
+                        <strong>Guia Brasil</strong>
+                        <span>Perfil completo da seleção</span>
+                    </div>
+                    <span class="acesso-link-item__arrow">→</span>
+                </a>
+                <a href="/selecoes/franca" class="acesso-link-item">
+                    <span class="acesso-link-item__icon">🇫🇷</span>
+                    <div class="acesso-link-item__body">
+                        <strong>Guia França</strong>
+                        <span>Perfil completo da seleção</span>
+                    </div>
+                    <span class="acesso-link-item__arrow">→</span>
+                </a>
+                <a href="/selecoes/argentina" class="acesso-link-item">
+                    <span class="acesso-link-item__icon">🇦🇷</span>
+                    <div class="acesso-link-item__body">
+                        <strong>Guia Argentina</strong>
+                        <span>Perfil completo da seleção</span>
+                    </div>
+                    <span class="acesso-link-item__arrow">→</span>
+                </a>
+                <a href="/selecoes/inglaterra" class="acesso-link-item">
+                    <span class="acesso-link-item__icon">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
+                    <div class="acesso-link-item__body">
+                        <strong>Guia Inglaterra</strong>
+                        <span>Perfil completo da seleção</span>
+                    </div>
+                    <span class="acesso-link-item__arrow">→</span>
+                </a>
+                <a href="/selecoes/espanha" class="acesso-link-item">
+                    <span class="acesso-link-item__icon">🇪🇸</span>
+                    <div class="acesso-link-item__body">
+                        <strong>Guia Espanha</strong>
+                        <span>Perfil completo da seleção</span>
+                    </div>
+                    <span class="acesso-link-item__arrow">→</span>
+                </a>
+            </div>
+
+            <!-- Guia de Seleção: perfil + próximo jogo + comparar -->
+            <div th:if="${produto.tipo().name() == 'GUIA_SELECAO'}" class="acesso-ctas">
+                <a th:href="${urlConteudo}" class="btn-aceder">Ver perfil completo →</a>
+                <a th:if="${proximoJogo != null}"
+                   th:href="@{/partida/{id}(id=${proximoJogo.id()})}"
+                   class="btn-aceder btn-aceder--outline">
+                    ⏰ Próximo jogo:
+                    <span th:text="${proximoJogo.bandeiraCasa()} + ' ' + ${proximoJogo.selecaoCasa()}
+                                   + ' × ' + ${proximoJogo.bandeiraVisitante()} + ' ' + ${proximoJogo.selecaoVisitante()}"></span>
+                    <span th:text="'(' + ${#temporals.format(proximoJogo.dataHora(), 'dd MMM HH:mm')} + ')'"></span>
+                </a>
+                <a th:if="${produto.slugTime1() != null}"
+                   th:href="@{/comparar(time1=${produto.slugTime1()})}"
+                   class="btn-aceder btn-aceder--outline">Comparar com rival →</a>
+            </div>
+
+            <!-- Histórico do Confronto -->
+            <div th:if="${produto.tipo().name() == 'DUELO_HISTORICO'}" class="acesso-ctas">
+                <a href="/comparar" class="btn-aceder">Abrir comparador →</a>
+            </div>
+
+            <!-- Copa em 20 Factos e outros -->
+            <div th:if="${produto.tipo().name() != 'COPA_PASS'
+                       and produto.tipo().name() != 'GUIA_SELECAO'
+                       and produto.tipo().name() != 'DUELO_HISTORICO'}" class="acesso-ctas">
+                <a th:href="${urlConteudo}" class="btn-aceder">Aceder agora →</a>
+            </div>
         </div>
 
         <!-- Estado: não tem acesso (caixa de compra) -->
