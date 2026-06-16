@@ -1,7 +1,7 @@
 package br.com.lectek.copainsider.application.service.otp;
 
-import br.com.lectek.copainsider.adapters.outbound.email.adapter.MailSenderAdapter;
 import br.com.lectek.copainsider.adapters.outbound.sms.adapter.SmsSenderAdapter;
+import br.com.lectek.copainsider.application.service.MailService;
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.otp.OtpCodeEntity;
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.otp.OtpCodeRepository;
 import org.slf4j.Logger;
@@ -35,15 +35,18 @@ public class OtpServiceJpa implements OtpServicePort {
     private static final int MAX_ATTEMPTS     = 5;
     private static final int COOLDOWN_SECONDS = 60;
 
+    private static final String TEMPLATE_OTP = "mail/verificacao-email";
+    private static final String STATUS_VERIFIED = "VERIFIED";
+
     private final SecureRandom rnd = new SecureRandom();
-    private final MailSenderAdapter mailer;
+    private final MailService mailService;
     private final SmsSenderAdapter smsSender;
     private final OtpCodeRepository repo;
 
-    public OtpServiceJpa(MailSenderAdapter mailer, SmsSenderAdapter smsSender, OtpCodeRepository repo) {
-        this.mailer = Objects.requireNonNull(mailer);
-        this.smsSender = Objects.requireNonNull(smsSender);
-        this.repo   = Objects.requireNonNull(repo);
+    public OtpServiceJpa(MailService mailService, SmsSenderAdapter smsSender, OtpCodeRepository repo) {
+        this.mailService = Objects.requireNonNull(mailService);
+        this.smsSender   = Objects.requireNonNull(smsSender);
+        this.repo        = Objects.requireNonNull(repo);
     }
 
     @Override
@@ -119,7 +122,7 @@ public class OtpServiceJpa implements OtpServicePort {
             throw new OtpException("invalid", "CÃ³digo incorreto.");
         }
 
-        e.setStatus("VERIFIED");
+        e.setStatus(STATUS_VERIFIED);
         e.setVerifiedAt(now);
         e.setVerificationToken(UUID.randomUUID().toString());
         repo.save(e);
@@ -138,7 +141,7 @@ public class OtpServiceJpa implements OtpServicePort {
         OtpCodeEntity e = opt.get();
         Instant now = Instant.now();
 
-        if (!"VERIFIED".equalsIgnoreCase(e.getStatus()) ||
+        if (!STATUS_VERIFIED.equalsIgnoreCase(e.getStatus()) ||
             e.getVerifiedAt() == null ||
             now.isAfter(e.getVerifiedAt().plus(TOKEN_TTL)) ||
             e.getConsumedAt() != null) {
@@ -161,7 +164,7 @@ public class OtpServiceJpa implements OtpServicePort {
         OtpCodeEntity e = opt.get();
         Instant now = Instant.now();
 
-        if (!"VERIFIED".equalsIgnoreCase(e.getStatus()) ||
+        if (!STATUS_VERIFIED.equalsIgnoreCase(e.getStatus()) ||
             e.getVerifiedAt() == null ||
             now.isAfter(e.getVerifiedAt().plus(TOKEN_TTL)) ||
             e.getConsumedAt() != null) {
@@ -243,30 +246,23 @@ public class OtpServiceJpa implements OtpServicePort {
     }
 
     private void sendEmail(String destino, String code) {
-        String subject = "Seu codigo CopaInsider";
-        String html = """
-                <div style="font-family:system-ui,Segoe UI,Arial,sans-serif">
-                  <h2>Confirme seu cadastro</h2>
-                  <p>Use este codigo para verificar seu e-mail:</p>
-                  <p style="font-size:24px;letter-spacing:6px"><b>%s</b></p>
-                  <p>Ele expira em %d minutos.</p>
-                  <hr/>
-                  <small>Se nao foi voce, ignore este e-mail.</small>
-                </div>
-                """.formatted(code, OTP_TTL.toMinutes());
+        String masked = maskDestino(destino);
         try {
-            String messageId = mailer.send(destino, subject, html, null);
-            if (messageId == null || messageId.startsWith("noop")) {
-                throw new IllegalStateException("Email delivery adapter is disabled.");
-            }
-            log.info("OTP email sent: to={} messageId={}", maskDestino(destino), messageId);
+            java.util.Map<String, Object> ctx = java.util.Map.of(
+                    "codigo",     code,
+                    "ttlMinutos", OTP_TTL.toMinutes()
+            );
+            mailService.sendTemplate(destino, "Confirma o teu e-mail — Copa Insider",
+                    TEMPLATE_OTP, ctx, null);
+            log.info("OTP email sent: to={}", masked);
         } catch (Exception ex) {
-            log.error("OTP email send failed: to={}", maskDestino(destino), ex);
+            log.error("OTP email send failed: to={}", masked, ex);
             throw new OtpException("email_unavailable", "Nao foi possivel enviar o codigo por E-mail agora. Tente novamente.");
         }
     }
 
     private void sendSms(String destino, String code) {
+        String masked = maskDestino(destino);
         String message = "CopaInsider: seu codigo de verificacao e " + code
                 + ". Valido por " + OTP_TTL.toMinutes() + " minutos.";
         try {
@@ -274,9 +270,9 @@ public class OtpServiceJpa implements OtpServicePort {
             if (providerId == null || providerId.isBlank()) {
                 throw new IllegalStateException("SMS delivery provider returned empty id.");
             }
-            log.info("OTP sms sent: to={} providerId={}", maskDestino(destino), providerId);
+            log.info("OTP sms sent: to={} providerId={}", masked, providerId);
         } catch (Exception ex) {
-            log.error("OTP sms send failed: to={}", maskDestino(destino), ex);
+            log.error("OTP sms send failed: to={}", masked, ex);
             throw new OtpException(
                     "sms_unavailable",
                     "Nao foi possivel enviar o codigo por SMS agora. Tente novamente ou selecione E-mail."

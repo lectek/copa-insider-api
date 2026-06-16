@@ -1,7 +1,7 @@
 package br.com.lectek.copainsider.application.service.otp;
 
-import br.com.lectek.copainsider.adapters.outbound.email.adapter.MailSenderAdapter;
 import br.com.lectek.copainsider.adapters.outbound.sms.adapter.SmsSenderAdapter;
+import br.com.lectek.copainsider.application.service.MailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -31,14 +31,16 @@ public class OtpService implements OtpServicePort {
     private final Map<String, Instant> lastSendByKey = new ConcurrentHashMap<>();
     private final Map<String, String> lastDeliveryIdByKey = new ConcurrentHashMap<>();
 
-    private final MailSenderAdapter mailer;
+    private static final String TEMPLATE_OTP = "mail/verificacao-email";
+
+    private final MailService mailService;
     private final SmsSenderAdapter smsSender;
     private final Environment env;
 
-    public OtpService(MailSenderAdapter mailer, SmsSenderAdapter smsSender, Environment env) {
-        this.mailer = mailer;
-        this.smsSender = smsSender;
-        this.env = env;
+    public OtpService(MailService mailService, SmsSenderAdapter smsSender, Environment env) {
+        this.mailService = mailService;
+        this.smsSender   = smsSender;
+        this.env         = env;
     }
 
     @Override
@@ -128,7 +130,7 @@ public class OtpService implements OtpServicePort {
     }
 
     private boolean isProd() {
-        return Arrays.stream(env.getActiveProfiles()).anyMatch(p -> "prod".equalsIgnoreCase(p));
+        return Arrays.stream(env.getActiveProfiles()).anyMatch("prod"::equalsIgnoreCase);
     }
 
     private String key(Canal canal, String destino) {
@@ -176,29 +178,23 @@ public class OtpService implements OtpServicePort {
     }
 
     private void sendEmail(String destino, String code) {
-        final String subject = "Seu codigo CopaInsider";
-        final String html = """
-                <div style="font-family:system-ui,Segoe UI,Arial,sans-serif">
-                  <h2>Confirme seu cadastro</h2>
-                  <p>Use este codigo para verificar seu e-mail:</p>
-                  <p style="font-size:24px;letter-spacing:6px"><b>%s</b></p>
-                  <p>Ele expira em %d minutos.</p>
-                  <hr/><small>Se nao foi voce, ignore este e-mail.</small>
-                </div>
-                """.formatted(code, OTP_TTL.toMinutes());
+        String masked = maskDestino(Canal.email, destino);
         try {
-            String messageId = mailer.send(destino, subject, html, null);
-            if (messageId == null || messageId.startsWith("noop")) {
-                throw new IllegalStateException("Email delivery adapter is disabled.");
-            }
-            log.info("OTP email sent: to={} messageId={}", maskDestino(Canal.email, destino), messageId);
+            java.util.Map<String, Object> ctx = java.util.Map.of(
+                    "codigo",     code,
+                    "ttlMinutos", OTP_TTL.toMinutes()
+            );
+            mailService.sendTemplate(destino, "Confirma o teu e-mail — Copa Insider",
+                    TEMPLATE_OTP, ctx, null);
+            log.info("OTP email sent: to={}", masked);
         } catch (Exception ex) {
-            log.error("OTP email send failed: to={}", maskDestino(Canal.email, destino), ex);
+            log.error("OTP email send failed: to={}", masked, ex);
             throw new OtpException("email_unavailable", "Nao foi possivel enviar o codigo por E-mail agora. Tente novamente.");
         }
     }
 
     private void sendSms(String destino, String code) {
+        String masked = maskDestino(Canal.sms, destino);
         String message = "CopaInsider: seu codigo de verificacao e " + code
                 + ". Valido por " + OTP_TTL.toMinutes() + " minutos.";
         try {
@@ -206,9 +202,9 @@ public class OtpService implements OtpServicePort {
             if (providerId == null || providerId.isBlank()) {
                 throw new IllegalStateException("SMS delivery provider returned empty id.");
             }
-            log.info("OTP sms sent: to={} providerId={}", maskDestino(Canal.sms, destino), providerId);
+            log.info("OTP sms sent: to={} providerId={}", masked, providerId);
         } catch (Exception ex) {
-            log.error("OTP sms send failed: to={}", maskDestino(Canal.sms, destino), ex);
+            log.error("OTP sms send failed: to={}", masked, ex);
             throw new OtpException(
                     "sms_unavailable",
                     "Nao foi possivel enviar o codigo por SMS agora. Tente novamente ou selecione E-mail."

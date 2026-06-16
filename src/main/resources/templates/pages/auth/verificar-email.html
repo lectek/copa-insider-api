@@ -42,9 +42,17 @@
             <button type="submit" class="ci-btn ci-btn--primary ci-btn--full">Confirmar</button>
         </form>
 
-        <p class="ci-auth-card__switch">
-            Não recebeu? <a th:href="@{/cadastro}">Criar conta novamente</a>
-        </p>
+        <div class="ci-auth-card__switch" style="display:flex;flex-direction:column;gap:.5rem;align-items:center;">
+            <form th:action="@{/verificar-email/reenviar}" method="post" style="display:inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="ci-btn ci-btn--ghost" style="font-size:.85rem;">
+                    Reenviar código
+                </button>
+            </form>
+            <span style="font-size:.8rem;color:var(--muted);">
+                ou <a th:href="@{/cadastro}">começar de novo</a>
+            </span>
+        </div>
     </div>
 </div>
 
