@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/public-head :: head(
+    'Bracket — Copa 2026',
+    'Fase eliminatória da Copa do Mundo 2026: resultados e jogos das oitavas, quartas, meias e final.',
+    '/img/og-copa.webp',
+    'bracket',
+    '/css/bracket.css')}"></head>
+<body>
+
+<nav th:replace="~{fragments/site-nav :: nav('bracket')}"></nav>
+<th:block th:replace="~{fragments/site-nav :: lang-js}"></th:block>
+
+<!-- Hero -->
+<section class="br-hero">
+    <div class="br-hero__inner">
+        <div class="br-live-pill" th:if="${not #lists.isEmpty(aoVivo)}">
+            <span class="br-dot"></span> JOGO AO VIVO
+        </div>
+        <h1>Fase <span class="br-hl">Eliminatória</span></h1>
+        <p class="br-hero__sub">Oitavos · Quartas · Meias · Final — Copa do Mundo 2026</p>
+    </div>
+</section>
+
+<main class="br-main">
+
+    <!-- Sem dados: fase de grupos ainda a decorrer -->
+    <div th:if="${#maps.isEmpty(knockout)}" class="br-empty">
+        <div class="br-empty__icon">🏆</div>
+        <h2>A fase eliminatória ainda não começou</h2>
+        <p>Os jogos eliminatórios começam a <strong>29 de Junho</strong>, após a conclusão da fase de grupos.</p>
+        <div class="br-empty__links">
+            <a th:href="@{/classificacao}" class="br-btn">Ver classificação →</a>
+            <a th:href="@{/calendario}" class="br-btn br-btn--ghost">Calendário completo →</a>
+        </div>
+    </div>
+
+    <!-- Fases eliminatórias -->
+    <th:block th:if="${not #maps.isEmpty(knockout)}">
+
+        <!-- Scrollable bracket columns -->
+        <div class="br-scroll-hint">← desliza para ver todas as rondas →</div>
+        <div class="br-bracket">
+
+            <div th:each="entry : ${knockout}" class="br-round">
+                <div class="br-round__header">
+                    <span class="br-round__label" th:text="${entry.key}"></span>
+                    <span class="br-round__count"
+                          th:text="${#lists.size(entry.value)} + ' jogos'"></span>
+                </div>
+                <div class="br-round__games">
+                    <div th:each="p : ${entry.value}" class="br-game"
+                         th:classappend="${p.aoVivo()} ? ' br-game--live' : (${p.encerrada()} ? ' br-game--done' : '')">
+
+                        <!-- Ao vivo badge -->
+                        <div th:if="${p.aoVivo()}" class="br-live-badge">
+                            <span class="br-dot"></span> AO VIVO
+                        </div>
+
+                        <!-- Data/hora (agendado) -->
+                        <div th:if="${p.agendada() and p.dataHora() != null}" class="br-game__time"
+                             th:text="${#temporals.format(p.dataHora(), 'dd/MM · HH:mm')}"></div>
+
+                        <!-- Team Casa -->
+                        <div class="br-team" th:classappend="${p.encerrada() and p.golsCasa() != null and p.golsVisitante() != null and p.golsCasa() > p.golsVisitante()} ? ' br-team--winner'">
+                            <span class="br-flag" th:text="${p.bandeiraCasa()}"></span>
+                            <span class="br-name" th:text="${p.selecaoCasa()}"></span>
+                            <span class="br-score" th:if="${p.temResultado()}"
+                                  th:text="${p.golsCasa()}"></span>
+                        </div>
+
+                        <div class="br-vs" th:if="${not p.temResultado()}">×</div>
+
+                        <!-- Team Visitante -->
+                        <div class="br-team" th:classappend="${p.encerrada() and p.golsCasa() != null and p.golsVisitante() != null and p.golsVisitante() > p.golsCasa()} ? ' br-team--winner'">
+                            <span class="br-flag" th:text="${p.bandeiraVisitante()}"></span>
+                            <span class="br-name" th:text="${p.selecaoVisitante()}"></span>
+                            <span class="br-score" th:if="${p.temResultado()}"
+                                  th:text="${p.golsVisitante()}"></span>
+                        </div>
+
+                        <!-- Rodapé: estadio ou link -->
+                        <div class="br-game__foot">
+                            <span class="br-game__venue" th:if="${p.cidade() != null}"
+                                  th:text="${p.cidade()}"></span>
+                            <a th:if="${p.aoVivo()}" th:href="@{/jogo/{id}/sala(id=${p.id()})}"
+                               class="br-chat-link">💬 Chat</a>
+                            <a th:if="${p.encerrada()}" th:href="@{/jogo/{id}/resumo(id=${p.id()})}"
+                               class="br-resumo-link">Resumo →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Links rápidos -->
+        <div class="br-links">
+            <a th:href="@{/classificacao}" class="br-link-btn">📊 Classificação</a>
+            <a th:href="@{/ao-vivo}" class="br-link-btn">🔴 Ao Vivo</a>
+            <a th:href="@{/calendario}" class="br-link-btn">📅 Calendário</a>
+        </div>
+
+    </th:block>
+
+</main>
+
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
+
+<script th:if="${not #lists.isEmpty(aoVivo)}">
+    setTimeout(function () { location.reload(); }, 60000);
+</script>
+
+</body>
+</html>

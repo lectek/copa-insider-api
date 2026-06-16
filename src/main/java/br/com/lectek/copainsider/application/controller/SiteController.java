@@ -11,11 +11,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Controller
 public class SiteController {
+
+    private static final String AO_VIVO_ATTR = "aoVivo";
+
+    private static final List<Map<String, String>> FONTES_LIVE = List.of(
+        Map.of("nome", "FIFA+",       "url", "https://www.fifa.com/fifaplus",         "flag", "🌍", "desc", "Internacional"),
+        Map.of("nome", "RTP Play",    "url", "https://www.rtp.pt/play/",              "flag", "🇵🇹", "desc", "Portugal"),
+        Map.of("nome", "CazéTV",      "url", "https://www.youtube.com/@CazeTV",       "flag", "🇧🇷", "desc", "Brasil — YouTube"),
+        Map.of("nome", "Globo Play",  "url", "https://globoplay.globo.com",           "flag", "🇧🇷", "desc", "Brasil"),
+        Map.of("nome", "BBC iPlayer", "url", "https://www.bbc.co.uk/iplayer",         "flag", "🇬🇧", "desc", "Reino Unido"),
+        Map.of("nome", "ITV X",       "url", "https://www.itv.com",                   "flag", "🇬🇧", "desc", "Reino Unido")
+    );
 
     private final CopaProdutoJPARepository produtoRepo;
     private final Copa2026DataService      copaData;
@@ -27,17 +41,35 @@ public class SiteController {
 
     @GetMapping("/ao-vivo")
     public String aoVivo(Model model) {
+        LocalDateTime now = LocalDateTime.now();
+
         List<PartidaVM> aoVivo = copaData.listPartidas().stream()
                 .filter(PartidaVM::aoVivo)
                 .toList();
-        List<PartidaVM> hoje = copaData.listPartidas().stream()
-                .filter(p -> !p.aoVivo() && p.dataHora() != null
-                        && p.dataHora().toLocalDate().equals(java.time.LocalDate.now()))
-                .sorted(java.util.Comparator.comparing(PartidaVM::dataHora))
-                .toList();
-        model.addAttribute("aoVivo", aoVivo);
-        model.addAttribute("hoje",   hoje);
+
+        PartidaVM proxJogo = copaData.listPartidas().stream()
+                .filter(p -> p.agendada() && p.dataHora() != null && p.dataHora().isAfter(now))
+                .min(Comparator.comparing(PartidaVM::dataHora))
+                .orElse(null);
+
+        model.addAttribute(AO_VIVO_ATTR,   aoVivo);
+        model.addAttribute("proxJogo", proxJogo);
+        model.addAttribute("fontes",   FONTES_LIVE);
         return "pages/site/ao-vivo";
+    }
+
+    @GetMapping("/bracket")
+    public String bracket(Model model) {
+        model.addAttribute("knockout", copaData.knockoutPorFase());
+        model.addAttribute(AO_VIVO_ATTR,   copaData.partidasAoVivo());
+        return "pages/site/bracket";
+    }
+
+    @GetMapping("/classificacao")
+    public String classificacao(Model model) {
+        model.addAttribute("classificacao", copaData.getClassificacao());
+        model.addAttribute(AO_VIVO_ATTR, copaData.partidasAoVivo());
+        return "pages/site/classificacao";
     }
 
     @GetMapping("/onde-assistir")

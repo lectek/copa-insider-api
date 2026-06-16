@@ -264,16 +264,20 @@ public class Copa2026DataService {
 
             java.util.Map<String, String> newIdMap = new java.util.HashMap<>();
 
+            LocalDateTime nowForOverlay = LocalDateTime.now();
             partidas = partidas.stream().map(p -> {
                 if (p.dataHora() == null) return p;
-                if (!p.dataHora().toLocalDate().equals(LocalDate.now())) return p;
+                // Skip games that haven't kicked off yet (more than 5-min buffer)
+                if (p.dataHora().isAfter(nowForOverlay.plusMinutes(5))) return p;
                 return copa.stream()
                         .filter(e -> espnMatchesBySlug(e, p))
                         .findFirst()
                         .map(e -> {
                             String key = p.slugCasa() + "|" + p.slugVisitante();
                             if (e.id() != null) newIdMap.put(key, e.id());
-                            return applyEspnScore(p, e);
+                            PartidaVM fromEspn = applyEspnScore(p, e);
+                            // Safety: if ESPN returns stale SCHEDULED status, override by time
+                            return withTimeBasedStatus(fromEspn, fromEspn.status());
                         })
                         // Fallback: sem match ESPN → inferir por tempo
                         .orElse(withTimeBasedStatus(p, p.status()));
@@ -306,9 +310,9 @@ public class Copa2026DataService {
                     p.golsCasa(), p.golsVisitante(), p.golsCasaHT(), p.golsVisitanteHT(),
                     AO_VIVO, p.estadio(), p.cidade());
         }
-        if (minDecorridos >= 130 && current == AGENDADA) {
-            log.info("[time-fallback] {} × {} → ENCERRADA (+{}min)",
-                    p.slugCasa(), p.slugVisitante(), minDecorridos);
+        if (minDecorridos >= 130 && (current == AGENDADA || current == AO_VIVO)) {
+            log.info("[time-fallback] {} × {} → ENCERRADA (+{}min, era {})",
+                    p.slugCasa(), p.slugVisitante(), minDecorridos, current);
             return new PartidaVM(p.id(), p.selecaoCasa(), p.slugCasa(), p.bandeiraCasa(),
                     p.selecaoVisitante(), p.slugVisitante(), p.bandeiraVisitante(),
                     p.dataHora(), p.fase(), p.grupo(),
@@ -490,6 +494,76 @@ public class Copa2026DataService {
         return partidas.stream()
                 .filter(p -> p.grupo() != null && !p.grupo().isBlank())
                 .collect(Collectors.groupingBy(PartidaVM::grupo, TreeMap::new, Collectors.toList()));
+    }
+
+    public Map<String, List<ClassificacaoVM>> getClassificacao() {
+        Map<String, Map<String, int[]>>    statsPorGrupo = new TreeMap<>();
+        Map<String, Map<String, String[]>> metaPorGrupo  = new TreeMap<>();
+
+        for (PartidaVM p : partidas) {
+            if (p.grupo() == null || p.grupo().isBlank()) continue;
+            String g     = p.grupo();
+            String slugC = p.slugCasa();
+            String slugV = p.slugVisitante();
+
+            statsPorGrupo.computeIfAbsent(g, k -> new LinkedHashMap<>())
+                         .computeIfAbsent(slugC, k -> new int[6]);
+            statsPorGrupo.get(g).computeIfAbsent(slugV, k -> new int[6]);
+            metaPorGrupo.computeIfAbsent(g, k -> new LinkedHashMap<>())
+                        .putIfAbsent(slugC, new String[]{p.selecaoCasa(), p.bandeiraCasa()});
+            metaPorGrupo.get(g).putIfAbsent(slugV, new String[]{p.selecaoVisitante(), p.bandeiraVisitante()});
+
+            if (!p.encerrada() || !p.temResultado()) continue;
+
+            int gc = p.golsCasa(), gv = p.golsVisitante();
+            int[] sc = statsPorGrupo.get(g).get(slugC);
+            int[] sv = statsPorGrupo.get(g).get(slugV);
+
+            // [0]=jogos [1]=V [2]=E [3]=D [4]=GM [5]=GS
+            sc[0]++; sv[0]++;
+            sc[4] += gc; sc[5] += gv;
+            sv[4] += gv; sv[5] += gc;
+
+            if (gc > gv)      { sc[1]++; sv[3]++; }
+            else if (gc < gv) { sc[3]++; sv[1]++; }
+            else              { sc[2]++; sv[2]++; }
+        }
+
+        Map<String, List<ClassificacaoVM>> result = new TreeMap<>();
+        statsPorGrupo.forEach((grupo, statsMap) -> {
+            Map<String, String[]> metaMap = metaPorGrupo.get(grupo);
+            List<ClassificacaoVM> lista = statsMap.entrySet().stream()
+                    .map(e -> {
+                        String[]  m   = metaMap.get(e.getKey());
+                        int[]     s   = e.getValue();
+                        return new ClassificacaoVM(m[0], m[1], e.getKey(),
+                                s[0], s[1], s[2], s[3], s[4], s[5], s[1] * 3 + s[2]);
+                    })
+                    .sorted(Comparator.comparingInt(ClassificacaoVM::pts)
+                            .thenComparingInt(ClassificacaoVM::saldo)
+                            .thenComparingInt(ClassificacaoVM::gm)
+                            .reversed())
+                    .toList();
+            result.put(grupo, lista);
+        });
+        return result;
+    }
+
+    public Map<String, List<PartidaVM>> knockoutPorFase() {
+        List<String> ordem = List.of("32 avos", "Oitavas", "Quartas", "Semifinais", "3º Lugar", "Final");
+        Map<String, List<PartidaVM>> porFase = partidas.stream()
+                .filter(p -> p.grupo() == null || p.grupo().isBlank())
+                .filter(p -> p.fase() != null && !p.fase().equals("Fase de grupos"))
+                .collect(Collectors.groupingBy(PartidaVM::fase));
+        Map<String, List<PartidaVM>> result = new LinkedHashMap<>();
+        for (String fase : ordem) {
+            if (!porFase.containsKey(fase)) continue;
+            List<PartidaVM> jogos = new ArrayList<>(porFase.get(fase));
+            jogos.sort(Comparator.comparing(PartidaVM::dataHora,
+                    Comparator.nullsLast(Comparator.naturalOrder())));
+            result.put(fase, jogos);
+        }
+        return result;
     }
 
     public List<PartidaVM> proximasPartidas(int limite) {
@@ -756,12 +830,6 @@ public class Copa2026DataService {
         return ENGLISH_TO_SLUG.get(englishName.toLowerCase(Locale.ROOT));
     }
 
-    private String englishNameForSlug(String slug) {
-        return TEAMS.entrySet().stream()
-                .filter(e -> e.getValue().slug().equals(slug))
-                .map(Map.Entry::getKey)
-                .findFirst().orElse(null);
-    }
 
     // ── Construção a partir dos dados da API ─────────────────────────────────
 

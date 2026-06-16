@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/public-head :: head(
+    'Classificação — Copa 2026',
+    'Tabela de classificação ao vivo da fase de grupos da Copa do Mundo 2026.',
+    '/img/og-copa.webp',
+    'classificacao',
+    '/css/classificacao.css')}"></head>
+<body>
+
+<nav th:replace="~{fragments/site-nav :: nav('classificacao')}"></nav>
+<th:block th:replace="~{fragments/site-nav :: lang-js}"></th:block>
+
+<!-- Hero -->
+<section class="cl-hero">
+    <div class="cl-hero__inner">
+        <div class="cl-live-pill" th:if="${not #lists.isEmpty(aoVivo)}">
+            <span class="cl-dot"></span> CLASSIFICAÇÃO A ACTUALIZAR
+        </div>
+        <h1>Classificação <span class="cl-hl">Fase de Grupos</span></h1>
+        <p class="cl-hero__sub">Tabela actualizada em tempo real com os resultados da Copa do Mundo 2026</p>
+    </div>
+</section>
+
+<main class="cl-main">
+
+    <!-- Sem dados -->
+    <div th:if="${#maps.isEmpty(classificacao)}" class="cl-empty">
+        <p>Os dados da classificação ainda não estão disponíveis. Tenta novamente em breve.</p>
+        <a th:href="@{/calendario}" class="cl-btn">Ver calendário →</a>
+    </div>
+
+    <!-- Tabelas por grupo -->
+    <th:block th:each="entry : ${classificacao}">
+        <section class="cl-group">
+            <div class="cl-group__header">
+                <h2 class="cl-group__title">Grupo <span th:text="${entry.key}"></span></h2>
+            </div>
+            <div class="cl-table-wrap">
+                <table class="cl-table">
+                    <thead>
+                        <tr>
+                            <th class="cl-th cl-th--pos">#</th>
+                            <th class="cl-th cl-th--selecao">Seleção</th>
+                            <th class="cl-th cl-th--stat" title="Jogos">J</th>
+                            <th class="cl-th cl-th--stat" title="Vitórias">V</th>
+                            <th class="cl-th cl-th--stat" title="Empates">E</th>
+                            <th class="cl-th cl-th--stat" title="Derrotas">D</th>
+                            <th class="cl-th cl-th--stat" title="Golos Marcados">GM</th>
+                            <th class="cl-th cl-th--stat" title="Golos Sofridos">GS</th>
+                            <th class="cl-th cl-th--stat" title="Saldo de Golos">SG</th>
+                            <th class="cl-th cl-th--pts" title="Pontos">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="eq, idx : ${entry.value}"
+                            th:classappend="${idx.index < 2} ? 'cl-tr--apurada' : ''">
+                            <td class="cl-td cl-td--pos">
+                                <span class="cl-pos"
+                                      th:classappend="${idx.index == 0} ? ' cl-pos--1' : (${idx.index == 1} ? ' cl-pos--2' : '')"
+                                      th:text="${idx.count}"></span>
+                            </td>
+                            <td class="cl-td cl-td--selecao">
+                                <a th:href="@{/selecoes/{slug}(slug=${eq.slug()})}" class="cl-selecao-link">
+                                    <span class="cl-flag" th:text="${eq.bandeira()}"></span>
+                                    <span class="cl-nome" th:text="${eq.selecao()}"></span>
+                                </a>
+                            </td>
+                            <td class="cl-td cl-td--stat" th:text="${eq.jogos()}"></td>
+                            <td class="cl-td cl-td--stat" th:text="${eq.vitorias()}"></td>
+                            <td class="cl-td cl-td--stat" th:text="${eq.empates()}"></td>
+                            <td class="cl-td cl-td--stat" th:text="${eq.derrotas()}"></td>
+                            <td class="cl-td cl-td--stat" th:text="${eq.gm()}"></td>
+                            <td class="cl-td cl-td--stat" th:text="${eq.gs()}"></td>
+                            <td class="cl-td cl-td--stat cl-td--saldo"
+                                th:text="${eq.saldo() > 0 ? '+' + eq.saldo() : eq.saldo()}"></td>
+                            <td class="cl-td cl-td--pts" th:text="${eq.pts()}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="cl-group__legend">
+                <span class="cl-legend-dot cl-legend-dot--apurada"></span> Apurado para os oitavos
+            </p>
+        </section>
+    </th:block>
+
+    <!-- Links rápidos -->
+    <div class="cl-links">
+        <a th:href="@{/calendario}" class="cl-link-btn">📅 Calendário</a>
+        <a th:href="@{/ao-vivo}" class="cl-link-btn">🔴 Ao Vivo</a>
+        <a th:href="@{/selecoes}" class="cl-link-btn">🌍 Seleções</a>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
+
+<!-- Auto-refresh a cada 60s quando há jogo ao vivo -->
+<script th:if="${not #lists.isEmpty(aoVivo)}">
+    setTimeout(function () { location.reload(); }, 60000);
+</script>
+
+</body>
+</html>
