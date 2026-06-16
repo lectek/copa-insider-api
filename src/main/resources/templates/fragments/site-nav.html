@@ -50,17 +50,23 @@
             <a class="lf" data-lang="en"
                th:classappend="${#locale.language=='en'} ? 'lf-on'">🇺🇸</a>
         </div>
-        <a th:href="@{/conta/acessos}" sec:authorize="isAuthenticated() and !hasAnyRole('ADMIN','DEVELOPER')"
-           class="navbar__acessos-link">Os meus acessos</a>
-        <a th:href="@{/admin/dashboard}" sec:authorize="hasAnyRole('ADMIN','DEVELOPER')"
-           class="navbar__admin-link">⚙ Admin</a>
-        <a th:href="@{/logout}" sec:authorize="isAuthenticated()"
-           class="navbar__logout-link">Sair</a>
-        <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()"
-           class="cta-btn">Login</a>
+        <th:block th:replace="~{::sessionLinks}"></th:block>
     </div>
 
 </nav>
+
+<!-- Fragment: sessionLinks — única fonte de verdade para Acessos/Admin/Sair/Login,
+     reutilizada pelas páginas com navbar próprio para evitar links desatualizados -->
+<th:block th:fragment="sessionLinks">
+    <a th:href="@{/conta/acessos}" sec:authorize="isAuthenticated() and !hasAnyRole('ADMIN','DEVELOPER')"
+       class="navbar__acessos-link">Os meus acessos</a>
+    <a th:href="@{/admin/dashboard}" sec:authorize="hasAnyRole('ADMIN','DEVELOPER')"
+       class="navbar__admin-link">⚙ Admin</a>
+    <a th:href="@{/logout}" sec:authorize="isAuthenticated()"
+       class="navbar__logout-link">Sair</a>
+    <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()"
+       class="cta-btn">Login</a>
+</th:block>
 
 <!-- Lang switcher JS (inline porque é tiny e precisa de correr antes do DOMContentLoaded) -->
 <script th:fragment="lang-js">
