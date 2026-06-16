@@ -52,9 +52,8 @@ public class UsuarioEntity implements Serializable {
     @Column(nullable = false, length = 150, unique = true)
     private String email;
 
-    @NotBlank
     @Size(min = 11, max = 14)
-    @Column(nullable = false, length = 14, unique = true)
+    @Column(nullable = true, length = 14, unique = true)
     private String cpf;
 
     @NotBlank
