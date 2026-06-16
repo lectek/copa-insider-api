@@ -2,6 +2,7 @@ package br.com.lectek.copainsider.adapters.inbound.web.controller;
 
 import br.com.lectek.copainsider.adapters.outbound.persistence.entity.CustomerEntity;
 import br.com.lectek.copainsider.adapters.outbound.persistence.entity.UsuarioEntity;
+import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CopaAcessoJPARepository;
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CustomerRepository;
 import br.com.lectek.copainsider.adapters.outbound.persistence.repository.UsuarioRepository;
 import br.com.lectek.copainsider.application.core.account.UserAccountService;
@@ -140,23 +141,31 @@ public class AccountController {
     private final ImageStorageService imageStorageService;
 
     /**
+     * Copa access repository for checking purchased content.
+     */
+    private final CopaAcessoJPARepository acessoRepository;
+
+    /**
      * Creates the controller with required dependencies.
      *
      * @param accountServiceValue account service
      * @param usuarioRepositoryValue user repository
      * @param customerRepositoryValue customer repository
      * @param imageStorageServiceValue image storage service
+     * @param acessoRepositoryValue copa access repository
      */
     public AccountController(
             final UserAccountService accountServiceValue,
             final UsuarioRepository usuarioRepositoryValue,
             final CustomerRepository customerRepositoryValue,
-            final ImageStorageService imageStorageServiceValue
+            final ImageStorageService imageStorageServiceValue,
+            final CopaAcessoJPARepository acessoRepositoryValue
     ) {
         this.accountService = accountServiceValue;
         this.usuarioRepository = usuarioRepositoryValue;
         this.customerRepository = customerRepositoryValue;
         this.imageStorageService = imageStorageServiceValue;
+        this.acessoRepository = acessoRepositoryValue;
     }
 
     /**
@@ -194,6 +203,15 @@ public class AccountController {
     @GetMapping("/conta")
     public String conta(final Model model, final Authentication auth) {
         model.addAttribute(ACTIVE_ATTR, "conta");
+        final String email = extrairEmail(auth);
+        if (email != null) {
+            final int total = acessoRepository.findByEmailIgnoreCase(email).size();
+            model.addAttribute("temAcessos", total > 0);
+            model.addAttribute("totalAcessos", total);
+        } else {
+            model.addAttribute("temAcessos", false);
+            model.addAttribute("totalAcessos", 0);
+        }
         final UsuarioEntity usuario = localizarUsuario(auth).orElse(null);
         if (usuario != null) {
             model.addAttribute("avatarUrl", usuario.getAvatarUrl());

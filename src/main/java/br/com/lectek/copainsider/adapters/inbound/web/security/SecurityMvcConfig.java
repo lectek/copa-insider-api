@@ -1,11 +1,13 @@
 package br.com.lectek.copainsider.adapters.inbound.web.security;
 
+import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CopaAcessoJPARepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
@@ -35,10 +37,13 @@ public class SecurityMvcConfig {
 
     private final Environment env;
     private final SessionRegistry sessionRegistry;
+    private final CopaAcessoJPARepository acessoRepo;
 
-    public SecurityMvcConfig(Environment env, SessionRegistry sessionRegistry) {
+    public SecurityMvcConfig(Environment env, SessionRegistry sessionRegistry,
+                             @Lazy CopaAcessoJPARepository acessoRepo) {
         this.env = env;
         this.sessionRegistry = sessionRegistry;
+        this.acessoRepo = acessoRepo;
     }
 
     private boolean isDevLike() {
@@ -232,9 +237,16 @@ public class SecurityMvcConfig {
                 .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
         boolean isCaixa = authentication.getAuthorities().stream()
                 .anyMatch(a -> "ROLE_CAIXA".equals(a.getAuthority()));
-        String roleDefault = isAdmin
-                ? "/admin/dashboard"
-                : (isCaixa ? "/admin/vendas/rapida" : "/cliente/conta");
+        String defaultForUser = acessoRepo.existsByEmailIgnoreCase(authentication.getName())
+                ? "/conta/acessos" : "/cliente/conta";
+        String roleDefault;
+        if (isAdmin) {
+            roleDefault = "/admin/dashboard";
+        } else if (isCaixa) {
+            roleDefault = "/admin/vendas/rapida";
+        } else {
+            roleDefault = defaultForUser;
+        }
 
         String requested = request.getParameter("redirect");
         if (StringUtils.hasText(requested) && requested.startsWith("/") && !requested.startsWith("//")) {

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bem-vindo ao Copa Insider</title>
+  <style>
+    body { margin: 0; padding: 0; background: #0a0a0a; font-family: 'Inter', Arial, sans-serif; color: #ffffff; }
+    .wrap { max-width: 600px; margin: 0 auto; background: #111; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; }
+    .header { background: linear-gradient(135deg, #1a1200 0%, #2a1f00 100%); padding: 40px 32px; text-align: center; }
+    .header-badge { display: inline-block; background: #e8b930; color: #000; font-weight: 800; font-size: 13px; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.06em; margin-bottom: 16px; }
+    .header h1 { margin: 0; font-size: 26px; font-weight: 800; color: #fff; line-height: 1.3; }
+    .header p { margin: 10px 0 0; font-size: 14px; color: #c0a060; }
+    .body { padding: 32px; }
+    .greeting { font-size: 16px; color: #ccc; margin-bottom: 8px; }
+    .greeting strong { color: #fff; }
+    .intro { font-size: 14px; color: #999; margin: 0 0 28px; line-height: 1.6; }
+    .section-title { font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+    .access-list { list-style: none; padding: 0; margin: 0 0 28px; display: flex; flex-direction: column; gap: 8px; }
+    .access-item { display: flex; align-items: center; justify-content: space-between; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px 14px; }
+    .access-item-left { display: flex; align-items: center; gap: 10px; }
+    .access-icon { font-size: 18px; width: 22px; text-align: center; }
+    .access-name { font-size: 13px; font-weight: 600; color: #e0e0e0; }
+    .access-link { display: inline-block; background: #e8b930; color: #000; font-weight: 700; font-size: 12px; padding: 6px 14px; border-radius: 5px; text-decoration: none; white-space: nowrap; }
+    .cta-section { text-align: center; margin: 28px 0; }
+    .cta-btn { display: inline-block; background: #e8b930; color: #000; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 8px; text-decoration: none; }
+    .tip-box { background: #141414; border: 1px solid #2a2a2a; border-left: 3px solid #e8b930; border-radius: 8px; padding: 14px 18px; font-size: 13px; color: #aaa; line-height: 1.6; margin-bottom: 24px; }
+    .tip-box strong { color: #e8b930; }
+    .footer { padding: 24px 32px; border-top: 1px solid #2a2a2a; text-align: center; }
+    .footer p { font-size: 12px; color: #555; margin: 4px 0; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-badge">Copa Insider ⚽</div>
+    <h1>Os teus conteúdos estão prontos!</h1>
+    <p>Copa do Mundo 2026 — análises exclusivas</p>
+  </div>
+
+  <div class="body">
+    <p class="greeting">Olá, <strong th:text="${nome}">utilizador</strong>!</p>
+    <p class="intro">
+      O teu acesso ao Copa Insider está activo. Aqui tens um resumo do que podes explorar
+      agora mesmo — directamente no teu browser, sem instalar nada.
+    </p>
+
+    <div class="section-title">Os teus acessos</div>
+    <ul class="access-list">
+      <li th:each="item : ${acessos}" class="access-item">
+        <div class="access-item-left">
+          <span class="access-icon" th:text="${item.icon}">📄</span>
+          <span class="access-name" th:text="${item.nome}">Produto</span>
+        </div>
+        <a th:href="${plataformaUrl + item.url}" class="access-link">Abrir →</a>
+      </li>
+    </ul>
+
+    <div class="tip-box">
+      <strong>Dica:</strong> Podes aceder aos teus conteúdos a qualquer momento em
+      <a th:href="${plataformaUrl + '/conta/acessos'}" style="color:#e8b930;" th:text="${plataformaUrl + '/conta/acessos'}"></a>
+    </div>
+
+    <div class="cta-section">
+      <a th:href="${plataformaUrl + '/conta/acessos'}" class="cta-btn">Ver os meus conteúdos →</a>
+    </div>
+
+    <p style="font-size:13px; color:#888; text-align:center;">
+      Dúvidas? Fale connosco em
+      <a href="mailto:suporte@allaboutworldcup2026.com" style="color:#e8b930;">suporte@allaboutworldcup2026.com</a>
+    </p>
+  </div>
+
+  <div class="footer">
+    <p>Copa Insider &mdash; Análises e guias da Copa do Mundo 2026</p>
+    <p>Recebeste este e-mail porque tens conteúdos activos na tua conta.</p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -28,19 +28,38 @@
         </div>
     </div>
 
-    <!-- Lista de acessos -->
-    <div th:if="${!acessos.isEmpty()}">
-        <div th:each="item : ${acessos}" class="acesso-row">
-            <div class="acesso-info">
-                <span class="acesso-icone" th:text="${item.icon}">📄</span>
+    <!-- Cards de acesso -->
+    <div th:if="${!acessos.isEmpty()}" class="acessos-grid">
+        <div th:each="item : ${acessos}"
+             class="acesso-card"
+             th:classappend="${item.slug == 'copa-pass'} ? ' acesso-card--pass'">
+
+            <div class="acesso-card__header">
+                <span class="acesso-card__icone" th:text="${item.icon}">📄</span>
                 <div>
-                    <div class="acesso-nome" th:text="${item.nome}">Produto</div>
-                    <div class="acesso-data"
+                    <div class="acesso-card__nome" th:text="${item.nome}">Produto</div>
+                    <div class="acesso-card__data"
                          th:text="'Acesso desde ' + ${#temporals.format(item.concedidoEm, 'dd MMM yyyy')}">
                     </div>
                 </div>
             </div>
-            <a th:href="${item.url}" class="btn-abrir">Abrir →</a>
+
+            <p class="acesso-card__desc"
+               th:if="${item.descricao != null}"
+               th:text="${item.descricao}"></p>
+
+            <!-- Copa Pass: lista do que está incluído -->
+            <div th:if="${item.slug == 'copa-pass'}" class="pass-includes">
+                <div class="pass-includes__title">Inclui</div>
+                <ul class="pass-includes__list">
+                    <li>Calendário completo + Comparador de seleções</li>
+                    <li>Histórico de confrontos entre qualquer par</li>
+                    <li>Todos os guias de seleções disponíveis</li>
+                    <li>Copa em 20 Factos</li>
+                </ul>
+            </div>
+
+            <a th:href="${item.url}" class="btn-aceder">Abrir agora →</a>
         </div>
     </div>
 

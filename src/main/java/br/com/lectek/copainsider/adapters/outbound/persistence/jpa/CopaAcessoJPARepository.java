@@ -4,14 +4,19 @@ import br.com.lectek.copainsider.adapters.outbound.persistence.entity.CopaAcesso
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
 public interface CopaAcessoJPARepository extends JpaRepository<CopaAcessoEntity, Long> {
+    boolean existsByEmailIgnoreCase(String email);
     boolean existsByEmailIgnoreCaseAndProdutoSlug(String email, String produtoSlug);
     List<CopaAcessoEntity> findByEmailIgnoreCase(String email);
     List<CopaAcessoEntity> findByTransacaoIgnoreCase(String transacao);
     List<CopaAcessoEntity> findByEmailContainingIgnoreCase(String email);
     Page<CopaAcessoEntity> findAllByOrderByConcedidoEmDesc(Pageable pageable);
     Page<CopaAcessoEntity> findByEmailContainingIgnoreCaseOrderByConcedidoEmDesc(String email, Pageable pageable);
+
+    @Query("SELECT DISTINCT LOWER(a.email) FROM CopaAcessoEntity a")
+    List<String> findDistinctEmails();
 }

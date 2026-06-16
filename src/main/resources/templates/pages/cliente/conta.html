@@ -51,6 +51,29 @@
         .acc-card__title { font-weight: 700; font-size: .95rem; color: #e8e8f0; }
         .acc-card__desc { font-size: .82rem; color: #9090a8; line-height: 1.4; }
 
+        .acc-card--premium {
+            border-color: rgba(245,166,35,.4);
+            background: rgba(245,166,35,.06);
+            grid-column: 1 / -1;
+            flex-direction: row;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.25rem 1.5rem;
+        }
+        .acc-card--premium:hover { border-color: rgba(245,166,35,.7); }
+        .acc-card--premium .acc-card__icon { font-size: 2.2rem; }
+        .acc-card--premium .acc-card__title { font-size: 1.05rem; color: #f5a623; }
+        .acc-card--premium .acc-card__badge {
+            margin-left: auto;
+            background: rgba(245,166,35,.18);
+            color: #f5a623;
+            font-size: .78rem;
+            font-weight: 700;
+            padding: .25rem .7rem;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
         @media (max-width: 640px) {
             .nav-links { display: none; }
             .acc-header { flex-direction: column; text-align: center; }
@@ -90,6 +113,15 @@
         </div>
 
         <div class="acc-grid">
+            <a th:if="${temAcessos}" th:href="@{/conta/acessos}" class="acc-card acc-card--premium">
+                <span class="acc-card__icon">⭐</span>
+                <div>
+                    <div class="acc-card__title">Os meus conteúdos</div>
+                    <div class="acc-card__desc">Acede aos guias e produtos que adquiriste</div>
+                </div>
+                <span class="acc-card__badge" th:text="${totalAcessos} + ' produto(s)'">1 produto(s)</span>
+            </a>
+
             <a th:href="@{/cliente/dados}" class="acc-card">
                 <span class="acc-card__icon">👤</span>
                 <div class="acc-card__title">Meus Dados</div>
