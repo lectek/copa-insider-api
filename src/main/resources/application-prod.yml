@@ -115,6 +115,7 @@ server:
     include-message: ${SERVER_ERROR_INCLUDE_MESSAGE:never}
     include-binding-errors: ${SERVER_ERROR_INCLUDE_BINDING_ERRORS:never}
     include-exception: ${SERVER_ERROR_INCLUDE_EXCEPTION:false}
+    include-stacktrace: ${SERVER_ERROR_INCLUDE_STACKTRACE:never}
 
 management:
   health:
