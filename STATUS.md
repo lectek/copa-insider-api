@@ -1,18 +1,17 @@
 # Copa Insider — Estado Actual do Sistema
-> Actualizado: 2026-06-13
+> Actualizado: 2026-06-15
 
 ---
 
 ## Produtos no ar (Hotmart) — TODOS ACTIVOS
 
-| Produto | Slug | ID Hotmart | Preço EUR | Ativo |
-|---|---|---|---|---|
-| Copa Pass — Dossier Copa 2026 | `copa-pass` | 7915316 | €7,99 | ✅ |
-| Copa em 20 Factos | `copa-em-20-factos` | 7915301 | €3,90 | ✅ |
-| Guia Portugal | `guia-selecao-portugal` | 7907347 | €3,99 | ✅ |
-| Guia Brasil | `guia-selecao-brasil` | 7909721 | €3,99 | ✅ |
-| Histórico do Confronto | `historico-confronto` | 7910328 | €1,99 | ✅ |
-| Calendário & Comparador | `acesso-calendario-comparador` | — | €3,99 | ❌ descontinuado |
+| Produto | Slug | Preço EUR | Ativo |
+|---|---|---|---|
+| Copa Pass — Dossier Copa 2026 | `copa-pass` | €7,99 | ✅ |
+| Copa em 20 Factos | `copa-em-20-factos` | €3,90 | ✅ |
+| Guia Portugal | `guia-selecao-portugal` | €3,99 | ✅ |
+| Guia Brasil | `guia-selecao-brasil` | €3,99 | ✅ |
+| Histórico do Confronto | `historico-confronto` | €1,99 | ✅ |
 
 **Copa Pass inclui automaticamente:** acesso a todos os outros.
 
@@ -29,7 +28,8 @@ Utilizador → /loja → clica "Comprar" → pay.hotmart.com/...
     → Grava acessos em copa_acesso (por slug)
     → Envia email (template: mail/compra-confirmada.html)
   → Utilizador recebe email com credenciais
-  → Login → acede a /calendario, /comparar, /factos, /guia/{slug}
+  → Login → redireccionado para /conta/acessos (se tem acessos) ou /cliente/conta
+  → /conta/acessos: email de boas-vindas enviado na primeira visita
 ```
 
 ---
@@ -45,27 +45,68 @@ Utilizador → /loja → clica "Comprar" → pay.hotmart.com/...
 | `/selecoes` | Público | ✅ |
 | `/selecoes/{slug}` | Público | ✅ |
 | `/partida/{id}` | Público | ✅ |
-| `/comparar` | Requer Copa Pass | ✅ (gate funcional) |
-| `/calendario` | Requer Copa Pass | ✅ (gate funcional) |
+| `/comparar` | Requer Copa Pass | ✅ |
+| `/calendario` | Requer Copa Pass | ✅ |
+| `/ao-vivo` | Público | ✅ redesenhado (fontes + chat) |
+| `/onde-assistir` | Público | ✅ |
 | `/doacao` | Público | ✅ |
+| `/jogo/{id}/resumo` | Público | ✅ resumo pós-jogo |
+| `/jogo/{id}/sala` | Autenticado | ✅ chat por jogo (SSE) |
+| `/conta/acessos` | Autenticado | ✅ dashboard de conteúdos |
+| `/cliente/conta` | Autenticado | ✅ card premium se tem acessos |
 | `/auth/login` | Público | ✅ |
 | `/cadastro` | Público | ✅ |
-| `/conta/acessos` | Autenticado | ❌ por implementar |
 
 ---
 
 ## Páginas admin
 
-| URL | Estado | Notas |
+| URL | Estado |
+|---|---|
+| `/admin/dashboard` | ✅ |
+| `/admin/usuarios` | ✅ |
+| `/admin/notificacoes` | ✅ |
+| `/admin/marketing` | ✅ |
+| `/admin/configuracoes` | ✅ |
+| `/admin/copa/produtos` | ✅ toggle ativo, editar URL |
+| `/admin/copa/compras` | ✅ lista paginada read-only |
+| `/admin/copa/acessos` | ✅ pesquisa por email, revogar |
+
+---
+
+## Features Copa 2026 (em produção)
+
+| Feature | Estado | Notas |
 |---|---|---|
-| `/admin/dashboard` | ✅ Funcional | |
-| `/admin/usuarios` | ✅ Funcional | |
-| `/admin/notificacoes` | ✅ Funcional | |
-| `/admin/marketing` | ✅ Funcional | |
-| `/admin/configuracoes` | ✅ Funcional | |
-| `/admin/copa/produtos` | ✅ Funcional | Toggle ativo, editar URL |
-| `/admin/copa/compras` | ✅ Funcional | Lista paginada read-only |
-| `/admin/copa/acessos` | ✅ Funcional | Pesquisa por email, revogar |
+| Dados ao vivo | ✅ | ESPN scoreboard + fallback por tempo |
+| Detecção de jogo ao vivo | ✅ | fix midnight crossover |
+| `/ao-vivo` com fontes gratuitas | ✅ | FIFA+, RTP, CazéTV, Globo, BBC, ITV |
+| `/classificacao` fase de grupos | ✅ | tabela por grupo, auto-refresh ao vivo |
+| Chat por jogo (`/jogo/{id}/sala`) | ✅ | SSE, requer login |
+| Resumo pós-jogo (`/jogo/{id}/resumo`) | ✅ | SofaScore (sem chave API) |
+| Experiência pós-compra | ✅ | redirect inteligente + email boas-vindas |
+| Countdown próximo jogo em `/ao-vivo` | ✅ | JS em tempo real |
+| `/bracket` fase a eliminação | ✅ | colunas por ronda, mata-mata começa 29 Jun |
+| `/classificacao` com bracket | ✅ | tabelas por grupo + link bracket |
+| Alertas pré-jogo por email | ✅ | scheduler 5 min, janela 30-35 min |
+| Novos guias de seleções | ✅ | França, Argentina, Inglaterra, Espanha |
+| Palpites + ranking `/palpites` | ✅ | 3 pts exacto, 1 pt resultado |
+| Destaques do jogo | ✅ | link YouTube pré-formatado em `/jogo/{id}/resumo` |
+
+---
+
+## Features a implementar (Roadmap Julho 2026)
+
+| Feature | Prioridade | Estado |
+|---|---|---|
+| Classificação dos grupos | 🔴 Alta | ✅ concluído |
+| Bracket fase a eliminação | 🔴 Alta | ✅ concluído |
+| Alerta pré-jogo por email | 🟡 Média | ✅ concluído |
+| Novos guias de seleções | 🟡 Média | ✅ concluído (França, Argentina, Inglaterra, Espanha) |
+| Previsões de resultado | 🟢 Normal | ✅ concluído (palpites + ranking /palpites) |
+| Destaques do jogo | 🟢 Normal | ✅ concluído (link YouTube em /resumo) |
+
+Ver detalhes em `PLANO.md`.
 
 ---
 
@@ -73,20 +114,20 @@ Utilizador → /loja → clica "Comprar" → pay.hotmart.com/...
 
 | Ficheiro | Função |
 |---|---|
-| `landing.css` | Landing page (index) + loja — design de marketing |
-| `site-base.css` | Base partilhada: navbar, footer, paywall, variáveis |
-| `site-nav.html` | Fragment navbar unificado para páginas secundárias |
-| `site-footer.html` | Fragment footer unificado |
-| `public-head.html` | Fragment `<head>` com SEO, fonts, css |
-| `calendario.css` | Estilos específicos de /calendario |
-| `comparar.css` | Estilos específicos de /comparar |
-| `factos.css` | Estilos específicos de /factos |
-| `selecoes.css` | Estilos específicos de /selecoes |
-| `partida.css` | Estilos específicos de /partida |
-| `ranking.css` | Estilos específicos de /ranking |
-| `rivalidades.css` | Estilos específicos de /rivalidades |
-| `loja.css` | Estilos específicos de /loja |
+| `landing.css` | Landing page (index) + loja |
+| `site-base.css` | Base partilhada: navbar, footer, variáveis |
+| `ao-vivo.css` | `/ao-vivo` — jogo ao vivo + countdown + fontes |
+| `calendario.css` | `/calendario` |
+| `comparar.css` | `/comparar` |
+| `factos.css` | `/factos` |
+| `selecoes.css` | `/selecoes` |
+| `partida.css` | `/partida/{id}` |
+| `produto.css` | `/guia/{slug}` |
+| `conta.css` | `/cliente/conta` + `/conta/acessos` |
 | `ci-admin.css` | Admin completo (classes ci-*) |
+| `classificacao.css` | `/classificacao` |
+| `bracket.css` | `/bracket` |
+| `palpites.css` | `/palpites` — ranking de palpites |
 
 ---
 
@@ -110,29 +151,13 @@ Utilizador → /loja → clica "Comprar" → pay.hotmart.com/...
 
 ## Variáveis de ambiente (Railway)
 
-| Variável | Obrigatória | Estado |
-|---|---|---|
-| `SPRING_DATASOURCE_URL` | Sim | ✅ |
-| `SPRING_DATASOURCE_USERNAME` | Sim | ✅ |
-| `SPRING_DATASOURCE_PASSWORD` | Sim | ✅ |
-| `HOTMART_HOTTOK` | Sim | ✅ |
-| `HOTMART_CLIENT_ID` | Sync API | ⚠️ Verificar |
-| `HOTMART_CLIENT_SECRET` | Sync API | ⚠️ Verificar |
-| `SPRING_MAIL_HOST` | Email | ✅ |
-| `SPRING_MAIL_USERNAME` | Email | ✅ |
-| `SPRING_MAIL_PASSWORD` | Email | ✅ |
-
----
-
-## Commits desde o início da Copa (12 Jun 2026)
-
-| Hash | Descrição |
+| Variável | Estado |
 |---|---|
-| `a6c0a7d` | docs: guia completo dos 5 produtos |
-| `fe092e1` | refactor: unifica navbar/footer/CSS — 750 linhas removidas |
-| `60a3cba` | refactor: frontend — elimina inline styles, nav.js |
-| `4162d05` | docs: skills de estilização frontend |
-| `1c3dd0d` | docs: skills de desenvolvimento + erros conhecidos |
-| `ce2cffa` | feat: admin Copa — páginas produtos/compras/acessos + fix paywalls |
-| `2bd6b3d` | fix: dashboard admin em branco |
-| `4cdae72` | fix: ROLE_DEVELOPER aceite como admin |
+| `SPRING_DATASOURCE_URL` | ✅ |
+| `SPRING_DATASOURCE_USERNAME` | ✅ |
+| `SPRING_DATASOURCE_PASSWORD` | ✅ |
+| `HOTMART_HOTTOK` | ✅ |
+| `SPRING_MAIL_HOST` | ✅ |
+| `SPRING_MAIL_USERNAME` | ✅ |
+| `SPRING_MAIL_PASSWORD` | ✅ |
+| `APP_WEB_BASE_URL` | ✅ `https://allaboutworldcup2026.com` |
