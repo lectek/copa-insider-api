@@ -6,6 +6,8 @@ import br.com.lectek.copainsider.domain.user.Role;
 import br.com.lectek.copainsider.domain.user.RoleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -15,7 +17,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class GoogleOAuth2UserService
@@ -51,37 +55,32 @@ public class GoogleOAuth2UserService
         email = email.trim().toLowerCase();
 
         final String finalEmail = email;
-        usuarioRepo.findByEmailIgnoreCase(finalEmail).ifPresentOrElse(
-                existing -> {
+        UsuarioEntity usuario = usuarioRepo.findByEmailIgnoreCase(finalEmail)
+                .map(existing -> {
                     if (!existing.isEmailVerificado()) {
                         existing.setEmailVerificado(true);
-                        usuarioRepo.save(existing);
                         log.info("[oauth2] email activado via Google: {}", finalEmail);
                     }
-                },
-                () -> {
+                    return existing;
+                })
+                .orElseGet(() -> {
                     String nome = googleUser.getAttribute("name");
-                    if (nome == null || nome.isBlank()) {
-                        nome = finalEmail;
-                    }
+                    if (nome == null || nome.isBlank()) nome = finalEmail;
                     UsuarioEntity u = new UsuarioEntity();
                     u.setEmail(finalEmail);
                     u.setNome(nome.trim());
                     u.setSenha(encoder.encode(UUID.randomUUID().toString()));
                     u.setEmailVerificado(true);
                     u.addRole(resolveClienteRole());
-                    usuarioRepo.save(u);
                     log.info("[oauth2] novo utilizador via Google: {}", finalEmail);
-                }
-        );
+                    return usuarioRepo.save(u);
+                });
 
-        // Return an OAuth2User whose name attribute is the email,
-        // so authentication.getName() == email (same as form login).
-        return new DefaultOAuth2User(
-                googleUser.getAuthorities(),
-                googleUser.getAttributes(),
-                ATTR_EMAIL
-        );
+        List<GrantedAuthority> authorities = usuario.getRoles().stream()
+                .map(r -> new SimpleGrantedAuthority(r.getNome()))
+                .collect(Collectors.toList());
+
+        return new DefaultOAuth2User(authorities, googleUser.getAttributes(), ATTR_EMAIL);
     }
 
     private Role resolveClienteRole() {

@@ -227,6 +227,35 @@
     width: 100%;
 }
 
+/* ── Social login ───────────────────────────────────── */
+.ci-auth-divider {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 1.25rem 0 1rem;
+    color: #444;
+    font-size: .8rem;
+}
+.ci-auth-divider::before,
+.ci-auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #252525;
+}
+
+.ci-btn--google {
+    background: #fff;
+    color: #1f1f1f;
+    border-color: #dadce0;
+    font-weight: 600;
+    margin-bottom: .25rem;
+}
+.ci-btn--google:hover {
+    background: #f8f8f8;
+    border-color: #c6c6c6;
+}
+
 /* ── Switch link (Criar conta) ──────────────────────── */
 .ci-auth-card__switch {
     margin-top: 1.25rem;

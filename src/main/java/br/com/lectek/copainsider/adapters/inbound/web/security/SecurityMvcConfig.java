@@ -38,12 +38,15 @@ public class SecurityMvcConfig {
     private final Environment env;
     private final SessionRegistry sessionRegistry;
     private final CopaAcessoJPARepository acessoRepo;
+    private final GoogleOAuth2UserService googleOAuth2UserService;
 
     public SecurityMvcConfig(Environment env, SessionRegistry sessionRegistry,
-                             @Lazy CopaAcessoJPARepository acessoRepo) {
+                             @Lazy CopaAcessoJPARepository acessoRepo,
+                             GoogleOAuth2UserService googleOAuth2UserService) {
         this.env = env;
         this.sessionRegistry = sessionRegistry;
         this.acessoRepo = acessoRepo;
+        this.googleOAuth2UserService = googleOAuth2UserService;
     }
 
     private boolean isDevLike() {
@@ -103,7 +106,8 @@ public class SecurityMvcConfig {
                         "/suporte", "/alysson",
                         "/catalogo", "/produtos", "/carrinho", "/checkout",
                         "/sobre", "/login", "/auth/login", "/logout", "/cadastro", "/cadastro-cliente",
-                        "/auth/cliente/cadastro", "/clientes/cadastro", "/error"
+                        "/auth/cliente/cadastro", "/clientes/cadastro", "/error",
+                        "/oauth2/**", "/login/oauth2/**"
                 ).permitAll();
 
                 // (REMOVIDO /pos-login)
@@ -185,6 +189,12 @@ public class SecurityMvcConfig {
                     .successHandler(successHandler())
                     .failureUrl("/auth/login?error")
                     .permitAll()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                    .loginPage("/auth/login")
+                    .successHandler(successHandler())
+                    .failureUrl("/auth/login?error")
+                    .userInfoEndpoint(ui -> ui.userService(googleOAuth2UserService))
             )
             .logout(l -> l
                     .logoutUrl("/logout")

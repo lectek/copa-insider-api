@@ -8,9 +8,9 @@
 <!-- Hero -->
 <section class="ci-hero">
     <div class="ci-hero__inner">
-        <h1 class="ci-hero__title">O seu jogo de palpites da Copa</h1>
+        <h1 class="ci-hero__title">Tudo sobre a Copa do Mundo 2026</h1>
         <p class="ci-hero__sub">
-            Dispute com amigos, suba no ranking e mostre que você entende de futebol.
+            Calendário, classificação, bracket e muito mais. Não percas nenhum jogo.
         </p>
         <div class="ci-hero__actions">
             <a th:href="@{/cadastro}" class="ci-btn ci-btn--primary ci-btn--lg">Entrar no jogo</a>
@@ -35,8 +35,8 @@
                     <span class="ci-match-card__data"
                           th:text="${#temporals.format(partida.dataHora, 'dd/MM HH:mm')}">18/06 15:00</span>
                 </div>
-                <a th:href="@{/palpites/partida/{id}(id=${partida.id})}"
-                   class="ci-btn ci-btn--primary ci-btn--sm ci-btn--full">Dar palpite</a>
+                <a th:href="@{/partida/{id}(id=${partida.id})}"
+                   class="ci-btn ci-btn--primary ci-btn--sm ci-btn--full">Ver partida</a>
             </div>
         </div>
         <p th:if="${proximasPartidas == null or proximasPartidas.empty}" class="ci-empty">
