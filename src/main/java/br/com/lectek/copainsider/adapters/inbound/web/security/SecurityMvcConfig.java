@@ -190,12 +190,6 @@ public class SecurityMvcConfig {
                     .failureUrl("/auth/login?error")
                     .permitAll()
             )
-            .oauth2Login(oauth2 -> oauth2
-                    .loginPage("/auth/login")
-                    .successHandler(successHandler())
-                    .failureUrl("/auth/login?error")
-                    .userInfoEndpoint(ui -> ui.userService(googleOAuth2UserService))
-            )
             .logout(l -> l
                     .logoutUrl("/logout")
                     .logoutSuccessUrl("/auth/login?logout=true")
@@ -226,6 +220,15 @@ public class SecurityMvcConfig {
                             .maxAgeInSeconds(31_536_000))
                     .referrerPolicy(rp -> rp.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
             );
+
+        if (StringUtils.hasText(env.getProperty("spring.security.oauth2.client.registration.google.client-id"))) {
+            http.oauth2Login(oauth2 -> oauth2
+                    .loginPage("/auth/login")
+                    .successHandler(successHandler())
+                    .failureUrl("/auth/login?error")
+                    .userInfoEndpoint(ui -> ui.userService(googleOAuth2UserService))
+            );
+        }
 
         http.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);
         return http.build();
