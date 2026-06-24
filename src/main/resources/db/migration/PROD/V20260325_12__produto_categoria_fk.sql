@@ -64,7 +64,6 @@ DEALLOCATE PREPARE s;
 DROP TRIGGER IF EXISTS trg_produto_categoria_bi;
 DROP TRIGGER IF EXISTS trg_produto_categoria_bu;
 
-DELIMITER $$
 CREATE TRIGGER trg_produto_categoria_bi
 BEFORE INSERT ON produto
 FOR EACH ROW
@@ -83,7 +82,7 @@ BEGIN
     WHERE LOWER(c.nome) = LOWER(LEFT(NEW.categoria, 100))
     LIMIT 1
   );
-END$$
+END;
 
 CREATE TRIGGER trg_produto_categoria_bu
 BEFORE UPDATE ON produto
@@ -103,5 +102,4 @@ BEGIN
     WHERE LOWER(c.nome) = LOWER(LEFT(NEW.categoria, 100))
     LIMIT 1
   );
-END$$
-DELIMITER ;
+END;
