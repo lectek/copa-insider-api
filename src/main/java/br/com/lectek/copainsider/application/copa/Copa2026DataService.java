@@ -308,7 +308,7 @@ public class Copa2026DataService {
                     p.selecaoVisitante(), p.slugVisitante(), p.bandeiraVisitante(),
                     p.dataHora(), p.fase(), p.grupo(),
                     p.golsCasa(), p.golsVisitante(), p.golsCasaHT(), p.golsVisitanteHT(),
-                    AO_VIVO, p.estadio(), p.cidade());
+                    AO_VIVO, p.estadio(), p.cidade(), p.minuto());
         }
         if (minDecorridos >= 130 && (current == AGENDADA || current == AO_VIVO)) {
             log.info("[time-fallback] {} × {} → ENCERRADA (+{}min, era {})",
@@ -317,7 +317,7 @@ public class Copa2026DataService {
                     p.selecaoVisitante(), p.slugVisitante(), p.bandeiraVisitante(),
                     p.dataHora(), p.fase(), p.grupo(),
                     p.golsCasa(), p.golsVisitante(), p.golsCasaHT(), p.golsVisitanteHT(),
-                    ENCERRADA, p.estadio(), p.cidade());
+                    ENCERRADA, p.estadio(), p.cidade(), null);
         }
         return p;
     }
@@ -425,20 +425,26 @@ public class Copa2026DataService {
         Integer golsVisitante = homeIsHome ? awayComp.scoreInt() : homeComp.scoreInt();
 
         PartidaVM.StatusPartida status = p.status();
+        String minuto = null;
         if (comp.status() != null && comp.status().type() != null) {
-            if (comp.status().type().isLive())     status = AO_VIVO;
-            else if (comp.status().type().isFinished()) status = ENCERRADA;
+            if (comp.status().type().isLive()) {
+                status = AO_VIVO;
+                String clock = comp.status().type().minuto();
+                if (clock != null && !clock.isBlank()) minuto = clock;
+            } else if (comp.status().type().isFinished()) {
+                status = ENCERRADA;
+            }
         }
 
-        log.warn("ESPN liveScore {}-{}: {}-{} [{}]",
-                p.slugCasa(), p.slugVisitante(), golsCasa, golsVisitante, status);
+        log.warn("ESPN liveScore {}-{}: {}-{} [{}] minuto={}",
+                p.slugCasa(), p.slugVisitante(), golsCasa, golsVisitante, status, minuto);
 
         return new PartidaVM(
                 p.id(), p.selecaoCasa(), p.slugCasa(), p.bandeiraCasa(),
                 p.selecaoVisitante(), p.slugVisitante(), p.bandeiraVisitante(),
                 p.dataHora(), p.fase(), p.grupo(),
                 golsCasa, golsVisitante, p.golsCasaHT(), p.golsVisitanteHT(),
-                status, p.estadio(), p.cidade());
+                status, p.estadio(), p.cidade(), minuto);
     }
 
     // ── Golos (OpenFootball) ─────────────────────────────────────────────────
@@ -856,7 +862,7 @@ public class Copa2026DataService {
                             dt, fase, grupo,
                             m.scoreHome(), m.scoreAway(),
                             htHome, htAway,
-                            status, ground[0], ground[1]);
+                            status, ground[0], ground[1], null);
                 })
                 .toList();
     }

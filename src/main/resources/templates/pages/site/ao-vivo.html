@@ -37,6 +37,7 @@
             <div class="av-match-hero__head">
                 <span class="av-badge-live"><span class="av-dot"></span> AO VIVO</span>
                 <span class="av-fase-tag" th:if="${p.fase() != null}" th:text="${p.fase()}"></span>
+                <span class="av-minuto-tag" th:if="${p.minuto() != null}" th:text="|${p.minuto()}'|"></span>
             </div>
 
             <div class="av-scoreboard-hero">
@@ -160,6 +161,28 @@
 
     </th:block>
 
+    <!-- ══ OUTROS JOGOS HOJE ════════════════════════════════════════════════ -->
+    <section class="av-hoje-section" th:if="${not #lists.isEmpty(jogosHoje)}">
+        <div class="av-section-label av-section-label--muted">
+            <span>📅</span> Outros jogos hoje
+        </div>
+        <div class="av-hoje-list">
+            <div th:each="j : ${jogosHoje}" class="av-hoje-row"
+                 th:classappend="${j.encerrada()} ? 'av-hoje-row--done' : ''">
+                <span class="av-hoje-hora" th:text="${#temporals.format(j.dataHora(), 'HH:mm')}"></span>
+                <span class="av-hoje-flag" th:text="${j.bandeiraCasa()}"></span>
+                <span class="av-hoje-nome" th:text="${j.selecaoCasa()}"></span>
+                <span class="av-hoje-placar" th:if="${j.temResultado()}"
+                      th:text="${j.golsCasa() + ' – ' + j.golsVisitante()}"></span>
+                <span class="av-hoje-vs" th:unless="${j.temResultado()}">vs</span>
+                <span class="av-hoje-flag" th:text="${j.bandeiraVisitante()}"></span>
+                <span class="av-hoje-nome" th:text="${j.selecaoVisitante()}"></span>
+                <span class="av-hoje-status av-hoje-status--done"  th:if="${j.encerrada()}">Encerrado</span>
+                <span class="av-hoje-status av-hoje-status--next"  th:if="${j.agendada()}">Agendado</span>
+            </div>
+        </div>
+    </section>
+
     <!-- Links rápidos -->
     <div class="av-links">
         <a th:href="@{/calendario}" class="av-link-btn">📅 Calendário Completo</a>
@@ -179,10 +202,12 @@
         var sEl  = document.getElementById('cd-s');
         if (!el || !hEl) return;
         var kick = new Date(el.dataset.kick);
+        var reloading = false;
         function tick() {
             var diff = kick - new Date();
             if (diff <= 0) {
                 el.innerHTML = '<span class="av-cd-starting">A começar...</span>';
+                if (!reloading) { reloading = true; setTimeout(function(){ location.reload(); }, 5000); }
                 return;
             }
             var h = Math.floor(diff / 3600000);
@@ -197,9 +222,9 @@
     })();
 </script>
 
-<!-- Auto-refresh a cada 60s quando há jogo ao vivo -->
+<!-- Auto-refresh a cada 30s quando há jogo ao vivo -->
 <script th:if="${not #lists.isEmpty(aoVivo)}">
-    setTimeout(function () { location.reload(); }, 60000);
+    setTimeout(function () { location.reload(); }, 30000);
 </script>
 
 </body>

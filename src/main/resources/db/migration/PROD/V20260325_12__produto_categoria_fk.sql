@@ -26,7 +26,7 @@ ON DUPLICATE KEY UPDATE nome = VALUES(nome);
 
 UPDATE produto p
 JOIN produto_categoria c
-  ON LOWER(c.nome) = LOWER(LEFT(TRIM(p.categoria), 100))
+  ON LOWER(c.nome) COLLATE utf8mb4_unicode_ci = LOWER(LEFT(TRIM(p.categoria), 100)) COLLATE utf8mb4_unicode_ci
 SET p.categoria_id = c.id
 WHERE p.categoria IS NOT NULL
   AND TRIM(p.categoria) <> '';

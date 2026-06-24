@@ -19,7 +19,8 @@ public record PartidaVM(
         Integer golsVisitanteHT,
         StatusPartida status,
         String estadio,
-        String cidade
+        String cidade,
+        String minuto
 ) {
     public boolean aoVivo() { return status == StatusPartida.AO_VIVO; }
     public boolean encerrada() { return status == StatusPartida.ENCERRADA; }

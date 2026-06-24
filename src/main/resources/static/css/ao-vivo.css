@@ -376,6 +376,85 @@ body {
     color: var(--c-gold);
 }
 
+/* ── Minuto do jogo ao vivo ──────────────────────────────────────────────── */
+.av-minuto-tag {
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--c-gold);
+    background: rgba(240,192,64,.12);
+    border: 1px solid rgba(240,192,64,.3);
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-left: auto;
+}
+
+/* ── Outros jogos hoje ───────────────────────────────────────────────────── */
+.av-hoje-section {
+    max-width: 680px;
+    width: 100%;
+}
+.av-hoje-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+}
+.av-hoje-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: .88rem;
+}
+.av-hoje-row--done { opacity: .6; }
+.av-hoje-row--live { border-color: rgba(255,59,59,.35); }
+.av-hoje-hora {
+    font-weight: 700;
+    color: var(--c-muted);
+    min-width: 38px;
+    flex-shrink: 0;
+}
+.av-hoje-flag { font-size: 1.1rem; flex-shrink: 0; }
+.av-hoje-nome {
+    color: var(--c-text);
+    font-weight: 600;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.av-hoje-placar {
+    font-weight: 800;
+    color: var(--c-text);
+    font-variant-numeric: tabular-nums;
+    min-width: 44px;
+    text-align: center;
+}
+.av-hoje-vs {
+    color: var(--c-muted);
+    font-size: .78rem;
+    min-width: 22px;
+    text-align: center;
+}
+.av-hoje-status {
+    font-size: .72rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+.av-hoje-status--done {
+    background: rgba(136,136,136,.15);
+    color: var(--c-muted);
+}
+.av-hoje-status--next {
+    background: rgba(240,192,64,.12);
+    color: var(--c-gold);
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 540px) {
     .av-hero          { padding: 40px 16px 28px; }
@@ -385,4 +464,6 @@ body {
     .av-flag-lg       { font-size: 2rem; }
     .av-cd-item       { padding: 10px 12px; min-width: 58px; }
     .av-cd-n          { font-size: 1.6rem; }
+    .av-hoje-nome     { display: none; }
+    .av-hoje-row      { gap: 6px; padding: 8px 10px; }
 }

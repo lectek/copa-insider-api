@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -42,19 +43,30 @@ public class SiteController {
     @GetMapping("/ao-vivo")
     public String aoVivo(Model model) {
         LocalDateTime now = LocalDateTime.now();
+        LocalDate hoje = now.toLocalDate();
 
-        List<PartidaVM> aoVivo = copaData.listPartidas().stream()
+        List<PartidaVM> todas = copaData.listPartidas();
+
+        List<PartidaVM> aoVivo = todas.stream()
                 .filter(PartidaVM::aoVivo)
                 .toList();
 
-        PartidaVM proxJogo = copaData.listPartidas().stream()
+        PartidaVM proxJogo = todas.stream()
                 .filter(p -> p.agendada() && p.dataHora() != null && p.dataHora().isAfter(now))
                 .min(Comparator.comparing(PartidaVM::dataHora))
                 .orElse(null);
 
-        model.addAttribute(AO_VIVO_ATTR,   aoVivo);
-        model.addAttribute("proxJogo", proxJogo);
-        model.addAttribute("fontes",   FONTES_LIVE);
+        // Todos os jogos de hoje (exceto os que já estão em aoVivo), ordenados por hora
+        List<PartidaVM> jogosHoje = todas.stream()
+                .filter(p -> p.dataHora() != null && p.dataHora().toLocalDate().equals(hoje))
+                .filter(p -> !p.aoVivo())
+                .sorted(Comparator.comparing(PartidaVM::dataHora))
+                .toList();
+
+        model.addAttribute(AO_VIVO_ATTR,    aoVivo);
+        model.addAttribute("proxJogo",  proxJogo);
+        model.addAttribute("jogosHoje", jogosHoje);
+        model.addAttribute("fontes",    FONTES_LIVE);
         return "pages/site/ao-vivo";
     }
 
