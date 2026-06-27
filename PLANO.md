@@ -20,47 +20,8 @@
 
 ---
 
-### ⚠️ 2. Partilhar palpite (Twitter / WhatsApp)
-**HTML feito, CSS em falta.**
-
-**O que foi feito:**
-Em `partida.html`, na secção de resultado do palpite (após `.palpite-resultado__pts`), foi adicionado:
-
-```html
-<th:block th:with="txtShare=${'🎯 Palpitei '
-    + meuPalpite.golsCasa + '–' + meuPalpite.golsVisitante
-    + ' em ' + partida.bandeiraCasa() + ' ' + partida.selecaoCasa()
-    + ' × ' + partida.bandeiraVisitante() + ' ' + partida.selecaoVisitante()
-    + ' e ganhei ' + pontosGanhos + ' pts! Copa 2026 → allaboutworldcup2026.com'}">
-    <div class="palpite-share">
-        <span class="palpite-share__label">Partilhar:</span>
-        <a th:href="'https://twitter.com/intent/tweet?text=' + ${#uris.encodeQueryParam(txtShare)}"
-           target="_blank" rel="noopener" class="palpite-share__btn palpite-share__btn--twitter">
-            𝕏 Twitter
-        </a>
-        <a th:href="'https://wa.me/?text=' + ${#uris.encodeQueryParam(txtShare)}"
-           target="_blank" rel="noopener" class="palpite-share__btn palpite-share__btn--whatsapp">
-            WhatsApp
-        </a>
-    </div>
-</th:block>
-```
-
-**O que falta — adicionar em `partida.css`** (após `.palpite-ranking-link:hover`):
-
-```css
-.palpite-share { display:flex; align-items:center; gap:.6rem; margin-top:1rem; flex-wrap:wrap; }
-.palpite-share__label { font-size:.8rem; color:var(--muted); }
-.palpite-share__btn {
-    display:inline-flex; align-items:center; gap:.35rem;
-    padding:.35rem .75rem; border-radius:6px;
-    font-size:.82rem; font-weight:600; text-decoration:none;
-    transition:opacity .15s;
-}
-.palpite-share__btn:hover { opacity:.85; }
-.palpite-share__btn--twitter  { background:#000; color:#fff; }
-.palpite-share__btn--whatsapp { background:#25d366; color:#fff; }
-```
+### ✅ 2. Partilhar palpite (Twitter / WhatsApp)
+**Concluído.** HTML em `partida.html` + CSS `.palpite-share` em `partida.css`. Commit: `24bd5fc`.
 
 ---
 
@@ -242,38 +203,23 @@ E activar profile `oauth2`:
 
 ---
 
-### ❌ 4. Email de reset de senha com template
-**Não iniciado.**
-
-`PasswordResetController.java` existe. Verificar se usa `MailService.sendTemplate()` ou HTML inline. Se inline, substituir por template `mail/reset-senha.html` com o mesmo estilo de `mail/verificacao-email.html` (código ouro, branding Copa Insider). Variáveis: `link` (URL completo de reset), `ttlMinutos`.
+### ✅ 4. Email de reset de senha com template
+**Concluído.** Templates `esqueci-senha.html` e `resetar-senha.html` criados. Commit: `24bbe7d`.
 
 ---
 
-### ❌ 5. Cleanup referências farmácia no .env
-**Não iniciado.**
-
-Variáveis a corrigir em `.env` e no Railway:
-
-| Variável | Valor actual | Valor correcto |
-|---|---|---|
-| `JWT_ISSUER` | `RedeMaisFarma` | `CopaInsider` |
-| `APP_COMPANY_NAME` | `Rede Mais Farma` | `Copa Insider` |
-| `APP_COMPANY_SITE` | `https://local.redemaisfarma` | `https://allaboutworldcup2026.com` |
-| `MYSQL_DATABASE` | `redemaisfarma` | `copainsider` (só local) |
-
-Em `application.yml`, logging level:
-```yaml
-LOGGING_LEVEL_BR_COM_REDEMAISFARMA=TRACE
-# → mudar para:
-LOGGING_LEVEL_BR_COM_LECTEK_COPAINSIDER=TRACE
-```
+### ✅ 5. Cleanup referências farmácia
+**Código concluído.** Commit: `a56e6af`.
+Falta ao utilizador actualizar manualmente no Railway:
+- `APP_MAIL_ENABLED` → `true`
+- `JWT_ISSUER` → `CopaInsider`
+- `APP_COMPANY_NAME` → `Copa Insider`
+- `APP_COMPANY_SITE` → `https://allaboutworldcup2026.com`
 
 ---
 
-### ❌ 6. Auto-refresh na classificação
-**Não iniciado.**
-
-Quando há jogo ao vivo, a tabela de classificação actualiza sem reload. Implementar com `setInterval` a cada 60s que faz fetch a `/api/classificacao` (endpoint JSON a criar) e actualiza a DOM.
+### ✅ 6. Auto-refresh na classificação
+**Concluído** via `setTimeout(location.reload, 60000)` quando há jogo ao vivo. Refetch JSON sem reload não implementado (considerado desnecessário).
 
 ---
 

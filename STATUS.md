@@ -1,5 +1,5 @@
 # Copa Insider — Estado Actual do Sistema
-> Actualizado: 2026-06-15
+> Actualizado: 2026-06-27
 
 ---
 
@@ -44,7 +44,7 @@ Utilizador → /loja → clica "Comprar" → pay.hotmart.com/...
 | `/factos` | Público | ✅ |
 | `/selecoes` | Público | ✅ |
 | `/selecoes/{slug}` | Público | ✅ |
-| `/partida/{id}` | Público | ✅ |
+| `/partida/{id}` | Público | ✅ botões de partilha Twitter/WhatsApp |
 | `/comparar` | Requer Copa Pass | ✅ |
 | `/calendario` | Requer Copa Pass | ✅ |
 | `/ao-vivo` | Público | ✅ redesenhado (fontes + chat) |
@@ -52,9 +52,15 @@ Utilizador → /loja → clica "Comprar" → pay.hotmart.com/...
 | `/doacao` | Público | ✅ |
 | `/jogo/{id}/resumo` | Público | ✅ resumo pós-jogo |
 | `/jogo/{id}/sala` | Autenticado | ✅ chat por jogo (SSE) |
+| `/classificacao` | Público | ✅ terceiros + qualificados + banner encerrada |
+| `/bracket` | Público | ✅ colunas por ronda |
+| `/ranking` | Público | ✅ artilharia calculada dos dados internos |
+| `/palpites` | Público | ✅ ranking de palpites |
 | `/conta/acessos` | Autenticado | ✅ dashboard de conteúdos |
 | `/cliente/conta` | Autenticado | ✅ card premium se tem acessos |
-| `/auth/login` | Público | ✅ |
+| `/auth/login` | Público | ✅ redesenhado, rate limiting, OTP passwordless |
+| `/auth/esqueci-senha` | Público | ✅ template + fluxo completo |
+| `/auth/resetar-senha` | Público | ✅ template + fluxo completo |
 | `/cadastro` | Público | ✅ |
 
 ---
@@ -71,6 +77,7 @@ Utilizador → /loja → clica "Comprar" → pay.hotmart.com/...
 | `/admin/copa/produtos` | ✅ toggle ativo, editar URL |
 | `/admin/copa/compras` | ✅ lista paginada read-only |
 | `/admin/copa/acessos` | ✅ pesquisa por email, revogar |
+| `/admin/palpites` | ❌ não implementado |
 
 ---
 
@@ -81,32 +88,35 @@ Utilizador → /loja → clica "Comprar" → pay.hotmart.com/...
 | Dados ao vivo | ✅ | ESPN scoreboard + fallback por tempo |
 | Detecção de jogo ao vivo | ✅ | fix midnight crossover |
 | `/ao-vivo` com fontes gratuitas | ✅ | FIFA+, RTP, CazéTV, Globo, BBC, ITV |
-| `/classificacao` fase de grupos | ✅ | tabela por grupo, auto-refresh ao vivo |
+| `/classificacao` fase de grupos | ✅ | terceiros, qualificados top-8, banner encerrada |
 | Chat por jogo (`/jogo/{id}/sala`) | ✅ | SSE, requer login |
 | Resumo pós-jogo (`/jogo/{id}/resumo`) | ✅ | SofaScore (sem chave API) |
 | Experiência pós-compra | ✅ | redirect inteligente + email boas-vindas |
 | Countdown próximo jogo em `/ao-vivo` | ✅ | JS em tempo real |
-| `/bracket` fase a eliminação | ✅ | colunas por ronda, mata-mata começa 29 Jun |
-| `/classificacao` com bracket | ✅ | tabelas por grupo + link bracket |
+| `/bracket` fase a eliminação | ✅ | colunas por ronda |
 | Alertas pré-jogo por email | ✅ | scheduler 5 min, janela 30-35 min |
 | Novos guias de seleções | ✅ | França, Argentina, Inglaterra, Espanha |
 | Palpites + ranking `/palpites` | ✅ | 3 pts exacto, 1 pt resultado |
 | Destaques do jogo | ✅ | link YouTube pré-formatado em `/jogo/{id}/resumo` |
+| Partilhar palpite | ✅ | Twitter + WhatsApp em `/partida/{id}` |
+| Artilharia interna | ✅ | calculada a partir dos OFGoals de cada partida |
+| Área de auth renovada | ✅ | login redesenhado, OTP login, rate limiting, honeypot |
+| Reset de senha com template | ✅ | `esqueci-senha.html` + `resetar-senha.html` |
+| Cleanup branding farmácia | ✅ | código limpo; Railway vars pendentes do utilizador |
 
 ---
 
-## Features a implementar (Roadmap Julho 2026)
+## O que falta (por prioridade)
 
-| Feature | Prioridade | Estado |
+| # | Tarefa | Ficheiros |
 |---|---|---|
-| Classificação dos grupos | 🔴 Alta | ✅ concluído |
-| Bracket fase a eliminação | 🔴 Alta | ✅ concluído |
-| Alerta pré-jogo por email | 🟡 Média | ✅ concluído |
-| Novos guias de seleções | 🟡 Média | ✅ concluído (França, Argentina, Inglaterra, Espanha) |
-| Previsões de resultado | 🟢 Normal | ✅ concluído (palpites + ranking /palpites) |
-| Destaques do jogo | 🟢 Normal | ✅ concluído (link YouTube em /resumo) |
-
-Ver detalhes em `PLANO.md`.
+| 1 | **Railway: activar email** (`APP_MAIL_ENABLED=true`) | — env var manual |
+| 2 | **Railway: vars branding** (`JWT_ISSUER`, `APP_COMPANY_NAME`, `APP_COMPANY_SITE`) | — env var manual |
+| 3 | **Google OAuth2** — ligar security config, templates, ícone SVG, vars Railway | ver PLANO.md §3 |
+| 4 | **Open Graph dinâmico por partida** | `PartidaController.java`, `partida.html` |
+| 5 | **Schema.org (SportsEvent)** em `partida.html` | `partida.html` |
+| 6 | **Dashboard palpites no admin** (`/admin/palpites`) | novo controller + template |
+| 7 | **Domínio raiz** `allaboutworldcup2026.com` | Railway (bloqueado, free plan) |
 
 ---
 
@@ -121,13 +131,14 @@ Ver detalhes em `PLANO.md`.
 | `comparar.css` | `/comparar` |
 | `factos.css` | `/factos` |
 | `selecoes.css` | `/selecoes` |
-| `partida.css` | `/partida/{id}` |
+| `partida.css` | `/partida/{id}` + botões de partilha |
 | `produto.css` | `/guia/{slug}` |
 | `conta.css` | `/cliente/conta` + `/conta/acessos` |
 | `ci-admin.css` | Admin completo (classes ci-*) |
-| `classificacao.css` | `/classificacao` |
+| `classificacao.css` | `/classificacao` + secção terceiros |
 | `bracket.css` | `/bracket` |
 | `palpites.css` | `/palpites` — ranking de palpites |
+| `pages/login.css` | `/auth/login` + `/cadastro` + `/esqueci-senha` |
 
 ---
 
@@ -161,3 +172,7 @@ Ver detalhes em `PLANO.md`.
 | `SPRING_MAIL_USERNAME` | ✅ |
 | `SPRING_MAIL_PASSWORD` | ✅ |
 | `APP_WEB_BASE_URL` | ✅ `https://allaboutworldcup2026.com` |
+| `APP_MAIL_ENABLED` | ⚠️ `false` — mudar para `true` |
+| `JWT_ISSUER` | ⚠️ verificar se é `RedeMaisFarma` → mudar para `CopaInsider` |
+| `APP_COMPANY_NAME` | ⚠️ verificar se é `Rede Mais Farma` → mudar para `Copa Insider` |
+| `APP_COMPANY_SITE` | ⚠️ verificar → mudar para `https://allaboutworldcup2026.com` |
