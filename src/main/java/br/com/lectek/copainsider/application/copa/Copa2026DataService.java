@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -201,20 +202,36 @@ public class Copa2026DataService {
     private volatile List<OpenFootballClient.OFMatch>     ofMatches2026 = List.of();
     // Pré-populado com os 48 estáticos; enriquecido com dados dinâmicos no refresh()
     private volatile List<SelecaoVM>  selecoes  = buildSelecoes(List.of());
-    private final    List<JogadorVM>  jogadores;
+    private volatile List<JogadorVM>  jogadores;
     private final    List<RivalidadeVM> rivalidades;
     // slugCasa|slugVisitante → ESPN event ID (atualizado a cada liveRefresh)
     private volatile java.util.Map<String, String> espnIdMap = java.util.Map.of();
 
     public Copa2026DataService(OpenFootballClient client, EspnScoreClient espnClient) {
-        this.client     = client;
-        this.espnClient = espnClient;
-        this.jogadores   = buildJogadores();
+        this.client      = client;
+        this.espnClient  = espnClient;
+        this.jogadores   = buildJogadoresFallback();
         this.rivalidades = buildRivalidades();
     }
 
     @PostConstruct
-    public void init() { refresh(); }
+    public void init() {
+        refresh();
+        refreshJogadores();
+    }
+
+    @Scheduled(fixedDelay = 7_200_000) // 2h — ranking jogadores via ESPN (sem chave)
+    public void refreshJogadores() {
+        try {
+            List<JogadorVM> fromApi = buildJogadoresFromEspn();
+            if (!fromApi.isEmpty()) {
+                this.jogadores = fromApi;
+                log.info("Ranking jogadores atualizado via ESPN: {} jogadores", fromApi.size());
+            }
+        } catch (Exception e) {
+            log.warn("refreshJogadores falhou: {}", e.getMessage());
+        }
+    }
 
     @Scheduled(fixedDelay = 1_800_000) // 30 min — dados estáticos do OpenFootball
     public void refresh() {
@@ -952,18 +969,138 @@ public class Copa2026DataService {
 
     // ── Dados estáticos complementares ───────────────────────────────────────
 
-    private List<JogadorVM> buildJogadores() {
+    // ── Ranking jogadores — ESPN (sem chave) + fallback hardcoded ─────────────
+
+    private record PlayerMeta(String posicao, String clube, int idade,
+                              String slugSelecao, String bandeira) {}
+
+    private static final Map<String, PlayerMeta> PLAYER_META = Map.ofEntries(
+        Map.entry("lionel messi",          new PlayerMeta("Avançado", "Inter Miami",    39, "argentina",     "🇦🇷")),
+        Map.entry("vinicius junior",       new PlayerMeta("Avançado", "Real Madrid",    25, "brasil",        "🇧🇷")),
+        Map.entry("vinicius jr.",          new PlayerMeta("Avançado", "Real Madrid",    25, "brasil",        "🇧🇷")),
+        Map.entry("erling haaland",        new PlayerMeta("Avançado", "Man City",       25, "noruega",       "🇳🇴")),
+        Map.entry("kylian mbappe",         new PlayerMeta("Avançado", "Real Madrid",    27, "franca",        "🇫🇷")),
+        Map.entry("ismael saibari",        new PlayerMeta("Médio",    "PSV",            25, "marrocos",      "🇲🇦")),
+        Map.entry("jonathan david",        new PlayerMeta("Avançado", "Lille",          26, "canada",        "🇨🇦")),
+        Map.entry("matheus cunha",         new PlayerMeta("Avançado", "Man United",     26, "brasil",        "🇧🇷")),
+        Map.entry("brian brobbey",         new PlayerMeta("Avançado", "Ajax",           24, "holanda",       "🇳🇱")),
+        Map.entry("johan manzambi",        new PlayerMeta("Avançado", "Young Boys",     23, "suica",         "🇨🇭")),
+        Map.entry("deniz undav",           new PlayerMeta("Avançado", "Stuttgart",      29, "alemanha",      "🇩🇪")),
+        Map.entry("alexander isak",        new PlayerMeta("Avançado", "Newcastle",      26, "suecia",        "🇸🇪")),
+        Map.entry("bruno guimaraes",       new PlayerMeta("Médio",    "Newcastle",      28, "brasil",        "🇧🇷")),
+        Map.entry("michael olise",         new PlayerMeta("Avançado", "Bayern Munich",  24, "franca",        "🇫🇷")),
+        Map.entry("hannibal mejbri",       new PlayerMeta("Médio",    "Man United",     22, "tunisia",       "🇹🇳")),
+        Map.entry("viktor gyokeres",       new PlayerMeta("Avançado", "Arsenal",        28, "suecia",        "🇸🇪")),
+        Map.entry("denzel dumfries",       new PlayerMeta("Defensor", "Inter Milan",    28, "holanda",       "🇳🇱")),
+        Map.entry("florian wirtz",         new PlayerMeta("Médio",    "Bayern Munich",  22, "alemanha",      "🇩🇪")),
+        Map.entry("joshua kimmich",        new PlayerMeta("Médio",    "Bayern Munich",  31, "alemanha",      "🇩🇪")),
+        Map.entry("martin odegaard",       new PlayerMeta("Médio",    "Arsenal",        27, "noruega",       "🇳🇴")),
+        Map.entry("cody gakpo",            new PlayerMeta("Avançado", "Liverpool",      25, "holanda",       "🇳🇱")),
+        Map.entry("kai havertz",           new PlayerMeta("Avançado", "Arsenal",        26, "alemanha",      "🇩🇪")),
+        Map.entry("ryan gravenberch",      new PlayerMeta("Médio",    "Liverpool",      22, "holanda",       "🇳🇱")),
+        Map.entry("yasin ayari",           new PlayerMeta("Médio",    "Brighton",       22, "suecia",        "🇸🇪")),
+        Map.entry("brahim diaz",           new PlayerMeta("Avançado", "Real Madrid",    25, "marrocos",      "🇲🇦")),
+        Map.entry("mohamed salah",         new PlayerMeta("Avançado", "Liverpool",      33, "egito",         "🇪🇬")),
+        Map.entry("breel embolo",          new PlayerMeta("Avançado", "Monaco",         27, "suica",         "🇨🇭")),
+        Map.entry("ruben vargas",          new PlayerMeta("Avançado", "Augsburg",       26, "suica",         "🇨🇭")),
+        Map.entry("daichi kamada",         new PlayerMeta("Médio",    "Crystal Palace", 28, "japao",         "🇯🇵")),
+        Map.entry("ayase ueda",            new PlayerMeta("Avançado", "Feyenoord",      26, "japao",         "🇯🇵")),
+        Map.entry("julian quinones",       new PlayerMeta("Avançado", "Cruz Azul",      28, "mexico",        "🇲🇽")),
+        Map.entry("cyle larin",            new PlayerMeta("Avançado", "Atlético Madrid",29, "canada",        "🇨🇦")),
+        Map.entry("chris wood",            new PlayerMeta("Avançado", "Nottm Forest",   34, "nova-zelandia", "🇳🇿")),
+        Map.entry("julio enciso",          new PlayerMeta("Avançado", "Brighton",       21, "paraguai",      "🇵🇾")),
+        Map.entry("roberto alvarado",      new PlayerMeta("Médio",    "Chivas",         26, "mexico",        "🇲🇽")),
+        Map.entry("crysencio summerville", new PlayerMeta("Avançado", "Leeds",          22, "holanda",       "🇳🇱")),
+        Map.entry("nicolas pepe",          new PlayerMeta("Avançado", "Nice",           31, "costa-marfim",  "🇨🇮"))
+    );
+
+    private static final Map<String, String[]> COUNTRY_PT = Map.ofEntries(
+        Map.entry("Argentina",    new String[]{"argentina",     "🇦🇷", "Argentina"}),
+        Map.entry("Brazil",       new String[]{"brasil",        "🇧🇷", "Brasil"}),
+        Map.entry("France",       new String[]{"franca",        "🇫🇷", "França"}),
+        Map.entry("Norway",       new String[]{"noruega",       "🇳🇴", "Noruega"}),
+        Map.entry("Germany",      new String[]{"alemanha",      "🇩🇪", "Alemanha"}),
+        Map.entry("Spain",        new String[]{"espanha",       "🇪🇸", "Espanha"}),
+        Map.entry("Portugal",     new String[]{"portugal",      "🇵🇹", "Portugal"}),
+        Map.entry("Morocco",      new String[]{"marrocos",      "🇲🇦", "Marrocos"}),
+        Map.entry("Canada",       new String[]{"canada",        "🇨🇦", "Canadá"}),
+        Map.entry("Sweden",       new String[]{"suecia",        "🇸🇪", "Suécia"}),
+        Map.entry("Netherlands",  new String[]{"holanda",       "🇳🇱", "Países Baixos"}),
+        Map.entry("Switzerland",  new String[]{"suica",         "🇨🇭", "Suíça"}),
+        Map.entry("Tunisia",      new String[]{"tunisia",       "🇹🇳", "Tunísia"}),
+        Map.entry("England",      new String[]{"inglaterra",    "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Inglaterra"}),
+        Map.entry("USA",          new String[]{"eua",           "🇺🇸", "EUA"}),
+        Map.entry("Japan",        new String[]{"japao",         "🇯🇵", "Japão"}),
+        Map.entry("Mexico",       new String[]{"mexico",        "🇲🇽", "México"}),
+        Map.entry("Paraguay",     new String[]{"paraguai",      "🇵🇾", "Paraguai"}),
+        Map.entry("Egypt",        new String[]{"egito",         "🇪🇬", "Egito"}),
+        Map.entry("New Zealand",  new String[]{"nova-zelandia", "🇳🇿", "Nova Zelândia"}),
+        Map.entry("Senegal",      new String[]{"senegal",       "🇸🇳", "Senegal"}),
+        Map.entry("Ivory Coast",  new String[]{"costa-marfim",  "🇨🇮", "Costa do Marfim"}),
+        Map.entry("Côte d'Ivoire",new String[]{"costa-marfim",  "🇨🇮", "Costa do Marfim"}),
+        Map.entry("Ecuador",      new String[]{"equador",       "🇪🇨", "Equador"}),
+        Map.entry("Costa Rica",   new String[]{"costa-rica",    "🇨🇷", "Costa Rica"}),
+        Map.entry("Colombia",     new String[]{"colombia",      "🇨🇴", "Colômbia"}),
+        Map.entry("Uruguay",      new String[]{"uruguai",       "🇺🇾", "Uruguai"}),
+        Map.entry("South Korea",  new String[]{"coreia-sul",    "🇰🇷", "Coreia do Sul"}),
+        Map.entry("Australia",    new String[]{"australia",     "🇦🇺", "Austrália"}),
+        Map.entry("Croatia",      new String[]{"croacia",       "🇭🇷", "Croácia"}),
+        Map.entry("Serbia",       new String[]{"serbia",        "🇷🇸", "Sérvia"}),
+        Map.entry("Denmark",      new String[]{"dinamarca",     "🇩🇰", "Dinamarca"})
+    );
+
+    private List<JogadorVM> buildJogadoresFromEspn() {
+        EspnScoreClient.LeadersResult leaders = espnClient.fetchLeaders();
+        if (leaders.isEmpty()) return List.of();
+
+        Map<String, EspnScoreClient.LeaderStats> merged = new LinkedHashMap<>();
+        for (EspnScoreClient.LeaderStats s : leaders.gols())    merged.put(normName(s.nome()), s);
+        for (EspnScoreClient.LeaderStats s : leaders.assists())  merged.putIfAbsent(normName(s.nome()), s);
+
+        List<JogadorVM> result = new ArrayList<>();
+        long id = 1;
+        for (EspnScoreClient.LeaderStats s : merged.values()) {
+            String key  = normName(s.nome());
+            PlayerMeta  meta    = PLAYER_META.get(key);
+            String[]    country = COUNTRY_PT.get(s.selecao());
+
+            String slug     = meta != null ? meta.slugSelecao() : (country != null ? country[0] : "");
+            String bandeira = meta != null ? meta.bandeira()    : (country != null ? country[1] : "");
+            String selecaoPt= country != null ? country[2] : s.selecao();
+            String posicao  = meta != null ? meta.posicao() : "Avançado";
+            String clube    = meta != null ? meta.clube()   : "";
+            int    idade    = meta != null ? meta.idade()   : 0;
+
+            result.add(new JogadorVM(id++, s.nome(), selecaoPt, slug, bandeira,
+                    posicao, clube, idade, s.gols(), s.assists(), s.jogos(), 8.5, s.fotoUrl()));
+        }
+        return result;
+    }
+
+    private static String normName(String name) {
+        if (name == null) return "";
+        String nfd = Normalizer.normalize(name, Normalizer.Form.NFD);
+        return nfd.replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                  .toLowerCase(Locale.ROOT).trim();
+    }
+
+    private List<JogadorVM> buildJogadoresFallback() {
         return List.of(
-            new JogadorVM(1L,  "Vinicius Jr.",    "Brasil",    "brasil",    "🇧🇷", "Avançado", "Real Madrid",  24, 4, 3, 4, 9.1, ""),
-            new JogadorVM(2L,  "Kylian Mbappé",   "França",    "franca",    "🇫🇷", "Avançado", "Real Madrid",  27, 3, 2, 3, 8.8, ""),
-            new JogadorVM(3L,  "Erling Haaland",  "Noruega",   "noruega",   "🇳🇴", "Avançado", "Man City",     25, 5, 1, 3, 9.0, ""),
-            new JogadorVM(4L,  "Lionel Messi",    "Argentina", "argentina", "🇦🇷", "Médio",    "Inter Miami",  38, 2, 4, 4, 8.7, ""),
-            new JogadorVM(5L,  "Cristiano Ronaldo","Portugal", "portugal",  "🇵🇹", "Avançado", "Al Nassr",     41, 2, 1, 4, 7.9, ""),
-            new JogadorVM(6L,  "Jude Bellingham", "Inglaterra","inglaterra","🏴󠁧󠁢󠁥󠁮󠁧󠁿","Médio","Real Madrid", 22, 2, 3, 4, 8.6, ""),
-            new JogadorVM(7L,  "Rodri",           "Espanha",   "espanha",   "🇪🇸", "Médio",    "Man City",     29, 1, 4, 4, 8.9, ""),
-            new JogadorVM(8L,  "Lamine Yamal",    "Espanha",   "espanha",   "🇪🇸", "Avançado", "Barcelona",    18, 3, 3, 4, 8.7, ""),
-            new JogadorVM(9L,  "Pedri",           "Espanha",   "espanha",   "🇪🇸", "Médio",    "Barcelona",    23, 1, 3, 3, 8.4, ""),
-            new JogadorVM(10L, "Raphinha",        "Brasil",    "brasil",    "🇧🇷", "Avançado", "Barcelona",    28, 2, 2, 4, 8.3, "")
+            new JogadorVM(1L,  "Lionel Messi",     "Argentina",     "argentina",     "🇦🇷", "Avançado", "Inter Miami",    39, 5, 0, 2, 9.6, ""),
+            new JogadorVM(2L,  "Vinícius Júnior",  "Brasil",        "brasil",        "🇧🇷", "Avançado", "Real Madrid",    25, 4, 1, 3, 9.2, ""),
+            new JogadorVM(3L,  "Erling Haaland",   "Noruega",       "noruega",       "🇳🇴", "Avançado", "Man City",       25, 4, 0, 2, 9.0, ""),
+            new JogadorVM(4L,  "Kylian Mbappé",    "França",        "franca",        "🇫🇷", "Avançado", "Real Madrid",    27, 4, 0, 2, 9.1, ""),
+            new JogadorVM(5L,  "Deniz Undav",      "Alemanha",      "alemanha",      "🇩🇪", "Avançado", "Stuttgart",      29, 3, 2, 3, 8.8, ""),
+            new JogadorVM(6L,  "Johan Manzambi",   "Suíça",         "suica",         "🇨🇭", "Avançado", "Young Boys",     23, 3, 1, 3, 8.3, ""),
+            new JogadorVM(7L,  "Ismael Saibari",   "Marrocos",      "marrocos",      "🇲🇦", "Médio",    "PSV",            25, 3, 0, 3, 8.6, ""),
+            new JogadorVM(8L,  "Jonathan David",   "Canadá",        "canada",        "🇨🇦", "Avançado", "Lille",          26, 3, 0, 3, 8.7, ""),
+            new JogadorVM(9L,  "Matheus Cunha",    "Brasil",        "brasil",        "🇧🇷", "Avançado", "Man United",     26, 3, 0, 3, 8.5, ""),
+            new JogadorVM(10L, "Brian Brobbey",    "Países Baixos", "holanda",       "🇳🇱", "Avançado", "Ajax",           24, 3, 0, 3, 8.4, ""),
+            new JogadorVM(11L, "Alexander Isak",   "Suécia",        "suecia",        "🇸🇪", "Avançado", "Newcastle",      26, 1, 3, 3, 8.8, ""),
+            new JogadorVM(12L, "Bruno Guimarães",  "Brasil",        "brasil",        "🇧🇷", "Médio",    "Newcastle",      28, 0, 3, 3, 8.7, ""),
+            new JogadorVM(13L, "Michael Olise",    "França",        "franca",        "🇫🇷", "Avançado", "Bayern Munich",  24, 0, 3, 2, 8.8, ""),
+            new JogadorVM(14L, "Viktor Gyökeres",  "Suécia",        "suecia",        "🇸🇪", "Avançado", "Arsenal",        28, 1, 2, 3, 8.7, ""),
+            new JogadorVM(15L, "Florian Wirtz",    "Alemanha",      "alemanha",      "🇩🇪", "Médio",    "Bayern Munich",  22, 0, 2, 3, 8.6, "")
         );
     }
 

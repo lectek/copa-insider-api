@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Unofficial ESPN scoreboard + summary API — no key needed.
@@ -190,4 +191,86 @@ public class EspnScoreClient {
             List<ESDetail> details,
             List<ESCompetitor> competitors
     ) {}
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // Leaders (artilheiros / assistentes) — sem chave de API
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private static final String STATS_URL =
+            "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/statistics";
+
+    public record LeaderStats(String nome, String selecao, String fotoUrl,
+                              int gols, int assists, int jogos) {}
+
+    public record LeadersResult(List<LeaderStats> gols, List<LeaderStats> assists) {
+        public boolean isEmpty() { return gols.isEmpty() && assists.isEmpty(); }
+    }
+
+    public LeadersResult fetchLeaders() {
+        try {
+            String body = rest.getForObject(STATS_URL, String.class);
+            if (body == null) return new LeadersResult(List.of(), List.of());
+            ESLeadersResponse resp = mapper.readValue(body, ESLeadersResponse.class);
+            List<LeaderStats> goalLeaders  = List.of();
+            List<LeaderStats> assistLeaders = List.of();
+            if (resp.stats() != null) {
+                for (ESStatCat cat : resp.stats()) {
+                    if (cat.leaders() == null) continue;
+                    List<LeaderStats> parsed = cat.leaders().stream()
+                            .map(this::parseLeaderEntry).filter(Objects::nonNull).toList();
+                    if ("Goals".equalsIgnoreCase(cat.displayName()))   goalLeaders   = parsed;
+                    else if ("Assists".equalsIgnoreCase(cat.displayName())) assistLeaders = parsed;
+                }
+            }
+            return new LeadersResult(goalLeaders, assistLeaders);
+        } catch (Exception e) {
+            log.warn("ESPN leaders falhou: {}", e.getMessage());
+            return new LeadersResult(List.of(), List.of());
+        }
+    }
+
+    private LeaderStats parseLeaderEntry(ESLeaderEntry entry) {
+        try {
+            if (entry.athlete() == null) return null;
+            String nome    = entry.athlete().displayName();
+            String selecao = entry.athlete().team() != null ? entry.athlete().team().displayName() : "";
+            String foto    = entry.athlete().headshot() != null ? entry.athlete().headshot().href() : "";
+            String sv      = entry.shortDisplayValue() != null ? entry.shortDisplayValue() : "";
+            return new LeaderStats(nome, selecao, foto,
+                    parseStatVal(sv, "G"), parseStatVal(sv, "A"), parseStatVal(sv, "M"));
+        } catch (Exception e) { return null; }
+    }
+
+    private static int parseStatVal(String sv, String key) {
+        int idx = sv.indexOf(key + ":");
+        if (idx < 0) return 0;
+        StringBuilder num = new StringBuilder();
+        for (char c : sv.substring(idx + key.length() + 1).trim().toCharArray()) {
+            if (Character.isDigit(c)) num.append(c);
+            else if (!num.isEmpty()) break;
+        }
+        try { return num.isEmpty() ? 0 : Integer.parseInt(num.toString()); }
+        catch (NumberFormatException e) { return 0; }
+    }
+
+    // DTOs — statistics leaders endpoint
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESLeadersResponse(List<ESStatCat> stats) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESStatCat(String displayName, List<ESLeaderEntry> leaders) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESLeaderEntry(String displayValue, String shortDisplayValue,
+                                double value, ESLeaderAthlete athlete) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESLeaderAthlete(String displayName, ESHeadshot headshot, ESLeaderTeam team) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESHeadshot(String href) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ESLeaderTeam(String displayName, String abbreviation) {}
 }
