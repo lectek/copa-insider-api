@@ -275,6 +275,60 @@
     opacity: .8;
 }
 
+/* ── Remember-me row ────────────────────────────────── */
+.ci-form__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: .5rem;
+}
+
+.ci-form__check {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .85rem;
+    color: var(--muted, #888);
+    cursor: pointer;
+    user-select: none;
+}
+
+.ci-form__check input[type="checkbox"] {
+    accent-color: var(--gold, #e8b930);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+/* ── Tabs de login ──────────────────────────────────── */
+.ci-auth-tabs {
+    display: flex;
+    gap: .25rem;
+    background: rgba(255,255,255,.05);
+    border-radius: 8px;
+    padding: .25rem;
+    margin-bottom: 1.25rem;
+}
+
+.ci-auth-tab {
+    flex: 1;
+    padding: .45rem .5rem;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted, #888);
+    font-size: .88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.ci-auth-tab--active {
+    background: var(--card, #1a1a2e);
+    color: var(--gold, #e8b930);
+    box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+
 /* ── Focus global para acessibilidade ──────────────── */
 .ci-body--auth :is(a, button, input):focus-visible {
     outline: 2px solid rgba(232,185,48,.7);

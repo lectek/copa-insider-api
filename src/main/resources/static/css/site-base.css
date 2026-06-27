@@ -250,19 +250,71 @@ a { text-decoration: none; color: inherit; }
 
 .paywall-login-link a { color: var(--gold); text-decoration: none; }
 
+/* ── Hamburger (mobile) ───────────────────────────────────────────────────── */
+.navbar__hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: 6px;
+    color: var(--text);
+    transition: background .15s;
+}
+.navbar__hamburger:hover { background: rgba(255,255,255,.07); }
+.navbar__hamburger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform .2s, opacity .2s;
+}
+.navbar__hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.navbar__hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.navbar__hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
 /* ── Responsivo ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .navbar { padding: 1rem; gap: .75rem; }
-    .nav-links { display: none; }
+    .navbar {
+        padding: .75rem 1rem;
+        gap: .75rem;
+        position: relative;
+        flex-wrap: wrap;
+    }
+    .navbar__hamburger { display: inline-flex; }
+    .nav-links { display: none; width: 100%; }
     .navbar--open .nav-links {
         display: flex;
         flex-direction: column;
         position: absolute;
-        top: 60px;
+        top: 100%;
         left: 0; right: 0;
+        z-index: 200;
         background: rgba(10,10,10,.98);
         border-bottom: 1px solid var(--border);
         padding: 1rem 1.5rem;
         gap: .5rem;
     }
+    /* "Ao Vivo" sempre visível no mobile fora do menu */
+    .navbar__actions .nav-live-mobile {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        color: #ff4444;
+        font-weight: 700;
+        font-size: .85rem;
+        animation: nav-live-pulse 2s ease infinite;
+        text-decoration: none;
+        flex-shrink: 0;
+    }
+    /* esconde o link fixo quando o dropdown já mostra Ao Vivo */
+    .navbar--open .nav-live-mobile { display: none; }
 }

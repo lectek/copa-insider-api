@@ -9,7 +9,9 @@ import br.com.lectek.copainsider.application.service.otp.OtpServicePort;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +26,9 @@ public class CadastroController {
     private static final String REDIRECT_CADASTRO = "redirect:/cadastro";
     private static final String ERROR_MESSAGE = "errorMessage";
 
+    @Value("${app.security.oauth2.enabled:true}")
+    private boolean oauth2Enabled;
+
     private final RegistrationAppService registrationService;
     private final OtpServicePort         otpService;
     private final CopaAcessoService      acessoService;
@@ -37,7 +42,8 @@ public class CadastroController {
     }
 
     @GetMapping
-    public String form() {
+    public String form(Model model) {
+        model.addAttribute("oauth2Enabled", oauth2Enabled);
         return "pages/auth/cadastro";
     }
 

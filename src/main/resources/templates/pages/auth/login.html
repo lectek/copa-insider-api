@@ -17,6 +17,9 @@
         <div th:if="${param.error}" class="ci-flash ci-flash--error">
             E-mail ou senha incorretos.
         </div>
+        <div th:if="${param.blocked}" class="ci-flash ci-flash--error">
+            Demasiadas tentativas. Tenta novamente em 15 minutos.
+        </div>
         <div th:if="${param.disabled}" class="ci-flash ci-flash--info">
             Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.
         </div>
@@ -26,27 +29,84 @@
 
         <div th:replace="~{fragments/flash :: flash}"></div>
 
-        <form th:action="@{/auth/login}" method="post" class="ci-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <!-- Tabs -->
+        <div class="ci-auth-tabs" role="tablist">
+            <button class="ci-auth-tab ci-auth-tab--active" role="tab"
+                    aria-selected="true" aria-controls="tab-senha" id="btn-tab-senha"
+                    type="button">Com senha</button>
+            <button class="ci-auth-tab" role="tab"
+                    aria-selected="false" aria-controls="tab-otp" id="btn-tab-otp"
+                    type="button">Sem senha</button>
+        </div>
 
-            <div class="ci-form__field">
-                <label class="ci-form__label" for="username">E-mail</label>
-                <input id="username" name="username" type="email"
-                       class="ci-form__input" placeholder="seu@email.com"
-                       autocomplete="email" required autofocus/>
+        <!-- Tab 1: senha -->
+        <div id="tab-senha" role="tabpanel" aria-labelledby="btn-tab-senha">
+            <form th:action="@{/auth/login}" method="post" class="ci-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <!-- honeypot: bots preenchem, humanos não -->
+                <label for="website" style="display:none!important;" aria-hidden="true">Website</label>
+                <input type="text" id="website" name="website" value="" tabindex="-1" autocomplete="off"
+                       aria-hidden="true" style="display:none!important;"/>
+
+                <div class="ci-form__field">
+                    <label class="ci-form__label" for="username">E-mail</label>
+                    <input id="username" name="username" type="email"
+                           class="ci-form__input" placeholder="seu@email.com"
+                           autocomplete="email" required autofocus/>
+                </div>
+
+                <div class="ci-form__field">
+                    <label class="ci-form__label" for="password">Senha</label>
+                    <input id="password" name="password" type="password"
+                           class="ci-form__input" placeholder="••••••••"
+                           autocomplete="current-password" required/>
+                </div>
+
+                <div class="ci-form__row">
+                    <label class="ci-form__check">
+                        <input type="checkbox" name="remember-me" value="true"/>
+                        Lembrar-me por 30 dias
+                    </label>
+                    <a th:href="@{/auth/esqueci-senha}" class="ci-auth-card__forgot">Esqueci minha senha</a>
+                </div>
+
+                <button type="submit" class="ci-btn ci-btn--primary ci-btn--full"
+                        data-loading-text="A entrar…">Entrar</button>
+            </form>
+        </div>
+
+        <!-- Tab 2: OTP (sem senha) -->
+        <div id="tab-otp" role="tabpanel" aria-labelledby="btn-tab-otp" hidden>
+            <div id="otp-error" class="ci-flash ci-flash--error" hidden></div>
+
+            <!-- Passo 1: email -->
+            <div id="otp-step-email" class="ci-form">
+                <div class="ci-form__field">
+                    <label class="ci-form__label" for="otp-email">E-mail</label>
+                    <input id="otp-email" type="email" class="ci-form__input"
+                           placeholder="seu@email.com" autocomplete="email"/>
+                </div>
+                <button id="otp-send-btn" type="button"
+                        class="ci-btn ci-btn--primary ci-btn--full">Enviar código</button>
             </div>
 
-            <div class="ci-form__field">
-                <label class="ci-form__label" for="password">Senha</label>
-                <input id="password" name="password" type="password"
-                       class="ci-form__input" placeholder="••••••••"
-                       autocomplete="current-password" required/>
+            <!-- Passo 2: código (inicialmente oculto) -->
+            <div id="otp-step-code" class="ci-form" hidden>
+                <p class="ci-auth-card__sub" id="otp-sent-msg" style="margin-bottom:.75rem;"></p>
+                <div class="ci-form__field">
+                    <label class="ci-form__label" for="otp-code">Código de 6 dígitos</label>
+                    <input id="otp-code" type="text" class="ci-form__input ci-otp-input"
+                           placeholder="000000" maxlength="6" pattern="[0-9]{6}"
+                           inputmode="numeric" autocomplete="one-time-code"/>
+                </div>
+                <button id="otp-verify-btn" type="button"
+                        class="ci-btn ci-btn--primary ci-btn--full">Verificar e entrar</button>
+                <button id="otp-resend-btn" type="button"
+                        class="ci-btn ci-btn--ghost ci-btn--full" style="margin-top:.5rem;font-size:.85rem;">
+                    Reenviar código
+                </button>
             </div>
-
-            <a th:href="@{/esqueci-senha}" class="ci-auth-card__forgot">Esqueci minha senha</a>
-
-            <button type="submit" class="ci-btn ci-btn--primary ci-btn--full">Entrar</button>
-        </form>
+        </div>
 
         <div th:if="${oauth2Enabled}" class="ci-auth-divider"><span>ou</span></div>
         <a th:if="${oauth2Enabled}" href="/oauth2/authorization/google"
@@ -67,5 +127,136 @@
 </div>
 
 <script th:src="@{/js/main.js}"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* --- tabs --- */
+  var tabSenha  = document.getElementById('tab-senha');
+  var tabOtp    = document.getElementById('tab-otp');
+  var btnSenha  = document.getElementById('btn-tab-senha');
+  var btnOtp    = document.getElementById('btn-tab-otp');
+
+  function activateTab(show, hide, btnShow, btnHide) {
+    show.hidden  = false; hide.hidden  = true;
+    btnShow.classList.add('ci-auth-tab--active');
+    btnHide.classList.remove('ci-auth-tab--active');
+    btnShow.setAttribute('aria-selected', 'true');
+    btnHide.setAttribute('aria-selected', 'false');
+  }
+
+  btnSenha.addEventListener('click', function () { activateTab(tabSenha, tabOtp, btnSenha, btnOtp); });
+  btnOtp.addEventListener('click',   function () { activateTab(tabOtp, tabSenha, btnOtp, btnSenha); });
+
+  /* --- OTP flow --- */
+  var otpError    = document.getElementById('otp-error');
+  var stepEmail   = document.getElementById('otp-step-email');
+  var stepCode    = document.getElementById('otp-step-code');
+  var emailInput  = document.getElementById('otp-email');
+  var codeInput   = document.getElementById('otp-code');
+  var sendBtn     = document.getElementById('otp-send-btn');
+  var verifyBtn   = document.getElementById('otp-verify-btn');
+  var resendBtn   = document.getElementById('otp-resend-btn');
+  var sentMsg     = document.getElementById('otp-sent-msg');
+  var deliveryId  = null;
+
+  function showError(msg) {
+    otpError.textContent = msg;
+    otpError.hidden = false;
+  }
+  function clearError() { otpError.hidden = true; }
+
+  function setLoading(btn, loading, defaultText) {
+    btn.disabled    = loading;
+    btn.textContent = loading ? 'Aguarde…' : defaultText;
+  }
+
+  sendBtn.addEventListener('click', function () { sendCode(false); });
+  resendBtn.addEventListener('click', function () { sendCode(true); });
+
+  function sendCode(isResend) {
+    clearError();
+    var email = emailInput.value.trim();
+    if (!email) { showError('Introduz um e-mail.'); return; }
+    setLoading(sendBtn, true, 'Enviar código');
+    setLoading(resendBtn, true, 'Reenviar código');
+
+    fetch('/api/auth/email-claim/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, previousDeliveryId: isResend ? deliveryId : null })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.deliveryId) {
+        deliveryId = data.deliveryId;
+        sentMsg.textContent = 'Código enviado para ' + (data.maskedDestino || email) + '.';
+        stepEmail.hidden = true;
+        stepCode.hidden  = false;
+        codeInput.focus();
+      } else {
+        showError(data.message || 'Não foi possível enviar o código.');
+      }
+    })
+    .catch(function () { showError('Erro de rede. Tenta novamente.'); })
+    .finally(function () {
+      setLoading(sendBtn, false, 'Enviar código');
+      setLoading(resendBtn, false, 'Reenviar código');
+    });
+  }
+
+  verifyBtn.addEventListener('click', function () {
+    clearError();
+    var email = emailInput.value.trim();
+    var code  = codeInput.value.trim();
+    if (!code || code.length !== 6) { showError('Introduz o código de 6 dígitos.'); return; }
+    setLoading(verifyBtn, true, 'Verificar e entrar');
+
+    fetch('/api/auth/email-claim/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deliveryId: deliveryId, code: code, email: email })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data.token) {
+        showError(data.message || 'Código inválido ou expirado.');
+        setLoading(verifyBtn, false, 'Verificar e entrar');
+        return;
+      }
+      if (!data.userExists) {
+        window.location.href = '/cadastro?email=' + encodeURIComponent(email);
+        return;
+      }
+      return fetch('/auth/otp-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, token: data.token })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res.redirect) {
+          window.location.href = res.redirect;
+        } else {
+          showError(res.message || 'Não foi possível autenticar.');
+          setLoading(verifyBtn, false, 'Verificar e entrar');
+        }
+      });
+    })
+    .catch(function () {
+      showError('Erro de rede. Tenta novamente.');
+      setLoading(verifyBtn, false, 'Verificar e entrar');
+    });
+  });
+
+  /* auto-submit when 6 digits entered */
+  codeInput.addEventListener('input', function () {
+    if (codeInput.value.replace(/\D/g, '').length === 6) {
+      codeInput.value = codeInput.value.replace(/\D/g, '');
+      verifyBtn.click();
+    }
+  });
+}());
+</script>
 </body>
 </html>

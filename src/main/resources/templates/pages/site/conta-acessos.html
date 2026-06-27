@@ -71,12 +71,19 @@
             Os teus acessos aparecem aqui após a compra ser confirmada pelo Hotmart.
         </p>
         <a th:href="@{/loja}" class="btn-loja">Ver guias disponíveis →</a>
+        <p class="conta-vazio-codigo">
+            Já compraste?
+            <a th:href="@{/resgatar-codigo}">Ativar código de acesso</a>
+        </p>
     </div>
 
-    <p class="conta-suporte">
-        Problema com um acesso?
-        <a href="mailto:suporte@allaboutworldcup2026.com">suporte@allaboutworldcup2026.com</a>
-    </p>
+    <div class="conta-footer-links">
+        <a th:href="@{/mudar-senha}">Mudar senha</a>
+        <span class="conta-footer-sep">·</span>
+        <a href="mailto:suporte@allaboutworldcup2026.com">Suporte</a>
+        <span class="conta-footer-sep">·</span>
+        <a th:href="@{/logout}">Sair</a>
+    </div>
 
 </main>
 

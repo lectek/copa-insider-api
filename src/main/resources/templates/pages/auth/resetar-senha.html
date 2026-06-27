@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Redefinir senha')}"></head>
+<body class="ci-body ci-body--auth">
+
+<div class="ci-auth-page">
+    <div class="ci-auth-card">
+        <div class="ci-auth-card__brand">
+            <a href="/" class="ci-brand-link">
+                <span class="ci-brand-badge">CI</span>
+                <span class="ci-brand-name">Copa Insider</span>
+            </a>
+        </div>
+        <h1 class="ci-auth-card__title">Nova senha</h1>
+
+        <div th:if="${errorMessage}" class="ci-flash ci-flash--error" th:text="${errorMessage}"></div>
+        <div th:replace="~{fragments/flash :: flash}"></div>
+
+        <!-- token inválido ou expirado -->
+        <div th:if="${form == null and errorMessage == null}">
+            <p class="ci-auth-card__sub">Este link é inválido ou já foi usado.</p>
+            <a th:href="@{/auth/esqueci-senha}" class="ci-btn ci-btn--primary ci-btn--full">Pedir novo link</a>
+        </div>
+
+        <!-- formulário de redefinição -->
+        <th:block th:if="${form != null}">
+            <p class="ci-auth-card__sub">Escolha uma nova senha para a sua conta.</p>
+            <form th:action="@{/auth/resetar-senha}" th:object="${form}" method="post" class="ci-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" th:field="*{token}"/>
+
+                <div class="ci-form__field">
+                    <label class="ci-form__label" for="novaSenha">Nova senha</label>
+                    <input id="novaSenha" th:field="*{novaSenha}" type="password"
+                           class="ci-form__input" placeholder="Mínimo 8 caracteres"
+                           autocomplete="new-password" minlength="8" required autofocus/>
+                </div>
+
+                <div class="ci-form__field">
+                    <label class="ci-form__label" for="confirmarSenha">Confirmar senha</label>
+                    <input id="confirmarSenha" th:field="*{confirmarSenha}" type="password"
+                           class="ci-form__input" placeholder="Repita a senha"
+                           autocomplete="new-password" required/>
+                </div>
+
+                <button type="submit" class="ci-btn ci-btn--primary ci-btn--full"
+                        data-loading-text="A redefinir…">Redefinir senha</button>
+            </form>
+        </th:block>
+
+        <p class="ci-auth-card__switch">
+            <a th:href="@{/auth/login}">← Voltar ao login</a>
+        </p>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

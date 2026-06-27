@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Esqueci minha senha')}"></head>
+<body class="ci-body ci-body--auth">
+
+<div class="ci-auth-page">
+    <div class="ci-auth-card">
+        <div class="ci-auth-card__brand">
+            <a href="/" class="ci-brand-link">
+                <span class="ci-brand-badge">CI</span>
+                <span class="ci-brand-name">Copa Insider</span>
+            </a>
+        </div>
+        <h1 class="ci-auth-card__title">Esqueci minha senha</h1>
+        <p class="ci-auth-card__sub">Informe o e-mail ou CPF da conta para receber as instruções de recuperação.</p>
+
+        <div th:replace="~{fragments/flash :: flash}"></div>
+
+        <form th:action="@{/auth/esqueci-senha}" method="post" class="ci-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="ci-form__field">
+                <label class="ci-form__label" for="identificador">E-mail ou CPF</label>
+                <input id="identificador" name="identificador" type="text"
+                       class="ci-form__input" placeholder="seu@email.com"
+                       autocomplete="email" required autofocus/>
+            </div>
+
+            <button type="submit" class="ci-btn ci-btn--primary ci-btn--full"
+                    data-loading-text="A enviar…">Enviar instruções</button>
+        </form>
+
+        <p class="ci-auth-card__switch">
+            Lembrou a senha? <a th:href="@{/auth/login}">Entrar</a>
+        </p>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -165,6 +165,36 @@
     margin-right: auto;
 }
 
+.conta-footer-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 2.5rem;
+    font-size: .82rem;
+}
+
+.conta-footer-links a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .15s;
+}
+
+.conta-footer-links a:hover { color: var(--gold); }
+
+.conta-footer-sep { color: var(--border); }
+
+.conta-vazio-codigo {
+    margin-top: 1.2rem;
+    font-size: .82rem;
+    color: var(--muted);
+}
+.conta-vazio-codigo a {
+    color: var(--gold);
+    text-decoration: none;
+}
+.conta-vazio-codigo a:hover { text-decoration: underline; }
+
 .btn-loja {
     display: inline-block;
     background: var(--gold);

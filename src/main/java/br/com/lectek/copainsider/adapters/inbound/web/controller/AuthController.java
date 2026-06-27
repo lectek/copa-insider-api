@@ -1,8 +1,10 @@
 package br.com.lectek.copainsider.adapters.inbound.web.controller;
 
 import br.com.lectek.copainsider.adapters.inbound.web.dto.ResetSenhaForm;
+import br.com.lectek.copainsider.adapters.inbound.web.security.LoginAttemptService;
 import br.com.lectek.copainsider.adapters.outbound.persistence.entity.UsuarioEntity;
 import br.com.lectek.copainsider.application.service.PasswordResetService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Optional;
@@ -24,18 +26,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/auth")
 public class AuthController {
 
-    /**
-     * Service responsible for reset password flow.
-     */
-    private final PasswordResetService resetService;
+    private static final String VIEW_ESQUECI    = "pages/auth/esqueci-senha";
+    private static final String VIEW_RESETAR    = "pages/auth/resetar-senha";
+    private static final String ATTR_ERROR      = "errorMessage";
+    private static final String ATTR_INFO       = "infoMessage";
+    private static final String REDIRECT_LOGIN  = "redirect:/auth/login";
 
-    /**
-     * Creates controller with password reset dependency.
-     *
-     * @param service password reset service
-     */
-    public AuthController(final PasswordResetService service) {
-        this.resetService = service;
+    private final PasswordResetService resetService;
+    private final LoginAttemptService  attemptService;
+
+    public AuthController(final PasswordResetService service,
+                          final LoginAttemptService attemptService) {
+        this.resetService   = service;
+        this.attemptService = attemptService;
     }
 
     /**
@@ -45,7 +48,7 @@ public class AuthController {
      */
     @GetMapping("/esqueci-senha")
     public String esqueciSenhaForm() {
-        return "auth/esqueci-senha";
+        return VIEW_ESQUECI;
     }
 
     /**
@@ -58,17 +61,18 @@ public class AuthController {
     @PostMapping("/esqueci-senha")
     public String esqueciSenhaSubmit(
             @RequestParam("identificador") final String identificador,
+            final HttpServletRequest request,
             final RedirectAttributes ra
     ) {
+        final String ip = resolveIp(request);
         final String identifier = safeTrim(identificador);
-        if (!identifier.isEmpty()) {
+        if (!identifier.isEmpty() && !attemptService.isBlocked(ip)) {
             resetService.solicitarResetPorEmailOuCpf(identifier);
+            attemptService.loginFailed(ip);
         }
-        ra.addFlashAttribute(
-                "infoMessage",
-                "Se existir uma conta, enviaremos um e-mail com instrucoes."
-        );
-        return "redirect:/login";
+        ra.addFlashAttribute(ATTR_INFO,
+                "Se existir uma conta, enviaremos um e-mail com instrucoes.");
+        return REDIRECT_LOGIN;
     }
 
     /**
@@ -87,14 +91,14 @@ public class AuthController {
                 resetService.validarToken(token);
         if (userOpt.isEmpty()) {
             model.addAttribute("form", null);
-            model.addAttribute("errorMessage", "Link invalido ou expirado.");
-            return "auth/resetar-senha";
+            model.addAttribute(ATTR_ERROR, "Link invalido ou expirado.");
+            return VIEW_RESETAR;
         }
 
         final ResetSenhaForm form = new ResetSenhaForm();
         form.setToken(token);
         model.addAttribute("form", form);
-        return "auth/resetar-senha";
+        return VIEW_RESETAR;
     }
 
     /**
@@ -114,12 +118,12 @@ public class AuthController {
             final Model model
     ) {
         if (br.hasErrors()) {
-            return "auth/resetar-senha";
+            return VIEW_RESETAR;
         }
 
         if (!form.getNovaSenha().equals(form.getConfirmarSenha())) {
-            model.addAttribute("errorMessage", "As senhas nao coincidem.");
-            return "auth/resetar-senha";
+            model.addAttribute(ATTR_ERROR, "As senhas nao coincidem.");
+            return VIEW_RESETAR;
         }
 
         final boolean updated = resetService.aplicarNovaSenha(
@@ -128,15 +132,15 @@ public class AuthController {
         );
         if (!updated) {
             model.addAttribute("form", null);
-            model.addAttribute("errorMessage", "Link invalido ou expirado.");
-            return "auth/resetar-senha";
+            model.addAttribute(ATTR_ERROR, "Link invalido ou expirado.");
+            return VIEW_RESETAR;
         }
 
         ra.addFlashAttribute(
-                "infoMessage",
+                ATTR_INFO,
                 "Senha alterada com sucesso. Faca login novamente."
         );
-        return "redirect:/login";
+        return REDIRECT_LOGIN;
     }
 
     /**
@@ -196,6 +200,14 @@ public class AuthController {
 
     private static String safeTrim(final String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private static String resolveIp(final HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 
     /**

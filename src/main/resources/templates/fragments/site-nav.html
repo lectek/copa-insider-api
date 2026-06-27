@@ -12,7 +12,13 @@
 
   pagina → identifica o link activo: 'calendario', 'selecoes', 'comparar', 'loja', 'factos', 'ranking'
 -->
-<nav th:fragment="nav(pagina)" class="navbar">
+<nav th:fragment="nav(pagina)" class="navbar" id="site-navbar">
+
+    <!-- Hamburger (mobile) -->
+    <button class="navbar__hamburger" aria-label="Menu" aria-expanded="false"
+            aria-controls="navbar-links" id="navbar-hamburger" type="button">
+        <span></span><span></span><span></span>
+    </button>
 
     <a href="/" class="brand">
         <img src="/img/logo-sm.webp" alt="Copa Insider" width="36" height="36"
@@ -20,7 +26,7 @@
         Copa Insider
     </a>
 
-    <div class="nav-links">
+    <div class="nav-links" id="navbar-links">
         <a th:href="@{/ao-vivo}" class="nav-live-link"
            th:classappend="${pagina == 'ao-vivo'} ? 'active'">🔴 Ao Vivo</a>
         <a th:href="@{/classificacao}"
@@ -40,6 +46,9 @@
     </div>
 
     <div class="navbar__actions">
+        <!-- Ao Vivo sempre visível no mobile (fora do menu hamburger) -->
+        <a th:href="@{/ao-vivo}" class="nav-live-mobile"
+           th:classappend="${pagina == 'ao-vivo'} ? 'active'">🔴 Ao Vivo</a>
         <div class="lang-sw">
             <a class="lf" data-lang="pt_BR"
                th:classappend="${#locale.country=='BR'} ? 'lf-on'">🇧🇷</a>
@@ -50,6 +59,24 @@
         </div>
         <th:block th:replace="~{::sessionLinks}"></th:block>
     </div>
+
+    <script>
+    (function(){
+        var nav = document.getElementById('site-navbar');
+        var btn = document.getElementById('navbar-hamburger');
+        if (!nav || !btn) return;
+        function isOpen(){ return nav.classList.contains('navbar--open'); }
+        function open(){ nav.classList.add('navbar--open'); btn.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
+        function close(){ nav.classList.remove('navbar--open'); btn.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+        btn.addEventListener('click', function(e){ e.stopPropagation(); isOpen() ? close() : open(); });
+        document.addEventListener('click', function(e){ if(isOpen() && !nav.contains(e.target)) close(); });
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape' && isOpen()) close(); });
+        window.addEventListener('resize', function(){ if(window.innerWidth > 768 && isOpen()) close(); });
+        /* fechar ao clicar em link interno */
+        var links = document.querySelectorAll('#navbar-links a');
+        links.forEach(function(a){ a.addEventListener('click', function(){ if(window.innerWidth <= 768) close(); }); });
+    }());
+    </script>
 
 </nav>
 

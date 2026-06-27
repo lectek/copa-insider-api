@@ -18,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -39,14 +40,20 @@ public class SecurityMvcConfig {
     private final SessionRegistry sessionRegistry;
     private final CopaAcessoJPARepository acessoRepo;
     private final GoogleOAuth2UserService googleOAuth2UserService;
+    private final LoginAttemptService loginAttemptService;
+    private final PersistentTokenRepository persistentTokenRepository;
 
     public SecurityMvcConfig(Environment env, SessionRegistry sessionRegistry,
                              @Lazy CopaAcessoJPARepository acessoRepo,
-                             GoogleOAuth2UserService googleOAuth2UserService) {
+                             GoogleOAuth2UserService googleOAuth2UserService,
+                             LoginAttemptService loginAttemptService,
+                             PersistentTokenRepository persistentTokenRepository) {
         this.env = env;
         this.sessionRegistry = sessionRegistry;
         this.acessoRepo = acessoRepo;
         this.googleOAuth2UserService = googleOAuth2UserService;
+        this.loginAttemptService = loginAttemptService;
+        this.persistentTokenRepository = persistentTokenRepository;
     }
 
     private boolean isDevLike() {
@@ -76,6 +83,7 @@ public class SecurityMvcConfig {
                         pathMatcherBuilder.matcher("/admin/export/**"),
                         pathMatcherBuilder.matcher(HttpMethod.POST, "/login"),
                         pathMatcherBuilder.matcher(HttpMethod.POST, "/auth/login"),
+                        pathMatcherBuilder.matcher(HttpMethod.POST, "/auth/otp-login"),
                         pathMatcherBuilder.matcher("/webhooks/**")
                 );
                 if (dev) {
@@ -105,7 +113,7 @@ public class SecurityMvcConfig {
                         "/mercadopago/guia",
                         "/suporte", "/alysson",
                         "/catalogo", "/produtos", "/carrinho", "/checkout",
-                        "/sobre", "/login", "/auth/login", "/logout", "/cadastro", "/cadastro-cliente",
+                        "/sobre", "/login", "/auth/login", "/auth/otp-login", "/logout", "/cadastro", "/cadastro-cliente",
                         "/auth/cliente/cadastro", "/clientes/cadastro", "/error",
                         "/oauth2/**", "/login/oauth2/**"
                 ).permitAll();
@@ -196,11 +204,16 @@ public class SecurityMvcConfig {
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID", "XSRF-TOKEN")
             )
-            .rememberMe(AbstractHttpConfigurer::disable)
+            .rememberMe(rm -> rm
+                    .tokenRepository(persistentTokenRepository)
+                    .tokenValiditySeconds(30 * 24 * 60 * 60) // 30 dias
+                    .rememberMeParameter("remember-me")
+                    .rememberMeCookieName("COPA_RM")
+            )
             .sessionManagement(sm -> sm
                     .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                     .sessionFixation(sf -> sf.migrateSession())
-                    .maximumSessions(-1)
+                    .maximumSessions(10)
                     .sessionRegistry(this.sessionRegistry)
             )
             .headers(headers -> headers
@@ -230,6 +243,7 @@ public class SecurityMvcConfig {
             );
         }
 
+        http.addFilterBefore(new LoginRateLimitFilter(loginAttemptService), BasicAuthenticationFilter.class);
         http.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);
         return http.build();
     }
