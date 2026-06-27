@@ -220,13 +220,12 @@ public class Copa2026DataService {
         refreshJogadores();
     }
 
-    @Scheduled(fixedDelay = 7_200_000) // 2h — ranking jogadores via ESPN (sem chave)
     public void refreshJogadores() {
         try {
-            List<JogadorVM> fromApi = buildJogadoresFromEspn();
-            if (!fromApi.isEmpty()) {
-                this.jogadores = fromApi;
-                log.info("Ranking jogadores atualizado via ESPN: {} jogadores", fromApi.size());
+            List<JogadorVM> calculados = buildJogadoresFromMatches();
+            if (!calculados.isEmpty()) {
+                this.jogadores = calculados;
+                log.info("Ranking jogadores calculado internamente: {} jogadores", calculados.size());
             }
         } catch (Exception e) {
             log.warn("refreshJogadores falhou: {}", e.getMessage());
@@ -242,6 +241,7 @@ public class Copa2026DataService {
                 partidas = buildPartidas(matches);
                 selecoes = buildSelecoes(matches);
                 log.info("Copa 2026: {} partidas carregadas", partidas.size());
+                refreshJogadores(); // recalcula artilharia com os dados mais recentes
             }
         } catch (Exception e) {
             log.error("Erro ao atualizar dados Copa 2026: {}", e.getMessage());
@@ -968,6 +968,77 @@ public class Copa2026DataService {
     }
 
     // ── Dados estáticos complementares ───────────────────────────────────────
+
+    // ── Ranking jogadores — calculado dos dados internos de cada partida ────────
+
+    private List<JogadorVM> buildJogadoresFromMatches() {
+        List<OpenFootballClient.OFMatch> matches = ofMatches2026;
+        if (matches.isEmpty()) return List.of();
+
+        // Agrega gols por jogador a partir dos dados OpenFootball
+        Map<String, int[]> goalData   = new LinkedHashMap<>(); // normName → {gols}
+        Map<String, String> teamOf    = new HashMap<>();        // normName → team1/team2
+        Map<String, String> displayOf = new HashMap<>();        // normName → nome original
+
+        for (OpenFootballClient.OFMatch m : matches) {
+            if (!m.hasScore()) continue;
+            accGoals(m.goals1(), m.team1(), goalData, teamOf, displayOf);
+            accGoals(m.goals2(), m.team2(), goalData, teamOf, displayOf);
+        }
+
+        if (goalData.isEmpty()) return List.of();
+
+        // Obtém assistências via ESPN para enriquecer (sem substituir os gols internos)
+        Map<String, Integer> assistsMap = new HashMap<>();
+        try {
+            EspnScoreClient.LeadersResult leaders = espnClient.fetchLeaders();
+            for (EspnScoreClient.LeaderStats s : leaders.gols())
+                assistsMap.put(normName(s.nome()), s.assists());
+            for (EspnScoreClient.LeaderStats s : leaders.assists())
+                assistsMap.putIfAbsent(normName(s.nome()), s.assists());
+        } catch (Exception ignored) {}
+
+        List<Map.Entry<String, int[]>> sorted = new ArrayList<>(goalData.entrySet());
+        sorted.sort((a, b) -> b.getValue()[0] - a.getValue()[0]);
+
+        List<JogadorVM> result = new ArrayList<>();
+        long id = 1;
+        for (Map.Entry<String, int[]> entry : sorted) {
+            String key      = entry.getKey();
+            int    gols     = entry.getValue()[0];
+            String teamName = teamOf.get(key);
+            String dispName = displayOf.get(key);
+            int    assists  = assistsMap.getOrDefault(key, 0);
+
+            String[]   country = COUNTRY_PT.get(teamName);
+            PlayerMeta meta    = PLAYER_META.get(key);
+
+            String slug      = meta != null ? meta.slugSelecao() : (country != null ? country[0] : "");
+            String bandeira  = meta != null ? meta.bandeira()    : (country != null ? country[1] : "");
+            String selecaoPt = country != null ? country[2] : teamName;
+            String posicao   = meta != null ? meta.posicao() : "Avançado";
+            String clube     = meta != null ? meta.clube()   : "";
+            int    idade     = meta != null ? meta.idade()   : 0;
+
+            result.add(new JogadorVM(id++, dispName, selecaoPt, slug, bandeira,
+                    posicao, clube, idade, gols, assists, 0, 8.5, ""));
+        }
+        return result;
+    }
+
+    private void accGoals(List<OpenFootballClient.OFGoal> goals, String team,
+                          Map<String, int[]> goalData,
+                          Map<String, String> teamOf,
+                          Map<String, String> displayOf) {
+        if (goals == null) return;
+        for (OpenFootballClient.OFGoal g : goals) {
+            if (g.name() == null || Boolean.TRUE.equals(g.og())) continue;
+            String key = normName(g.name());
+            goalData.computeIfAbsent(key, k -> new int[]{0})[0]++;
+            teamOf.putIfAbsent(key, team);
+            displayOf.putIfAbsent(key, g.name());
+        }
+    }
 
     // ── Ranking jogadores — ESPN (sem chave) + fallback hardcoded ─────────────
 
