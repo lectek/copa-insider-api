@@ -419,6 +419,18 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem 5rem; }
 .palpite-ranking-link { color: var(--gold); text-decoration: none; font-weight: 700; }
 .palpite-ranking-link:hover { text-decoration: underline; }
 
+.palpite-share { display: flex; align-items: center; gap: .6rem; margin-top: 1rem; flex-wrap: wrap; }
+.palpite-share__label { font-size: .8rem; color: var(--muted); }
+.palpite-share__btn {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .35rem .75rem; border-radius: 6px;
+    font-size: .82rem; font-weight: 600; text-decoration: none;
+    transition: opacity .15s;
+}
+.palpite-share__btn:hover { opacity: .85; }
+.palpite-share__btn--twitter  { background: #000; color: #fff; }
+.palpite-share__btn--whatsapp { background: #25d366; color: #fff; }
+
 .palpite-resultado {
     display: flex; align-items: center; gap: 1rem;
 }
