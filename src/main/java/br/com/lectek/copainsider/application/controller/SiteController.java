@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import br.com.lectek.copainsider.application.copa.ClassificacaoVM;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -79,7 +80,11 @@ public class SiteController {
 
     @GetMapping("/classificacao")
     public String classificacao(Model model) {
-        model.addAttribute("classificacao", copaData.getClassificacao());
+        Map<String, List<ClassificacaoVM>> classificacao = copaData.getClassificacao();
+        model.addAttribute("classificacao", classificacao);
+        model.addAttribute("terceiros", copaData.getTerceirosOrdenados(classificacao));
+        model.addAttribute("qualificados", copaData.getQualificados(classificacao));
+        model.addAttribute("gruposEncerrados", copaData.isGruposEncerrados());
         model.addAttribute(AO_VIVO_ATTR, copaData.partidasAoVivo());
         return "pages/site/classificacao";
     }

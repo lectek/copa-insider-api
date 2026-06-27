@@ -194,6 +194,72 @@ body {
     border-left: 3px solid var(--cl-green);
 }
 
+/* ── Banner fase encerrada ───────────────────────────────────────────────── */
+.cl-encerrado {
+    background: linear-gradient(135deg, rgba(34,197,94,.08) 0%, rgba(240,192,64,.06) 100%);
+    border: 1px solid rgba(34,197,94,.25);
+    border-radius: 12px;
+    padding: 16px 20px;
+}
+.cl-encerrado__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.cl-encerrado__badge {
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--cl-green);
+    letter-spacing: .03em;
+}
+.cl-encerrado__badge::before {
+    content: '✅ ';
+}
+.cl-btn-bracket {
+    display: inline-block;
+    padding: 8px 20px;
+    background: var(--cl-gold);
+    color: #000;
+    font-weight: 700;
+    font-size: .82rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: opacity .15s;
+    white-space: nowrap;
+}
+.cl-btn-bracket:hover { opacity: .85; }
+
+/* ── Terceiros colocados ─────────────────────────────────────────────────── */
+.cl-terceiros {
+    background: var(--cl-card);
+    border: 1px solid rgba(240,192,64,.18);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.cl-terceiros__sub {
+    font-size: .75rem;
+    color: var(--cl-muted);
+    margin-top: 4px;
+}
+
+/* Linha qualificado como melhor 3º */
+.cl-tr--terceiro-ok {
+    background: rgba(240,192,64,.05);
+    border-left: 3px solid rgba(240,192,64,.5);
+}
+.cl-tr--terceiro-ok td:first-child { padding-left: 13px; }
+
+/* Posição 3º qualificado */
+.cl-pos--3ok { background: rgba(240,192,64,.12); color: var(--cl-gold); }
+
+/* Legenda terceiros */
+.cl-legend-dot--terceiro-ok {
+    background: rgba(240,192,64,.25);
+    border-left: 3px solid rgba(240,192,64,.7);
+}
+
 /* ── Estado vazio ────────────────────────────────────────────────────────── */
 .cl-empty {
     text-align: center;

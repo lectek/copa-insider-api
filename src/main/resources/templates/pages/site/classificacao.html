@@ -18,11 +18,19 @@
             <span class="cl-dot"></span> CLASSIFICAÇÃO A ACTUALIZAR
         </div>
         <h1>Classificação <span class="cl-hl">Fase de Grupos</span></h1>
-        <p class="cl-hero__sub">Tabela actualizada em tempo real com os resultados da Copa do Mundo 2026</p>
+        <p class="cl-hero__sub">Resultados finais da fase de grupos da Copa do Mundo 2026</p>
     </div>
 </section>
 
 <main class="cl-main">
+
+    <!-- Banner: Fase Encerrada -->
+    <div class="cl-encerrado" th:if="${gruposEncerrados}">
+        <div class="cl-encerrado__inner">
+            <span class="cl-encerrado__badge">Fase de Grupos Encerrada</span>
+            <a th:href="@{/bracket}" class="cl-btn-bracket">Ver Bracket →</a>
+        </div>
+    </div>
 
     <!-- Sem dados -->
     <div th:if="${#maps.isEmpty(classificacao)}" class="cl-empty">
@@ -54,10 +62,10 @@
                     </thead>
                     <tbody>
                         <tr th:each="eq, idx : ${entry.value}"
-                            th:classappend="${idx.index < 2} ? 'cl-tr--apurada' : ''">
+                            th:classappend="${idx.index < 2} ? 'cl-tr--apurada' : (${idx.index == 2 and qualificados.contains(eq.slug())} ? 'cl-tr--terceiro-ok' : '')">
                             <td class="cl-td cl-td--pos">
                                 <span class="cl-pos"
-                                      th:classappend="${idx.index == 0} ? ' cl-pos--1' : (${idx.index == 1} ? ' cl-pos--2' : '')"
+                                      th:classappend="${idx.index == 0} ? ' cl-pos--1' : (${idx.index == 1} ? ' cl-pos--2' : (${idx.index == 2 and qualificados.contains(eq.slug())} ? ' cl-pos--3ok' : ''))"
                                       th:text="${idx.count}"></span>
                             </td>
                             <td class="cl-td cl-td--selecao">
@@ -80,13 +88,72 @@
                 </table>
             </div>
             <p class="cl-group__legend">
-                <span class="cl-legend-dot cl-legend-dot--apurada"></span> Apurado para os oitavos
+                <span class="cl-legend-dot cl-legend-dot--apurada"></span> Apurado (1º/2º lugar)
+                &nbsp;&nbsp;
+                <span class="cl-legend-dot cl-legend-dot--terceiro-ok"></span> Apurado (melhor 3º)
             </p>
         </section>
     </th:block>
 
+    <!-- Melhores Terceiros -->
+    <section class="cl-terceiros" th:if="${not #lists.isEmpty(terceiros)}">
+        <div class="cl-group__header">
+            <h2 class="cl-group__title">Melhores Terceiros Colocados</h2>
+            <p class="cl-terceiros__sub">Os 8 primeiros apuram-se para os oitavos de final</p>
+        </div>
+        <div class="cl-table-wrap">
+            <table class="cl-table">
+                <thead>
+                    <tr>
+                        <th class="cl-th cl-th--pos">#</th>
+                        <th class="cl-th cl-th--selecao">Seleção</th>
+                        <th class="cl-th cl-th--stat" title="Grupo">Grp</th>
+                        <th class="cl-th cl-th--stat" title="Jogos">J</th>
+                        <th class="cl-th cl-th--stat" title="Vitórias">V</th>
+                        <th class="cl-th cl-th--stat" title="Empates">E</th>
+                        <th class="cl-th cl-th--stat" title="Derrotas">D</th>
+                        <th class="cl-th cl-th--stat" title="Golos Marcados">GM</th>
+                        <th class="cl-th cl-th--stat" title="Golos Sofridos">GS</th>
+                        <th class="cl-th cl-th--stat" title="Saldo de Golos">SG</th>
+                        <th class="cl-th cl-th--pts" title="Pontos">Pts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="eq, idx : ${terceiros}"
+                        th:classappend="${idx.index < 8} ? 'cl-tr--terceiro-ok' : ''">
+                        <td class="cl-td cl-td--pos">
+                            <span class="cl-pos"
+                                  th:classappend="${idx.index < 8} ? ' cl-pos--3ok' : ''"
+                                  th:text="${idx.count}"></span>
+                        </td>
+                        <td class="cl-td cl-td--selecao">
+                            <a th:href="@{/selecoes/{slug}(slug=${eq.slug()})}" class="cl-selecao-link">
+                                <span class="cl-flag" th:text="${eq.bandeira()}"></span>
+                                <span class="cl-nome" th:text="${eq.selecao()}"></span>
+                            </a>
+                        </td>
+                        <td class="cl-td cl-td--stat" th:text="${eq.grupo()}"></td>
+                        <td class="cl-td cl-td--stat" th:text="${eq.jogos()}"></td>
+                        <td class="cl-td cl-td--stat" th:text="${eq.vitorias()}"></td>
+                        <td class="cl-td cl-td--stat" th:text="${eq.empates()}"></td>
+                        <td class="cl-td cl-td--stat" th:text="${eq.derrotas()}"></td>
+                        <td class="cl-td cl-td--stat" th:text="${eq.gm()}"></td>
+                        <td class="cl-td cl-td--stat" th:text="${eq.gs()}"></td>
+                        <td class="cl-td cl-td--stat cl-td--saldo"
+                            th:text="${eq.saldo() > 0 ? '+' + eq.saldo() : eq.saldo()}"></td>
+                        <td class="cl-td cl-td--pts" th:text="${eq.pts()}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="cl-group__legend">
+            <span class="cl-legend-dot cl-legend-dot--terceiro-ok"></span> Apurado para os oitavos
+        </p>
+    </section>
+
     <!-- Links rápidos -->
     <div class="cl-links">
+        <a th:href="@{/bracket}" class="cl-link-btn">🏆 Bracket</a>
         <a th:href="@{/calendario}" class="cl-link-btn">📅 Calendário</a>
         <a th:href="@{/ao-vivo}" class="cl-link-btn">🔴 Ao Vivo</a>
         <a th:href="@{/selecoes}" class="cl-link-btn">🌍 Seleções</a>

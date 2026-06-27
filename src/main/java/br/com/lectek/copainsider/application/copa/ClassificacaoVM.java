@@ -4,6 +4,7 @@ public record ClassificacaoVM(
         String selecao,
         String bandeira,
         String slug,
+        String grupo,
         int jogos,
         int vitorias,
         int empates,

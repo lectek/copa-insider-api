@@ -559,7 +559,7 @@ public class Copa2026DataService {
                     .map(e -> {
                         String[]  m   = metaMap.get(e.getKey());
                         int[]     s   = e.getValue();
-                        return new ClassificacaoVM(m[0], m[1], e.getKey(),
+                        return new ClassificacaoVM(m[0], m[1], e.getKey(), grupo,
                                 s[0], s[1], s[2], s[3], s[4], s[5], s[1] * 3 + s[2]);
                     })
                     .sorted(Comparator.comparingInt(ClassificacaoVM::pts)
@@ -570,6 +570,37 @@ public class Copa2026DataService {
             result.put(grupo, lista);
         });
         return result;
+    }
+
+    public List<ClassificacaoVM> getTerceirosOrdenados(Map<String, List<ClassificacaoVM>> classificacao) {
+        return classificacao.values().stream()
+                .filter(lista -> lista.size() >= 3)
+                .map(lista -> lista.get(2))
+                .sorted(Comparator.comparingInt(ClassificacaoVM::pts)
+                        .thenComparingInt(ClassificacaoVM::saldo)
+                        .thenComparingInt(ClassificacaoVM::gm)
+                        .reversed())
+                .toList();
+    }
+
+    public Set<String> getQualificados(Map<String, List<ClassificacaoVM>> classificacao) {
+        Set<String> qualificados = new LinkedHashSet<>();
+        for (List<ClassificacaoVM> grupo : classificacao.values()) {
+            if (grupo.size() >= 1) qualificados.add(grupo.get(0).slug());
+            if (grupo.size() >= 2) qualificados.add(grupo.get(1).slug());
+        }
+        getTerceirosOrdenados(classificacao).stream()
+                .limit(8)
+                .forEach(t -> qualificados.add(t.slug()));
+        return qualificados;
+    }
+
+    public boolean isGruposEncerrados() {
+        List<PartidaVM> grupoPartidas = partidas.stream()
+                .filter(p -> p.grupo() != null && !p.grupo().isBlank())
+                .toList();
+        return !grupoPartidas.isEmpty() &&
+               grupoPartidas.stream().allMatch(p -> p.encerrada() && p.temResultado());
     }
 
     public Map<String, List<PartidaVM>> knockoutPorFase() {
