@@ -88,7 +88,7 @@ public class FiscalDocumentEmailDispatchService {
                     .append(document.getXmlStoragePath().trim())
                     .append('\n');
         }
-        body.append("\nRede Mais Farma");
+        body.append("\nCopa Insider");
         return body.toString();
     }
 

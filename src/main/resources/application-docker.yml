@@ -133,7 +133,7 @@ app:
     css-url: ${APP_MAIL_CSS_URL:https://unpkg.com/milligram/dist/milligram.min.css}
     bcc: ${APP_MAIL_BCC:}
   company:
-    name: ${APP_COMPANY_NAME:Rede Mais Farma}
+    name: ${APP_COMPANY_NAME:Copa Insider}
     site: ${APP_COMPANY_SITE:https://copainsider.local}
     support-email: ${APP_COMPANY_SUPPORT_EMAIL:suporte@local.copainsider}
   security:

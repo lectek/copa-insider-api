@@ -16,7 +16,7 @@ public class SuportePageController {
     @GetMapping(value = {"/suporte", "/alysson"})
     public String paginaSuporte(final Model model) {
         model.addAttribute("assistantName", "Alysson");
-        model.addAttribute("assistantTitle", "Atendente virtual da SaudeMaisFarma");
+        model.addAttribute("assistantTitle", "Atendente virtual da Copa Insider");
         model.addAttribute("assistantGreeting",
                 "Posso ajudar com produtos, entrega, pagamento, pedidos e orientacoes gerais da loja.");
         model.addAttribute("assistantExamples", List.of(

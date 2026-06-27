@@ -30,7 +30,7 @@ public class SuporteMailService {
     @Value("${app.company.support-email:no-reply@local.copainsider}")
     private String suporteEmail;
 
-    @Value("${app.company.name:Rede Mais Farma}")
+    @Value("${app.company.name:Copa Insider}")
     private String companyName;
 
     @Value("${app.company.site:https://local.copainsider}")
@@ -46,7 +46,7 @@ public class SuporteMailService {
         // ---- contexto Thymeleaf
         Context ctx = new Context(Locale.of("pt", "BR"));
         Map<String, Object> company = Map.of(
-                "name", Optional.ofNullable(companyName).orElse("Rede Mais Farma"),
+                "name", Optional.ofNullable(companyName).orElse("Copa Insider"),
                 "site", Optional.ofNullable(companySite).orElse("https://local.copainsider")
         );
         ctx.setVariables(Map.of(

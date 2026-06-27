@@ -18,7 +18,7 @@ public class AppProps {
     private static final String DEFAULT_WHATSAPP_NUMBER = "5583988853265";
     private static final String DEFAULT_WHATSAPP_DISPLAY = "(83) 98885-3265";
     private static final String DEFAULT_INSTAGRAM_HANDLE = "@embalandosolucoes";
-    private static final String LEGACY_INSTAGRAM_USERNAME = "saudemaisfarma";
+    private static final String LEGACY_INSTAGRAM_USERNAME = "copainsider";
     private static final String DEFAULT_FACEBOOK_URL = "https://facebook.com/embalandosolucoes";
     private static final String DEFAULT_ADDRESS_STREET = "Centro";
     private static final String DEFAULT_ADDRESS_BAIRRO = "Centro";
