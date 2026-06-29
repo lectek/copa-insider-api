@@ -1,4 +1,4 @@
-CREATE TABLE ebook_pedido (
+CREATE TABLE IF NOT EXISTS ebook_pedido (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     transacao         VARCHAR(100) NOT NULL UNIQUE,
     comprador_email   VARCHAR(200) NOT NULL,
