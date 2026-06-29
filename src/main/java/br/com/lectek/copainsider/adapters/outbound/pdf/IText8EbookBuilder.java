@@ -1,8 +1,6 @@
 package br.com.lectek.copainsider.adapters.outbound.pdf;
 
-import br.com.lectek.copainsider.adapters.outbound.selecao.SelecaoDataResult;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import br.com.lectek.copainsider.application.service.EbookConteudo;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
@@ -27,29 +25,23 @@ import java.io.IOException;
 public class IText8EbookBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(IText8EbookBuilder.class);
+    private static final String SEP = "  --  ";
 
-    private final ObjectMapper objectMapper;
-
-    public IText8EbookBuilder(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
-    public String construir(SelecaoDataResult dados, String conteudoJson, String token, String storageDir) throws IOException {
+    public String construir(EbookConteudo conteudo, String token, String storageDir) throws IOException {
         File dir = new File(storageDir);
         if (!dir.exists() && !dir.mkdirs()) {
-            throw new IOException("Não foi possível criar o diretório: " + storageDir);
+            throw new IOException("Nao foi possivel criar o diretorio: " + storageDir);
         }
 
-        String filename = "guia-" + dados.getSelecaoCode().toLowerCase() + "-" + token + ".pdf";
-        String caminho = storageDir + File.separator + filename;
+        String filename = "guia-" + conteudo.selecaoCode().toLowerCase() + "-" + token + ".pdf";
+        String caminho  = storageDir + File.separator + filename;
 
-        JsonNode conteudo = parseConteudo(conteudoJson);
-        DeviceRgb corPrimaria   = parseHex(dados.getCorPrimaria(),   0, 0, 128);
-        DeviceRgb corSecundaria = parseHex(dados.getCorSecundaria(), 255, 215, 0);
+        DeviceRgb corPrimaria   = parseHex(conteudo.corPrimaria(),   0,   0, 128);
+        DeviceRgb corSecundaria = parseHex(conteudo.corSecundaria(), 255, 215,  0);
 
         try (PdfWriter writer = new PdfWriter(caminho);
-             PdfDocument pdf = new PdfDocument(writer);
-             Document doc = new Document(pdf, PageSize.A4)) {
+             PdfDocument pdf  = new PdfDocument(writer);
+             Document doc     = new Document(pdf, PageSize.A4)) {
 
             doc.setMargins(60, 60, 60, 60);
 
@@ -57,91 +49,84 @@ public class IText8EbookBuilder {
             PdfFont fonteTexto   = PdfFontFactory.createFont(StandardFonts.HELVETICA);
             PdfFont fonteItalico = PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE);
 
-            // ── CAPA ─────────────────────────────────────────────────────────
-            adicionarCapa(doc, dados, conteudo, fonteTitulo, fonteItalico, corPrimaria, corSecundaria);
+            adicionarCapa(doc, conteudo, fonteTitulo, fonteItalico, corPrimaria, corSecundaria);
 
-            // ── SECÇÃO 1 — A Alma da Seleção ─────────────────────────────────
-            adicionarSecao(doc, "A Alma da Seleção",
-                    texto(conteudo, "alma_selecao"),
-                    fonteTitulo, fonteTexto, corPrimaria);
+            adicionarSecao(doc, "A Alma da Selecao",
+                    conteudo.almaSeleção(), fonteTitulo, fonteTexto, corPrimaria);
 
-            // ── SECÇÃO 2 — As Lendas Imortais ────────────────────────────────
-            adicionarTituloSecao(doc, "As Lendas Imortais", fonteTitulo, corPrimaria);
-            if (conteudo.has("lendas") && conteudo.get("lendas").isArray()) {
-                for (JsonNode lenda : conteudo.get("lendas")) {
+            if (!conteudo.lendas().isEmpty()) {
+                adicionarTituloSecao(doc, "As Lendas Imortais", fonteTitulo, corPrimaria);
+                for (EbookConteudo.Lenda lenda : conteudo.lendas()) {
                     adicionarLenda(doc, lenda, fonteTitulo, fonteTexto, fonteItalico, corPrimaria);
                 }
             }
 
-            // ── SECÇÃO 3 — Partidas que Pararam o Mundo ──────────────────────
-            adicionarTituloSecao(doc, "As Partidas que Pararam o Mundo", fonteTitulo, corPrimaria);
-            if (conteudo.has("partidas_historicas") && conteudo.get("partidas_historicas").isArray()) {
-                for (JsonNode partida : conteudo.get("partidas_historicas")) {
-                    adicionarPartida(doc, partida, fonteTitulo, fonteTexto, corPrimaria, corSecundaria);
+            if (!conteudo.partidas().isEmpty()) {
+                adicionarTituloSecao(doc, "As Partidas que Pararam o Mundo", fonteTitulo, corPrimaria);
+                for (EbookConteudo.PartidaHistorica partida : conteudo.partidas()) {
+                    adicionarPartida(doc, partida, fonteTitulo, fonteTexto, corPrimaria);
                 }
             }
 
-            // ── SECÇÃO 4 — A História nas Copas ──────────────────────────────
-            adicionarSecao(doc, "A História nas Copas",
-                    texto(conteudo, "historia_copas"),
-                    fonteTitulo, fonteTexto, corPrimaria);
+            adicionarSecao(doc, "A Historia nas Copas",
+                    conteudo.historiaCopas(), fonteTitulo, fonteTexto, corPrimaria);
 
-            // ── SECÇÃO 5 — Os Guerreiros de Hoje ─────────────────────────────
-            adicionarTituloSecao(doc, "Os Guerreiros de Hoje", fonteTitulo, corPrimaria);
-            if (conteudo.has("guerreiros_hoje") && conteudo.get("guerreiros_hoje").isArray()) {
-                for (JsonNode guerreiro : conteudo.get("guerreiros_hoje")) {
+            if (!conteudo.guerreirosHoje().isEmpty()) {
+                adicionarTituloSecao(doc, "Os Guerreiros de Hoje", fonteTitulo, corPrimaria);
+                for (EbookConteudo.Guerreiro guerreiro : conteudo.guerreirosHoje()) {
                     adicionarGuerreiro(doc, guerreiro, fonteTitulo, fonteTexto, corPrimaria);
                 }
             }
 
-            // ── SECÇÃO 6 — A Copa 2026 ────────────────────────────────────────
-            adicionarSecao(doc, "A Copa 2026 que Está por Vir",
-                    texto(conteudo, "copa_2026"),
-                    fonteTitulo, fonteTexto, corPrimaria);
+            adicionarSecao(doc, "A Copa 2026 que Esta por Vir",
+                    conteudo.copa2026(), fonteTitulo, fonteTexto, corPrimaria);
 
-            // ── ENCERRAMENTO — Manifesto do Torcedor ─────────────────────────
-            adicionarManifesto(doc, conteudo, dados, fonteTitulo, fonteItalico, corPrimaria, corSecundaria);
+            adicionarEmNumeros(doc, conteudo.emNumeros(), fonteTitulo, fonteTexto, corPrimaria, corSecundaria);
+
+            adicionarSabiaque(doc, conteudo.sabiaque(), fonteTitulo, fonteItalico, corPrimaria);
+
+            adicionarManifesto(doc, conteudo, fonteTitulo, fonteItalico, corPrimaria);
         }
 
         log.info("[pdf] ebook gerado — {}", caminho);
         return caminho;
     }
 
-    // ── Métodos de construção de secções ─────────────────────────────────────
+    // ── Capa ──────────────────────────────────────────────────────────────────
 
-    private void adicionarCapa(Document doc, SelecaoDataResult dados, JsonNode conteudo,
+    private void adicionarCapa(Document doc, EbookConteudo c,
                                 PdfFont fonteTitulo, PdfFont fonteItalico,
                                 DeviceRgb corPrimaria, DeviceRgb corSecundaria) {
         doc.add(new Paragraph("\n\n\n\n"));
 
-        doc.add(new Paragraph("GUIA DA SELEÇÃO")
+        doc.add(new Paragraph("GUIA DA SELECAO")
                 .setFont(fonteTitulo).setFontSize(14)
                 .setFontColor(corSecundaria)
                 .setTextAlignment(TextAlignment.CENTER));
 
-        doc.add(new Paragraph(dados.getSelecaoNome() != null ? dados.getSelecaoNome().toUpperCase() : "")
+        doc.add(new Paragraph(c.selecaoNome() != null ? c.selecaoNome().toUpperCase() : "")
                 .setFont(fonteTitulo).setFontSize(42)
                 .setFontColor(corPrimaria)
                 .setTextAlignment(TextAlignment.CENTER));
 
-        String apelido = dados.getApelido() != null ? dados.getApelido() : "";
-        doc.add(new Paragraph(apelido)
-                .setFont(fonteItalico).setFontSize(18)
-                .setFontColor(new DeviceRgb(80, 80, 80))
-                .setTextAlignment(TextAlignment.CENTER));
+        if (c.apelido() != null && !c.apelido().isBlank()) {
+            doc.add(new Paragraph(c.apelido())
+                    .setFont(fonteItalico).setFontSize(18)
+                    .setFontColor(new DeviceRgb(80, 80, 80))
+                    .setTextAlignment(TextAlignment.CENTER));
+        }
 
         doc.add(new Paragraph("\n\n"));
 
-        String fraseCapa = texto(conteudo, "frase_capa");
-        if (!fraseCapa.isEmpty()) {
-            doc.add(new Paragraph("\"" + fraseCapa + "\"")
+        if (c.fraseCapa() != null && !c.fraseCapa().isBlank()) {
+            doc.add(new Paragraph("\"" + c.fraseCapa() + "\"")
                     .setFont(fonteItalico).setFontSize(16)
                     .setFontColor(corPrimaria)
                     .setTextAlignment(TextAlignment.CENTER));
         }
 
         doc.add(new Paragraph("\n\n\n\n\n\n\n"));
-        doc.add(new Paragraph("Copa Insider · Copa do Mundo 2026")
+        doc.add(new Paragraph("Copa Insider  --  Copa do Mundo 2026")
                 .setFont(fonteItalico).setFontSize(10)
                 .setFontColor(new DeviceRgb(120, 120, 120))
                 .setTextAlignment(TextAlignment.CENTER));
@@ -149,10 +134,12 @@ public class IText8EbookBuilder {
         doc.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
     }
 
+    // ── Secções genéricas ──────────────────────────────────────────────────────
+
     private void adicionarSecao(Document doc, String titulo, String corpo,
                                  PdfFont fonteTitulo, PdfFont fonteTexto, DeviceRgb cor) {
         adicionarTituloSecao(doc, titulo, fonteTitulo, cor);
-        if (!corpo.isEmpty()) {
+        if (corpo != null && !corpo.isBlank()) {
             doc.add(new Paragraph(corpo)
                     .setFont(fonteTexto).setFontSize(11)
                     .setTextAlignment(TextAlignment.JUSTIFIED)
@@ -170,33 +157,31 @@ public class IText8EbookBuilder {
                 .setMarginBottom(20));
     }
 
-    private void adicionarLenda(Document doc, JsonNode lenda,
+    // ── Lenda ─────────────────────────────────────────────────────────────────
+
+    private void adicionarLenda(Document doc, EbookConteudo.Lenda lenda,
                                  PdfFont fonteTitulo, PdfFont fonteTexto, PdfFont fonteItalico,
                                  DeviceRgb cor) {
-        String nome = texto(lenda, "nome");
-        String apelido = texto(lenda, "apelido");
-        String bio = texto(lenda, "bio_narrativa");
-        String legado = texto(lenda, "legado");
+        if (lenda.nome().isBlank()) return;
 
-        if (!nome.isEmpty()) {
-            Paragraph nomePara = new Paragraph();
-            nomePara.add(new Text(nome).setFont(fonteTitulo).setFontSize(14).setFontColor(cor));
-            if (!apelido.isEmpty()) {
-                nomePara.add(new Text("  —  " + apelido).setFont(fonteItalico).setFontSize(12)
-                        .setFontColor(new DeviceRgb(80, 80, 80)));
-            }
-            doc.add(nomePara.setMarginTop(16).setMarginBottom(6));
+        Paragraph nomePara = new Paragraph();
+        nomePara.add(new Text(lenda.nome()).setFont(fonteTitulo).setFontSize(14).setFontColor(cor));
+        if (!lenda.apelido().isBlank()) {
+            nomePara.add(new Text(SEP + lenda.apelido())
+                    .setFont(fonteItalico).setFontSize(12)
+                    .setFontColor(new DeviceRgb(80, 80, 80)));
         }
+        doc.add(nomePara.setMarginTop(16).setMarginBottom(6));
 
-        if (!bio.isEmpty()) {
-            doc.add(new Paragraph(bio)
+        if (!lenda.bioNarrativa().isBlank()) {
+            doc.add(new Paragraph(lenda.bioNarrativa())
                     .setFont(fonteTexto).setFontSize(11)
                     .setTextAlignment(TextAlignment.JUSTIFIED)
                     .setMultipliedLeading(1.5f));
         }
 
-        if (!legado.isEmpty()) {
-            doc.add(new Paragraph("\" " + legado + " \"")
+        if (!lenda.legado().isBlank()) {
+            doc.add(new Paragraph("\" " + lenda.legado() + " \"")
                     .setFont(fonteItalico).setFontSize(11)
                     .setFontColor(cor)
                     .setTextAlignment(TextAlignment.CENTER)
@@ -204,31 +189,22 @@ public class IText8EbookBuilder {
         }
     }
 
-    private void adicionarPartida(Document doc, JsonNode partida,
-                                   PdfFont fonteTitulo, PdfFont fonteTexto,
-                                   DeviceRgb corPrimaria, DeviceRgb corSecundaria) {
-        String titulo = texto(partida, "titulo");
-        String adversario = texto(partida, "adversario");
-        String placar = texto(partida, "placar");
-        String data = texto(partida, "data");
-        String narrativa = texto(partida, "narrativa");
+    // ── Partida histórica ─────────────────────────────────────────────────────
 
-        if (!titulo.isEmpty()) {
-            doc.add(new Paragraph(titulo)
-                    .setFont(fonteTitulo).setFontSize(13)
-                    .setFontColor(corPrimaria)
-                    .setMarginTop(16).setMarginBottom(4));
-        }
+    private void adicionarPartida(Document doc, EbookConteudo.PartidaHistorica p,
+                                   PdfFont fonteTitulo, PdfFont fonteTexto, DeviceRgb cor) {
+        doc.add(new Paragraph(p.titulo())
+                .setFont(fonteTitulo).setFontSize(13)
+                .setFontColor(cor)
+                .setMarginTop(16).setMarginBottom(4));
 
-        if (!adversario.isEmpty() || !placar.isEmpty()) {
-            doc.add(new Paragraph(adversario + "  " + placar + "  " + data)
-                    .setFont(fonteTitulo).setFontSize(10)
-                    .setFontColor(new DeviceRgb(100, 100, 100))
-                    .setMarginBottom(8));
-        }
+        doc.add(new Paragraph(p.adversario() + "  " + p.placar() + SEP + p.data())
+                .setFont(fonteTitulo).setFontSize(10)
+                .setFontColor(new DeviceRgb(100, 100, 100))
+                .setMarginBottom(8));
 
-        if (!narrativa.isEmpty()) {
-            doc.add(new Paragraph(narrativa)
+        if (!p.narrativa().isBlank()) {
+            doc.add(new Paragraph(p.narrativa())
                     .setFont(fonteTexto).setFontSize(11)
                     .setTextAlignment(TextAlignment.JUSTIFIED)
                     .setMultipliedLeading(1.5f)
@@ -236,29 +212,72 @@ public class IText8EbookBuilder {
         }
     }
 
-    private void adicionarGuerreiro(Document doc, JsonNode guerreiro,
-                                     PdfFont fonteTitulo, PdfFont fonteTexto, DeviceRgb cor) {
-        String nome = texto(guerreiro, "nome");
-        String descricao = texto(guerreiro, "descricao");
+    // ── Guerreiro ─────────────────────────────────────────────────────────────
 
-        if (!nome.isEmpty()) {
-            doc.add(new Paragraph(nome)
-                    .setFont(fonteTitulo).setFontSize(13)
-                    .setFontColor(cor)
-                    .setMarginTop(14).setMarginBottom(4));
+    private void adicionarGuerreiro(Document doc, EbookConteudo.Guerreiro g,
+                                     PdfFont fonteTitulo, PdfFont fonteTexto, DeviceRgb cor) {
+        Paragraph titulo = new Paragraph();
+        titulo.add(new Text(g.nome()).setFont(fonteTitulo).setFontSize(13).setFontColor(cor));
+        if (g.clube() != null && !g.clube().isBlank()) {
+            titulo.add(new Text(SEP + g.clube())
+                    .setFont(fonteTexto).setFontSize(11)
+                    .setFontColor(new DeviceRgb(80, 80, 80)));
         }
-        if (!descricao.isEmpty()) {
-            doc.add(new Paragraph(descricao)
+        doc.add(titulo.setMarginTop(14).setMarginBottom(4));
+
+        if (!g.descricao().isBlank()) {
+            doc.add(new Paragraph(g.descricao())
                     .setFont(fonteTexto).setFontSize(11)
                     .setTextAlignment(TextAlignment.JUSTIFIED)
                     .setMultipliedLeading(1.5f)
-                    .setMarginBottom(16));
+                    .setMarginBottom(14));
         }
     }
 
-    private void adicionarManifesto(Document doc, JsonNode conteudo, SelecaoDataResult dados,
-                                     PdfFont fonteTitulo, PdfFont fonteItalico,
+    // ── Em Números ────────────────────────────────────────────────────────────
+
+    private void adicionarEmNumeros(Document doc, String emNumeros,
+                                     PdfFont fonteTitulo, PdfFont fonteTexto,
                                      DeviceRgb corPrimaria, DeviceRgb corSecundaria) {
+        if (emNumeros == null || emNumeros.isBlank()) return;
+        doc.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+
+        String[] linhas = emNumeros.split("\n");
+        if (linhas.length > 0) {
+            doc.add(new Paragraph(linhas[0].toUpperCase())
+                    .setFont(fonteTitulo).setFontSize(20)
+                    .setFontColor(corPrimaria)
+                    .setTextAlignment(TextAlignment.LEFT)
+                    .setMarginBottom(24));
+        }
+        for (int i = 1; i < linhas.length; i++) {
+            doc.add(new Paragraph(linhas[i])
+                    .setFont(fonteTexto).setFontSize(13)
+                    .setFontColor(corSecundaria)
+                    .setMultipliedLeading(1.8f));
+        }
+    }
+
+    // ── Sabia que ─────────────────────────────────────────────────────────────
+
+    private void adicionarSabiaque(Document doc, String sabiaque,
+                                    PdfFont fonteTitulo, PdfFont fonteItalico, DeviceRgb cor) {
+        if (sabiaque == null || sabiaque.isBlank()) return;
+        doc.add(new Paragraph("\n\n"));
+        doc.add(new Paragraph("SABIA QUE...")
+                .setFont(fonteTitulo).setFontSize(14)
+                .setFontColor(cor)
+                .setMarginBottom(10));
+        doc.add(new Paragraph(sabiaque)
+                .setFont(fonteItalico).setFontSize(12)
+                .setTextAlignment(TextAlignment.JUSTIFIED)
+                .setMultipliedLeading(1.6f));
+    }
+
+    // ── Manifesto ─────────────────────────────────────────────────────────────
+
+    private void adicionarManifesto(Document doc, EbookConteudo conteudo,
+                                     PdfFont fonteTitulo, PdfFont fonteItalico, DeviceRgb corPrimaria) {
         doc.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
         doc.add(new Paragraph("MANIFESTO DO TORCEDOR")
                 .setFont(fonteTitulo).setFontSize(18)
@@ -266,9 +285,8 @@ public class IText8EbookBuilder {
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginBottom(30));
 
-        String manifesto = texto(conteudo, "manifesto_torcedor");
-        if (!manifesto.isEmpty()) {
-            doc.add(new Paragraph(manifesto)
+        if (conteudo.manifestoTorcedor() != null && !conteudo.manifestoTorcedor().isBlank()) {
+            doc.add(new Paragraph(conteudo.manifestoTorcedor())
                     .setFont(fonteItalico).setFontSize(13)
                     .setFontColor(corPrimaria)
                     .setTextAlignment(TextAlignment.CENTER)
@@ -276,27 +294,13 @@ public class IText8EbookBuilder {
         }
 
         doc.add(new Paragraph("\n\n\n"));
-        doc.add(new Paragraph("Copa Insider · Copa do Mundo 2026 · " + dados.getSelecaoNome())
+        doc.add(new Paragraph("Copa Insider  --  Copa do Mundo 2026  --  " + conteudo.selecaoNome())
                 .setFont(fonteItalico).setFontSize(9)
                 .setFontColor(new DeviceRgb(150, 150, 150))
                 .setTextAlignment(TextAlignment.CENTER));
     }
 
-    // ── Utilitários ──────────────────────────────────────────────────────────
-
-    private JsonNode parseConteudo(String json) {
-        try {
-            return objectMapper.readTree(json);
-        } catch (Exception e) {
-            log.warn("[pdf] JSON de conteúdo inválido — usando nó vazio: {}", e.getMessage());
-            return objectMapper.createObjectNode();
-        }
-    }
-
-    private String texto(JsonNode node, String campo) {
-        JsonNode n = node.get(campo);
-        return (n != null && n.isTextual()) ? n.asText() : "";
-    }
+    // ── Utilitários ───────────────────────────────────────────────────────────
 
     private DeviceRgb parseHex(String hex, int rDef, int gDef, int bDef) {
         try {
