@@ -29,6 +29,28 @@ a { text-decoration: none; color: inherit; }
     --muted:    #9090a8;
     --radius:   10px;
     --radius-lg: 16px;
+
+    /* Aliases semânticos usados por: calendario, selecoes, palpites, ranking, onde-assistir */
+    --bg2:  var(--surface);   /* superfícies / painéis */
+    --bg3:  var(--card);      /* hover de linhas / superfícies elevadas */
+    --live: #ff3b3b;          /* cor de jogo a decorrer */
+
+    /* ── Paleta Copa Live (bracket, ao-vivo, classificacao) ─────────────────
+       Tom azulado-escuro distinto das páginas base. Fonte única de verdade:
+       alterar aqui propaga para bracket, ao-vivo e classificacao. */
+    --copa-gold:           #f0c040;
+    --copa-bg:             #06060e;
+    --copa-surface:        #0e0e1a;
+    --copa-card:           #12121f;
+    --copa-border:         rgba(255,255,255,.08);
+    --copa-text:           #e8e8f0;
+    --copa-muted:          #888;
+    --copa-live:           #ff3b3b;
+    --copa-red:            #e03030;
+    --copa-green:          #22c55e;
+    --copa-blue:           #3b82f6;
+    --copa-apurada:        rgba(34,197,94,.07);
+    --copa-apurada-border: rgba(34,197,94,.25);
 }
 
 /* ── Navbar ───────────────────────────────────────────────────────────────── */
@@ -85,13 +107,16 @@ a { text-decoration: none; color: inherit; }
 .nav-live-link {
     color: #ff4444 !important; /* NOSONAR — live red badge, intentional */
     font-weight: 700 !important;
-    animation: nav-live-pulse 2s ease infinite;
 }
 .nav-live-link:hover,
-.nav-live-link.active { color: #ff6666 !important; animation: none; } /* NOSONAR */
+.nav-live-link.active { color: #ff6666 !important; } /* NOSONAR */
 @keyframes nav-live-pulse {
     0%,100% { opacity: 1; }
     50%      { opacity: .7; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .nav-live-link { animation: nav-live-pulse 2s ease infinite; }
+    .nav-live-link:hover, .nav-live-link.active { animation: none; }
 }
 
 .navbar__actions {
@@ -137,6 +162,11 @@ a { text-decoration: none; color: inherit; }
     color: #6a6a7a;
     text-decoration: none;
     transition: color .15s;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .navbar__logout-link:hover { color: var(--muted); }
@@ -250,6 +280,9 @@ a { text-decoration: none; color: inherit; }
 
 .paywall-login-link a { color: var(--gold); text-decoration: none; }
 
+/* ── Scroll lock (usado pelo hamburger menu) ──────────────────────────────── */
+body.nav-menu-open { overflow: hidden; }
+
 /* ── Hamburger (mobile) ───────────────────────────────────────────────────── */
 .navbar__hamburger {
     display: none;
@@ -281,6 +314,9 @@ a { text-decoration: none; color: inherit; }
 .navbar__hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .navbar__hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
+/* Oculto por defeito — só aparece no mobile via @media abaixo */
+.nav-live-mobile { display: none; }
+
 /* ── Responsivo ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
     .navbar {
@@ -311,9 +347,11 @@ a { text-decoration: none; color: inherit; }
         color: #ff4444;
         font-weight: 700;
         font-size: .85rem;
-        animation: nav-live-pulse 2s ease infinite;
         text-decoration: none;
         flex-shrink: 0;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        .navbar__actions .nav-live-mobile { animation: nav-live-pulse 2s ease infinite; }
     }
     /* esconde o link fixo quando o dropdown já mostra Ao Vivo */
     .navbar--open .nav-live-mobile { display: none; }

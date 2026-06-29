@@ -66,8 +66,8 @@
         var btn = document.getElementById('navbar-hamburger');
         if (!nav || !btn) return;
         function isOpen(){ return nav.classList.contains('navbar--open'); }
-        function open(){ nav.classList.add('navbar--open'); btn.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
-        function close(){ nav.classList.remove('navbar--open'); btn.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+        function open(){ nav.classList.add('navbar--open'); btn.setAttribute('aria-expanded','true'); document.body.classList.add('nav-menu-open'); }
+        function close(){ nav.classList.remove('navbar--open'); btn.setAttribute('aria-expanded','false'); document.body.classList.remove('nav-menu-open'); }
         btn.addEventListener('click', function(e){ e.stopPropagation(); isOpen() ? close() : open(); });
         document.addEventListener('click', function(e){ if(isOpen() && !nav.contains(e.target)) close(); });
         document.addEventListener('keydown', function(e){ if(e.key==='Escape' && isOpen()) close(); });
@@ -87,8 +87,10 @@
        class="navbar__acessos-link">Os meus acessos</a>
     <a th:href="@{/admin/dashboard}" sec:authorize="hasAnyRole('ADMIN','DEVELOPER')"
        class="navbar__admin-link">⚙ Admin</a>
-    <a th:href="@{/logout}" sec:authorize="isAuthenticated()"
-       class="navbar__logout-link">Sair</a>
+    <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()" style="display:inline;margin:0;padding:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="navbar__logout-link">Sair</button>
+    </form>
     <a th:href="@{/auth/login}" sec:authorize="!isAuthenticated()"
        class="cta-btn">Login</a>
 </th:block>
