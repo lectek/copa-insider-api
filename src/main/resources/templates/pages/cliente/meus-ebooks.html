@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meus Ebooks — Copa Insider</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/site-base.css}"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0f; color: #e8e8f0; font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    .navbar { display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem; background: rgba(10,10,15,.95);
+      border-bottom: 1px solid rgba(255,255,255,.07); position: sticky; top: 0; z-index: 100; }
+    .brand { display: flex; align-items: center; gap: .5rem; text-decoration: none;
+      color: #e8e8f0; font-weight: 800; font-size: 1.1rem; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a { color: #9090a8; text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: #f5a623; }
+    .nav-actions { display: flex; align-items: center; gap: .75rem; }
+    .cta-btn { background: #f5a623; color: #0a0a0f; padding: .4rem 1rem;
+      border-radius: 6px; text-decoration: none; font-weight: 700; font-size: .85rem; }
+
+    .wrap { max-width: 860px; margin: 2.5rem auto; padding: 0 1.25rem 5rem; }
+
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 800; color: #e8e8f0; }
+    .page-header p { color: #9090a8; font-size: .9rem; margin-top: .35rem; }
+
+    .back-link { display: inline-flex; align-items: center; gap: .4rem; color: #9090a8;
+      font-size: .85rem; text-decoration: none; margin-bottom: 1.5rem; transition: color .2s; }
+    .back-link:hover { color: #f5a623; }
+
+    .ebook-grid { display: flex; flex-direction: column; gap: 1rem; }
+
+    .ebook-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; padding: 1.5rem; display: flex; align-items: center; gap: 1.25rem;
+      transition: border-color .2s; }
+    .ebook-card:hover { border-color: rgba(245,166,35,.3); }
+
+    .ebook-icon { font-size: 2.4rem; flex-shrink: 0; width: 56px; text-align: center; }
+
+    .ebook-info { flex: 1; }
+    .ebook-title { font-size: 1.05rem; font-weight: 700; color: #e8e8f0; margin-bottom: .25rem; }
+    .ebook-meta { font-size: .82rem; color: #9090a8; }
+    .ebook-meta span { margin-right: .75rem; }
+
+    .ebook-actions { display: flex; flex-direction: column; align-items: flex-end; gap: .6rem; flex-shrink: 0; }
+
+    .badge { display: inline-block; font-size: .75rem; font-weight: 700; padding: .25rem .7rem;
+      border-radius: 20px; }
+    .badge--pronto    { background: rgba(76,175,80,.15);  color: #4caf50; border: 1px solid rgba(76,175,80,.3); }
+    .badge--gerando   { background: rgba(33,150,243,.15); color: #64b5f6; border: 1px solid rgba(33,150,243,.3); }
+    .badge--pendente  { background: rgba(255,193,7,.12);  color: #ffd54f; border: 1px solid rgba(255,193,7,.3); }
+    .badge--aguardando{ background: rgba(158,158,158,.1); color: #bdbdbd; border: 1px solid rgba(158,158,158,.3); }
+    .badge--erro      { background: rgba(244,67,54,.12);  color: #ef9a9a; border: 1px solid rgba(244,67,54,.3); }
+
+    .btn-download { background: #f5a623; color: #0a0a0f; font-weight: 700; font-size: .85rem;
+      padding: .5rem 1.25rem; border-radius: 8px; text-decoration: none; white-space: nowrap; }
+    .btn-selecionar { background: transparent; color: #f5a623; font-weight: 700; font-size: .85rem;
+      padding: .5rem 1.25rem; border-radius: 8px; text-decoration: none; white-space: nowrap;
+      border: 1px solid rgba(245,166,35,.4); }
+    .btn-selecionar:hover { background: rgba(245,166,35,.08); }
+
+    .empty-state { text-align: center; padding: 4rem 2rem; color: #9090a8; }
+    .empty-state__icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty-state__title { font-size: 1.1rem; font-weight: 700; color: #e8e8f0; margin-bottom: .5rem; }
+    .empty-state__link { color: #f5a623; text-decoration: none; font-weight: 600; }
+
+    .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(100,181,246,.3);
+      border-top-color: #64b5f6; border-radius: 50%; animation: spin .8s linear infinite; margin-right: .35rem; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .ebook-card { flex-wrap: wrap; }
+      .ebook-actions { align-items: flex-start; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="brand"><img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/> Copa Insider</a>
+  <div class="nav-links">
+    <a th:href="@{/calendario}">Calendário</a>
+    <a th:href="@{/selecoes}">Seleções</a>
+    <a th:href="@{/comparar}">Comparar</a>
+    <a th:href="@{/loja}">Loja</a>
+  </div>
+  <div class="nav-actions">
+    <a th:href="@{/loja}" class="cta-btn">Loja</a>
+    <th:block th:replace="~{fragments/site-nav :: sessionLinks}"></th:block>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <a th:href="@{/conta}" class="back-link">← Minha Conta</a>
+
+    <div class="page-header">
+      <h1>Meus Ebooks</h1>
+      <p>Os guias de seleções que adquiriste. Disponíveis para download a qualquer momento.</p>
+    </div>
+
+    <!-- Lista de ebooks -->
+    <div class="ebook-grid" th:if="${pedidos != null and !pedidos.isEmpty()}">
+      <div class="ebook-card" th:each="p : ${pedidos}"
+           th:attr="data-transacao=${p.transacao}, data-status=${p.status.name()}">
+
+        <div class="ebook-icon">📖</div>
+
+        <div class="ebook-info">
+          <div class="ebook-title">
+            Guia da Seleção
+            <span th:if="${p.selecaoNome != null}" th:text="'— ' + ${p.selecaoNome}"></span>
+          </div>
+          <div class="ebook-meta">
+            <span th:if="${p.idioma != null}" th:text="'Idioma: ' + ${p.idioma}"></span>
+            <span th:text="'Comprado em: ' + ${#temporals.format(p.criadoEm, 'dd/MM/yyyy')}"></span>
+          </div>
+        </div>
+
+        <div class="ebook-actions">
+          <!-- PRONTO -->
+          <th:block th:if="${p.status.name() == 'PRONTO'}">
+            <span class="badge badge--pronto">✓ Pronto</span>
+            <a th:href="@{/ebook/download/{token}(token=${p.downloadToken})}" class="btn-download">Baixar PDF</a>
+          </th:block>
+
+          <!-- GERANDO -->
+          <th:block th:if="${p.status.name() == 'GERANDO'}">
+            <span class="badge badge--gerando"><span class="spinner"></span> A gerar...</span>
+            <span style="font-size:.8rem;color:#9090a8;">Receberás um email quando estiver pronto</span>
+          </th:block>
+
+          <!-- PENDENTE -->
+          <th:block th:if="${p.status.name() == 'PENDENTE'}">
+            <span class="badge badge--pendente">Na fila</span>
+          </th:block>
+
+          <!-- AGUARDANDO_SELECAO -->
+          <th:block th:if="${p.status.name() == 'AGUARDANDO_SELECAO'}">
+            <span class="badge badge--aguardando">Escolhe a tua seleção</span>
+            <a th:href="@{/ebook/selecionar/{t}(t=${p.transacao})}" class="btn-selecionar">Selecionar agora</a>
+          </th:block>
+
+          <!-- ERRO -->
+          <th:block th:if="${p.status.name() == 'ERRO'}">
+            <span class="badge badge--erro">Erro na geração</span>
+            <a href="mailto:suporte@allaboutworldcup2026.com" style="font-size:.8rem;color:#ef9a9a;">Contactar suporte</a>
+          </th:block>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" th:if="${pedidos == null or pedidos.isEmpty()}">
+      <div class="empty-state__icon">📚</div>
+      <div class="empty-state__title">Ainda não tens nenhum ebook</div>
+      <p style="margin-bottom:1.25rem;">Adquire o Guia da Seleção e recebe um PDF profissional.</p>
+      <a th:href="@{/loja}" class="empty-state__link">Ver na Loja →</a>
+    </div>
+
+  </div>
+</main>
+
+<footer style="text-align:center;padding:2rem;color:#555;font-size:.85rem;border-top:1px solid rgba(255,255,255,.06);">
+  <p>© 2026 Copa Insider</p>
+</footer>
+
+<script>
+  // Polling: atualiza automaticamente os cartões em estado GERANDO
+  document.querySelectorAll('[data-status="GERANDO"], [data-status="PENDENTE"]').forEach(function(card) {
+    var transacao = card.dataset.transacao;
+    var interval = setInterval(function() {
+      fetch('/ebook/status/' + transacao)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.status === 'PRONTO') {
+            clearInterval(interval);
+            window.location.reload();
+          }
+        })
+        .catch(function() { clearInterval(interval); });
+    }, 8000);
+  });
+</script>
+
+</body>
+</html>

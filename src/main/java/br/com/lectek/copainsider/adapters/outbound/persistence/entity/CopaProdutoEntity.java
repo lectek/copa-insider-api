@@ -55,6 +55,12 @@ public class CopaProdutoEntity {
     @Column(name = "slug_time2", length = 100)
     private String slugTime2;
 
+    @Column(name = "selecao_code", length = 10)
+    private String selecaoCode;
+
+    @Column(name = "idioma_default", length = 10)
+    private String idiomaDefault;
+
     @Column(nullable = false)
     private boolean ativo = true;
 
@@ -79,6 +85,8 @@ public class CopaProdutoEntity {
     public String getImagemUrl() { return imagemUrl; }
     public String getSlugTime1() { return slugTime1; }
     public String getSlugTime2() { return slugTime2; }
+    public String getSelecaoCode() { return selecaoCode; }
+    public String getIdiomaDefault() { return idiomaDefault; }
     public boolean isAtivo() { return ativo; }
     public int getOrdem() { return ordem; }
 
@@ -96,6 +104,8 @@ public class CopaProdutoEntity {
     public void setImagemUrl(String v) { this.imagemUrl = v; }
     public void setSlugTime1(String v) { this.slugTime1 = v; }
     public void setSlugTime2(String v) { this.slugTime2 = v; }
+    public void setSelecaoCode(String v) { this.selecaoCode = v; }
+    public void setIdiomaDefault(String v) { this.idiomaDefault = v; }
     public BigDecimal getPrecoEur() { return precoEur; }
     public void setPrecoEur(BigDecimal v) { this.precoEur = v; }
     public void setAtivo(boolean ativo) { this.ativo = ativo; }

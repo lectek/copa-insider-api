@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,9 @@ public class CopaLojaController {
     private final CopaProdutoJPARepository repository;
     private final CopaAcessoService        acessoService;
     private final Copa2026DataService      copaData;
+
+    @Value("${app.ebook.hotmart-url:}")
+    private String ebookHotmartUrl;
 
     public CopaLojaController(CopaProdutoJPARepository repository,
                                CopaAcessoService acessoService,
@@ -40,6 +44,7 @@ public class CopaLojaController {
 
         List<CopaProdutoVM> produtos = todos.stream()
                 .filter(p -> tipo == null || p.getTipo().name().equals(tipo))
+                .filter(p -> !"guia-selecao".equals(p.getSlug())) // produto genérico é só para o webhook
                 .map(p -> toVM(p, locale))
                 .toList();
 
@@ -121,12 +126,19 @@ public class CopaLojaController {
                 ? p.getPrecoEur()
                 : p.getPreco().divide(BigDecimal.valueOf(6.20), 2, RoundingMode.HALF_UP);
 
+        // Todos os guias de seleção usam o mesmo produto Hotmart (URL central)
+        String hotmartUrl = (p.getTipo() == br.com.lectek.copainsider.domain.enums.TipoCopaProduto.GUIA_SELECAO
+                && ebookHotmartUrl != null && !ebookHotmartUrl.isBlank())
+                ? ebookHotmartUrl
+                : p.getHotmartUrl();
+
         return new CopaProdutoVM(
                 p.getSlug(), p.getTipo(), p.getPreco(), precoEur,
                 nome, desc,
-                p.getHotmartUrl(), p.getImagemUrl(),
+                hotmartUrl, p.getImagemUrl(),
                 p.getSlugTime1(), p.getSlugTime2(),
-                false, 1L
+                false, 1L,
+                p.getSelecaoCode()
         );
     }
 

@@ -3,6 +3,8 @@ package br.com.lectek.copainsider.adapters.inbound.web.webhook;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record HotmartWebhookPayload(
         String hottok,
@@ -21,7 +23,23 @@ public record HotmartWebhookPayload(
             String status,
             Buyer buyer,
             Product product,
-            Price price
+            Price price,
+            @JsonProperty("custom_fields") List<CustomField> customFields
+    ) {
+        public String customField(String fieldName) {
+            if (customFields == null) return null;
+            return customFields.stream()
+                    .filter(f -> fieldName.equalsIgnoreCase(f.fieldName()))
+                    .map(CustomField::value)
+                    .findFirst()
+                    .orElse(null);
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record CustomField(
+            @JsonProperty("field_name") String fieldName,
+            String value
     ) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)

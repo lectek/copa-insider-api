@@ -6,7 +6,9 @@ import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.CopaProdutoJP
 import br.com.lectek.copainsider.adapters.outbound.persistence.repository.UsuarioRepository;
 import br.com.lectek.copainsider.application.core.account.UserAccountService;
 import br.com.lectek.copainsider.application.service.CopaAcessoService;
+import br.com.lectek.copainsider.application.service.EbookGeracaoService;
 import br.com.lectek.copainsider.application.service.MailService;
+import br.com.lectek.copainsider.domain.enums.TipoCopaProduto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,7 @@ public class HotmartWebhookController {
     private final UserAccountService       userAccountService;
     private final CopaAcessoService        acessoService;
     private final MailService              mailService;
+    private final EbookGeracaoService      ebookGeracaoService;
 
     @Value("${hotmart.hottok:}")
     private String hottok;
@@ -43,13 +46,15 @@ public class HotmartWebhookController {
             UsuarioRepository usuarioRepo,
             UserAccountService userAccountService,
             CopaAcessoService acessoService,
-            MailService mailService) {
-        this.compraRepo         = compraRepo;
-        this.produtoRepo        = produtoRepo;
-        this.usuarioRepo        = usuarioRepo;
-        this.userAccountService = userAccountService;
-        this.acessoService      = acessoService;
-        this.mailService        = mailService;
+            MailService mailService,
+            EbookGeracaoService ebookGeracaoService) {
+        this.compraRepo          = compraRepo;
+        this.produtoRepo         = produtoRepo;
+        this.usuarioRepo         = usuarioRepo;
+        this.userAccountService  = userAccountService;
+        this.acessoService       = acessoService;
+        this.mailService         = mailService;
+        this.ebookGeracaoService = ebookGeracaoService;
     }
 
     @PostMapping("/hotmart")
@@ -119,6 +124,8 @@ public class HotmartWebhookController {
             log.info("[hotmart] acesso '{}' concedido a {}", produtoSlug, email);
         }
 
+        dispararEbookSeAplicavel(purchase, transacao, email, nome);
+
         enviarEmail(compra, conta, valor, moeda, produtoSlug);
         return ResponseEntity.ok().build();
     }
@@ -171,6 +178,50 @@ public class HotmartWebhookController {
         } catch (Exception e) {
             log.error("[hotmart] erro ao enviar email para {}: {}", compra.getCompradorEmail(), e.getMessage());
         }
+    }
+
+    private void dispararEbookSeAplicavel(HotmartWebhookPayload.Purchase purchase,
+                                           String transacao, String email, String nome) {
+        if (purchase.product() == null) return;
+
+        var produto = produtoRepo.findByHotmartProductId(purchase.product().id()).orElse(null);
+        if (produto == null || produto.getTipo() != TipoCopaProduto.GUIA_SELECAO) return;
+
+        // custom_fields têm prioridade; fallback para o mapeamento fixo do produto
+        String selecaoCode = coalesce(purchase.customField("selecao"),   produto.getSelecaoCode());
+        String selecaoNome = coalesce(purchase.customField("selecao_nome"), nomeSelecao(selecaoCode));
+        String idioma      = coalesce(purchase.customField("idioma"),     produto.getIdiomaDefault());
+
+        var pedido = ebookGeracaoService.registrarPedido(transacao, email, nome, selecaoCode, selecaoNome, idioma);
+        log.info("[hotmart] ebook registado — transacao={} selecao={} idioma={} status={}",
+                transacao, selecaoCode, idioma, pedido.getStatus());
+
+        if (selecaoCode != null && idioma != null) {
+            ebookGeracaoService.gerarAsync(pedido.getId());
+        }
+    }
+
+    private static String coalesce(String first, String second) {
+        return (first != null && !first.isBlank()) ? first : second;
+    }
+
+    private static String nomeSelecao(String code) {
+        if (code == null) return null;
+        return switch (code) {
+            case "BRA" -> "Brasil";
+            case "POR" -> "Portugal";
+            case "ARG" -> "Argentina";
+            case "FRA" -> "França";
+            case "ESP" -> "Espanha";
+            case "ENG" -> "Inglaterra";
+            case "ALE" -> "Alemanha";
+            case "ITA" -> "Itália";
+            case "URU" -> "Uruguai";
+            case "MEX" -> "México";
+            case "MAR" -> "Marrocos";
+            case "USA" -> "Estados Unidos";
+            default    -> code;
+        };
     }
 
     private String resolverSlug(HotmartWebhookPayload.Product product) {

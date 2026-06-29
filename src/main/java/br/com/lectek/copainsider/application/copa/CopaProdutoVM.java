@@ -15,9 +15,14 @@ public record CopaProdutoVM(
         String slugTime1,
         String slugTime2,
         boolean categoriaComMultiplos,
-        long totalNaCategoria
+        long totalNaCategoria,
+        String selecaoCode
 ) {
     public boolean temHotmartUrl() {
         return hotmartUrl != null && !hotmartUrl.isBlank() && !"#".equals(hotmartUrl);
+    }
+
+    public boolean temSelecao() {
+        return selecaoCode != null && !selecaoCode.isBlank();
     }
 }

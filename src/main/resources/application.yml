@@ -206,6 +206,12 @@ app:
   kafka:
     groups:
       pedidos: ${APP_KAFKA_GROUP_PEDIDOS:pedidos-consumer}
+  ebook:
+    storage-dir: ${APP_EBOOK_STORAGE_DIR:/var/ebooks}
+    hotmart-url: ${APP_EBOOK_HOTMART_URL:}
+anthropic:
+  api-key: ${ANTHROPIC_API_KEY:}
+
 hotmart:
   hottok: ${HOTMART_HOTTOK:}
   api:

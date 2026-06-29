@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personaliza o teu Guia — Copa Insider</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/site-base.css}"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0f; color: #e8e8f0; font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    .navbar { display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem; background: rgba(10,10,15,.95);
+      border-bottom: 1px solid rgba(255,255,255,.07); position: sticky; top: 0; z-index: 100; }
+    .brand { display: flex; align-items: center; gap: .5rem; text-decoration: none;
+      color: #e8e8f0; font-weight: 800; font-size: 1.1rem; }
+    .nav-actions { display: flex; align-items: center; gap: .75rem; }
+    .cta-btn { background: #f5a623; color: #0a0a0f; padding: .4rem 1rem;
+      border-radius: 6px; text-decoration: none; font-weight: 700; font-size: .85rem; }
+
+    .wrap { max-width: 680px; margin: 2.5rem auto; padding: 0 1.25rem 5rem; }
+
+    .back-link { display: inline-flex; align-items: center; gap: .4rem; color: #9090a8;
+      font-size: .85rem; text-decoration: none; margin-bottom: 1.5rem; transition: color .2s; }
+    .back-link:hover { color: #f5a623; }
+
+    .page-header { margin-bottom: 2rem; text-align: center; }
+    .page-header h1 { font-size: 1.7rem; font-weight: 800; color: #e8e8f0; margin-bottom: .4rem; }
+    .page-header p { color: #9090a8; font-size: .95rem; }
+
+    .form-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px; padding: 2rem; }
+
+    .selecao-badge { display: flex; align-items: center; gap: .75rem;
+      background: rgba(245,166,35,.08); border: 1px solid rgba(245,166,35,.25);
+      border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+    .selecao-badge__icon { font-size: 2rem; }
+    .selecao-badge__info { flex: 1; }
+    .selecao-badge__label { font-size: .75rem; color: #9090a8; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em; }
+    .selecao-badge__nome { font-size: 1.1rem; font-weight: 800; color: #f5a623; }
+
+    .field { margin-bottom: 1.5rem; }
+    .field label { display: block; font-size: .85rem; font-weight: 600; color: #c0c0d8; margin-bottom: .5rem; }
+    .field select { width: 100%; background: #111; border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px; padding: .7rem 1rem; color: #e8e8f0; font-size: .95rem;
+      font-family: 'Inter', sans-serif; appearance: none; cursor: pointer; transition: border-color .2s; }
+    .field select:focus { outline: none; border-color: rgba(245,166,35,.5); }
+
+    .info-box { background: rgba(245,166,35,.06); border: 1px solid rgba(245,166,35,.2);
+      border-radius: 10px; padding: 1rem 1.25rem; font-size: .85rem; color: #c0c0a8;
+      line-height: 1.6; margin-bottom: 1.5rem; }
+    .info-box strong { color: #f5a623; }
+
+    .btn-gerar { width: 100%; background: #f5a623; color: #0a0a0f; font-weight: 800;
+      font-size: 1rem; padding: .85rem; border: none; border-radius: 10px; cursor: pointer;
+      transition: opacity .2s; }
+    .btn-gerar:hover { opacity: .9; }
+    .btn-gerar:disabled { opacity: .5; cursor: not-allowed; }
+
+    .feedback { display: none; text-align: center; padding: 1.5rem; }
+    .feedback__icon { font-size: 2.5rem; margin-bottom: .75rem; }
+    .feedback__title { font-size: 1.1rem; font-weight: 700; color: #e8e8f0; margin-bottom: .4rem; }
+    .feedback__desc { font-size: .9rem; color: #9090a8; }
+
+    @media (max-width: 640px) { .wrap { padding: 0 1rem 4rem; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="brand">
+    <img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/>
+    Copa Insider
+  </a>
+  <div class="nav-actions">
+    <a th:href="@{/loja}" class="cta-btn">Loja</a>
+    <th:block th:replace="~{fragments/site-nav :: sessionLinks}"></th:block>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <a th:href="@{/ebook/meus-ebooks}" class="back-link">← Meus Ebooks</a>
+
+    <div class="page-header">
+      <h1 th:text="${preSelecaoCode != null ? 'Escolhe o idioma' : 'Escolhe a tua Seleção'}">Escolhe a tua Seleção</h1>
+      <p th:text="${preSelecaoCode != null
+          ? 'A tua seleção já está definida. Escolhe só o idioma e geramos o guia.'
+          : 'Seleciona a seleção e o idioma. O ebook será gerado e enviado por email.'}">
+        Seleciona a seleção e o idioma.
+      </p>
+    </div>
+
+    <div class="form-card">
+
+      <!-- Aviso único "só podes escolher uma vez" (só quando tem de escolher equipa) -->
+      <div class="info-box" th:if="${preSelecaoCode == null}">
+        <strong>Só podes escolher uma vez.</strong><br/>
+        Depois de confirmares, o ebook é gerado com a seleção e idioma escolhidos.
+      </div>
+
+      <!-- Badge da seleção pré-escolhida (veio da loja) -->
+      <div class="selecao-badge" th:if="${preSelecaoCode != null}">
+        <div class="selecao-badge__icon">⚽</div>
+        <div class="selecao-badge__info">
+          <div class="selecao-badge__label">Seleção escolhida</div>
+          <div class="selecao-badge__nome" th:text="${preSelecaoNome}">Brasil</div>
+        </div>
+      </div>
+
+      <form id="selecao-form">
+        <input type="hidden" id="transacao"        th:value="${pedido.transacao}"/>
+
+        <!-- Campos hidden quando seleção já conhecida -->
+        <input th:if="${preSelecaoCode != null}"
+               type="hidden" id="selecao-code-fixed" th:value="${preSelecaoCode}"/>
+        <input th:if="${preSelecaoCode != null}"
+               type="hidden" id="selecao-nome-fixed" th:value="${preSelecaoNome}"/>
+
+        <!-- Select de seleção — só aparece quando NÃO há pré-seleção -->
+        <div class="field" th:if="${preSelecaoCode == null}">
+          <label for="selecao-select">Seleção</label>
+          <select id="selecao-select" required>
+            <option value="">— Escolhe uma seleção —</option>
+            <option value="BRA" data-nome="Brasil">🇧🇷 Brasil</option>
+            <option value="ARG" data-nome="Argentina">🇦🇷 Argentina</option>
+            <option value="FRA" data-nome="França">🇫🇷 França</option>
+            <option value="POR" data-nome="Portugal">🇵🇹 Portugal</option>
+            <option value="ESP" data-nome="Espanha">🇪🇸 Espanha</option>
+            <option value="ALE" data-nome="Alemanha">🇩🇪 Alemanha</option>
+            <option value="ENG" data-nome="Inglaterra">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra</option>
+            <option value="ITA" data-nome="Itália">🇮🇹 Itália</option>
+            <option value="URU" data-nome="Uruguai">🇺🇾 Uruguai</option>
+            <option value="MEX" data-nome="México">🇲🇽 México</option>
+            <option value="USA" data-nome="Estados Unidos">🇺🇸 Estados Unidos</option>
+            <option value="CAN" data-nome="Canadá">🇨🇦 Canadá</option>
+            <option value="MAR" data-nome="Marrocos">🇲🇦 Marrocos</option>
+            <option value="COL" data-nome="Colômbia">🇨🇴 Colômbia</option>
+            <option value="ECU" data-nome="Equador">🇪🇨 Equador</option>
+            <option value="VEN" data-nome="Venezuela">🇻🇪 Venezuela</option>
+            <option value="CHI" data-nome="Chile">🇨🇱 Chile</option>
+            <option value="NED" data-nome="Países Baixos">🇳🇱 Países Baixos</option>
+            <option value="BEL" data-nome="Bélgica">🇧🇪 Bélgica</option>
+            <option value="CRO" data-nome="Croácia">🇭🇷 Croácia</option>
+            <option value="SUI" data-nome="Suíça">🇨🇭 Suíça</option>
+            <option value="DEN" data-nome="Dinamarca">🇩🇰 Dinamarca</option>
+            <option value="AUT" data-nome="Áustria">🇦🇹 Áustria</option>
+            <option value="SRB" data-nome="Sérvia">🇷🇸 Sérvia</option>
+            <option value="POL" data-nome="Polónia">🇵🇱 Polónia</option>
+            <option value="SCO" data-nome="Escócia">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Escócia</option>
+            <option value="TUR" data-nome="Turquia">🇹🇷 Turquia</option>
+            <option value="SEN" data-nome="Senegal">🇸🇳 Senegal</option>
+            <option value="NGA" data-nome="Nigéria">🇳🇬 Nigéria</option>
+            <option value="EGY" data-nome="Egito">🇪🇬 Egito</option>
+            <option value="CMR" data-nome="Camarões">🇨🇲 Camarões</option>
+            <option value="GHA" data-nome="Gana">🇬🇭 Gana</option>
+            <option value="CIV" data-nome="Costa do Marfim">🇨🇮 Costa do Marfim</option>
+            <option value="ALG" data-nome="Argélia">🇩🇿 Argélia</option>
+            <option value="RSA" data-nome="África do Sul">🇿🇦 África do Sul</option>
+            <option value="JPN" data-nome="Japão">🇯🇵 Japão</option>
+            <option value="KOR" data-nome="Coreia do Sul">🇰🇷 Coreia do Sul</option>
+            <option value="IRN" data-nome="Irão">🇮🇷 Irão</option>
+            <option value="AUS" data-nome="Austrália">🇦🇺 Austrália</option>
+            <option value="SAU" data-nome="Arábia Saudita">🇸🇦 Arábia Saudita</option>
+            <option value="QAT" data-nome="Qatar">🇶🇦 Qatar</option>
+            <option value="CRC" data-nome="Costa Rica">🇨🇷 Costa Rica</option>
+            <option value="PAN" data-nome="Panamá">🇵🇦 Panamá</option>
+            <option value="PAR" data-nome="Paraguai">🇵🇾 Paraguai</option>
+            <option value="BOL" data-nome="Bolívia">🇧🇴 Bolívia</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="idioma-select">Idioma do ebook</label>
+          <select id="idioma-select" required>
+            <option value="">— Escolhe o idioma —</option>
+            <option value="pt-BR">Português (Brasil)</option>
+            <option value="pt-PT">Português (Portugal)</option>
+            <option value="es">Español</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="it">Italiano</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-gerar" id="btn-gerar">Gerar o meu Guia</button>
+      </form>
+
+      <div class="feedback" id="feedback-ok">
+        <div class="feedback__icon">🎉</div>
+        <div class="feedback__title">Geração iniciada!</div>
+        <div class="feedback__desc">Receberás um email quando o teu ebook estiver pronto.<br/>
+          Podes acompanhar em <a th:href="@{/ebook/meus-ebooks}" style="color:#f5a623;">Meus Ebooks</a>.
+        </div>
+      </div>
+
+      <div class="feedback" id="feedback-erro">
+        <div class="feedback__icon">⚠️</div>
+        <div class="feedback__title">Algo correu mal</div>
+        <div class="feedback__desc" id="erro-msg">Tenta novamente ou contacta o suporte.</div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer style="text-align:center;padding:2rem;color:#555;font-size:.85rem;border-top:1px solid rgba(255,255,255,.06);">
+  <p>© 2026 Copa Insider</p>
+</footer>
+
+<script>
+  document.getElementById('selecao-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var transacao = document.getElementById('transacao').value;
+    var idioma    = document.getElementById('idioma-select').value;
+    if (!idioma) { alert('Escolhe o idioma.'); return; }
+
+    var selecaoCode, selecaoNome;
+    var fixedCode = document.getElementById('selecao-code-fixed');
+    var fixedNome = document.getElementById('selecao-nome-fixed');
+    var selecaoSel = document.getElementById('selecao-select');
+
+    if (fixedCode) {
+      // Caso A: seleção pré-escolhida (cookie da loja)
+      selecaoCode = fixedCode.value;
+      selecaoNome = fixedNome ? fixedNome.value : selecaoCode;
+    } else if (selecaoSel) {
+      // Caso B: cliente escolhe no select
+      selecaoCode = selecaoSel.value;
+      if (!selecaoCode) { alert('Escolhe a tua seleção.'); return; }
+      selecaoNome = selecaoSel.options[selecaoSel.selectedIndex].dataset.nome || selecaoCode;
+    } else {
+      return;
+    }
+
+    var btn = document.getElementById('btn-gerar');
+    btn.disabled = true;
+    btn.textContent = 'A processar...';
+
+    var params = new URLSearchParams();
+    params.append('selecaoCode', selecaoCode);
+    params.append('selecaoNome', selecaoNome);
+    params.append('idioma', idioma);
+
+    fetch('/ebook/selecionar/' + transacao, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+      document.getElementById('selecao-form').style.display = 'none';
+      if (res.ok) {
+        document.getElementById('feedback-ok').style.display = 'block';
+      } else {
+        document.getElementById('erro-msg').textContent = res.data.erro || 'Erro desconhecido.';
+        document.getElementById('feedback-erro').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Gerar o meu Guia';
+        document.getElementById('selecao-form').style.display = 'block';
+      }
+    })
+    .catch(function() {
+      document.getElementById('feedback-erro').style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Gerar o meu Guia';
+      document.getElementById('selecao-form').style.display = 'block';
+    });
+  });
+</script>
+
+</body>
+</html>

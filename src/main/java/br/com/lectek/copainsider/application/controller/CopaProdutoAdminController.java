@@ -134,7 +134,7 @@ public class CopaProdutoAdminController {
                 p.getNomePtBr(), p.getDescPtBr(),
                 p.getHotmartUrl(), p.getImagemUrl(),
                 p.getSlugTime1(), p.getSlugTime2(),
-                false, 1L
+                false, 1L, p.getSelecaoCode()
         );
     }
 }

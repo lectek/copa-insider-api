@@ -130,7 +130,7 @@ public class SiteController {
                 nome, desc,
                 p.getHotmartUrl(), p.getImagemUrl(),
                 p.getSlugTime1(), p.getSlugTime2(),
-                categoriaComMultiplos, totalNaCategoria);
+                categoriaComMultiplos, totalNaCategoria, p.getSelecaoCode());
     }
 
     private String firstNonEmpty(String a, String b) {

@@ -233,6 +233,23 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- iText8 — geração de PDF profissional -->
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>kernel</artifactId>
+      <version>8.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>layout</artifactId>
+      <version>8.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>io</artifactId>
+      <version>8.0.5</version>
+    </dependency>
+
     <!-- Resilience4j -->
     <dependency>
       <groupId>io.github.resilience4j</groupId>

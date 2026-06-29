@@ -167,7 +167,9 @@ public class SecurityMvcConfig {
                                 "/cliente/senha",
                                 "/cliente/avatar",
                                 "/cliente/pedidos",
-                                "/cliente/pedidos/**"
+                                "/cliente/pedidos/**",
+                                "/ebook/meus-ebooks",
+                                "/ebook/selecionar/**"
                         )
                         .hasAnyRole("CLIENTE", "DEVELOPER", "DEV", "ADMIN", "USER");
 

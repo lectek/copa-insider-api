@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>O teu Guia da Seleção está pronto!</title>
+  <style>
+    body { margin: 0; padding: 0; background: #0a0a0a; font-family: 'Inter', Arial, sans-serif; color: #ffffff; }
+    .wrap { max-width: 600px; margin: 0 auto; background: #111; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; }
+    .header { background: linear-gradient(135deg, #1a3a22 0%, #0d2016 100%); padding: 40px 32px; text-align: center; }
+    .header-badge { display: inline-block; background: #e8b930; color: #000; font-weight: 800; font-size: 13px; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.06em; margin-bottom: 16px; }
+    .header h1 { margin: 0; font-size: 26px; font-weight: 800; color: #fff; line-height: 1.3; }
+    .header-sub { font-size: 14px; color: #a0c0a8; margin-top: 8px; }
+    .body { padding: 32px; }
+    .greeting { font-size: 16px; color: #ccc; margin-bottom: 20px; }
+    .greeting strong { color: #fff; }
+    .hero-box { background: linear-gradient(135deg, #1a3a22 0%, #0d2016 100%); border: 1px solid #2d7a3a; border-radius: 12px; padding: 32px; text-align: center; margin-bottom: 28px; }
+    .hero-emoji { font-size: 48px; margin-bottom: 12px; }
+    .hero-box h2 { margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fff; }
+    .hero-box p { margin: 0; font-size: 14px; color: #a0c0a8; }
+    .selecao-destaque { display: inline-block; background: #e8b930; color: #000; font-weight: 800; font-size: 18px; padding: 6px 20px; border-radius: 8px; margin: 12px 0; }
+    .cta-section { text-align: center; margin: 32px 0; }
+    .cta-btn { display: inline-block; background: #e8b930; color: #000; font-weight: 800; font-size: 16px; padding: 16px 40px; border-radius: 10px; text-decoration: none; letter-spacing: 0.02em; }
+    .cta-secondary { display: inline-block; margin-top: 14px; font-size: 13px; color: #888; text-decoration: none; }
+    .cta-secondary:hover { color: #e8b930; }
+    .info-box { background: #0d1a10; border: 1px solid #1e3a22; border-radius: 8px; padding: 16px 20px; font-size: 13px; color: #a0c0a8; line-height: 1.6; margin-bottom: 24px; }
+    .info-box strong { color: #c0e0c8; }
+    .footer { padding: 24px 32px; border-top: 1px solid #2a2a2a; text-align: center; }
+    .footer p { font-size: 12px; color: #555; margin: 4px 0; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-badge">Copa Insider</div>
+    <h1>O teu Guia da Seleção está pronto!</h1>
+    <p class="header-sub">Faz o download agora e mergulha na história</p>
+  </div>
+
+  <div class="body">
+    <p class="greeting">Olá, <strong th:text="${nome}">Torcedor</strong>!</p>
+    <p style="color:#aaa; font-size:14px; margin-top:0; margin-bottom:28px;">
+      O teu ebook personalizado ficou pronto. Histórias épicas, lendas imortais e a análise completa para a Copa 2026 estão à tua espera.
+    </p>
+
+    <div class="hero-box">
+      <div class="hero-emoji">📖</div>
+      <h2>Guia da Seleção</h2>
+      <div class="selecao-destaque" th:text="${selecao}">Brasil</div>
+      <p th:text="'Idioma: ' + ${idioma}">Idioma: pt-BR</p>
+    </div>
+
+    <div class="cta-section">
+      <a th:href="${downloadUrl}" class="cta-btn">Baixar o meu ebook</a>
+      <br/>
+      <a th:href="${minhasComprasUrl}" class="cta-secondary">Ver em Minhas Compras</a>
+    </div>
+
+    <div class="info-box">
+      <strong>O link de download não expira.</strong><br/>
+      Podes baixar o teu ebook a qualquer momento em <em>Minhas Compras</em> na tua área de cliente.
+    </div>
+
+    <p style="font-size:13px; color:#888; text-align:center;">
+      Dúvidas? Fale connosco em
+      <a href="mailto:suporte@allaboutworldcup2026.com" style="color:#e8b930;">suporte@allaboutworldcup2026.com</a>
+    </p>
+  </div>
+
+  <div class="footer">
+    <p>Copa Insider &mdash; Guias e análises da Copa do Mundo 2026</p>
+    <p>Este e-mail foi enviado automaticamente após a geração do teu ebook.</p>
+  </div>
+
+</div>
+</body>
+</html>

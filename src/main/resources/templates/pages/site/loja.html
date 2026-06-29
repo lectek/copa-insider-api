@@ -19,14 +19,15 @@
             <img src="/img/logo-sm.webp" alt="Copa Insider" style="width:36px;height:36px;object-fit:contain;"/>
             <span class="nav__logo-name">Copa Insider</span>
         </a>
-        <ul class="nav__links">
+        <ul class="nav__links" id="loja-nav-links">
             <li><a th:href="@{/calendario}" class="nav__link" th:text="#{copa.nav.calendario}">Calendário</a></li>
             <li><a th:href="@{/selecoes}" class="nav__link" th:text="#{copa.nav.selecoes}">Seleções</a></li>
             <li><a th:href="@{/comparar}" class="nav__link">Rivalidades</a></li>
             <li><a th:href="@{/factos}" class="nav__link">Factos</a></li>
         </ul>
         <th:block th:replace="~{fragments/site-nav :: sessionLinks}"></th:block>
-        <button class="nav__toggle" onclick="this.closest('nav').classList.toggle('nav--open')">&#9776;</button>
+        <button class="nav__toggle" id="loja-nav-toggle"
+                aria-label="Menu" aria-expanded="false" aria-controls="loja-nav-links">&#9776;</button>
     </div>
 </nav>
 
@@ -80,17 +81,91 @@
                 <h2 class="prod-card__title" th:text="${p.nome()}">Nome</h2>
                 <p class="prod-card__desc" th:text="${p.descricao()}">Descrição</p>
 
-                <a th:if="${p.temHotmartUrl()}"
+                <!-- Guia com seleção: botão sempre disponível, vai para /ebook/iniciar/{code} -->
+                <a th:if="${p.temSelecao()}"
+                   th:href="@{/ebook/iniciar/{code}(code=${p.selecaoCode()})}"
+                   class="prod-card__btn prod-card__btn--gold">
+                    Comprar — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">9,99</span>
+                </a>
+                <!-- Outros produtos (duelos, factos) → Hotmart direto -->
+                <a th:if="${!p.temSelecao() and p.temHotmartUrl()}"
                    th:href="${p.hotmartUrl()}"
                    target="_blank" rel="noopener noreferrer"
                    class="prod-card__btn prod-card__btn--gold">
-                    Comprar — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
+                    Comprar — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">9,99</span>
                 </a>
-                <span th:unless="${p.temHotmartUrl()}" class="prod-card__btn prod-card__btn--soon">
-                    Em breve — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">3,99</span>
+                <span th:if="${!p.temSelecao() and !p.temHotmartUrl()}" class="prod-card__btn prod-card__btn--soon">
+                    Em breve — €<span th:text="${#numbers.formatDecimal(p.precoEur(), 1, 'POINT', 2, 'COMMA')}">9,99</span>
                 </span>
             </div>
         </th:block>
+    </div>
+
+    <!-- ── Carregar mais seleções ── -->
+    <div style="text-align:center;margin:2rem 0 1rem;">
+        <button id="btn-mais-selecoes" onclick="document.getElementById('mais-selecoes').style.display='block';this.style.display='none';"
+                style="background:transparent;border:1px solid rgba(245,166,35,.4);color:#f5a623;font-weight:700;font-size:.9rem;padding:.65rem 1.75rem;border-radius:8px;cursor:pointer;">
+            ⚽ Ver mais seleções
+        </button>
+    </div>
+
+    <div id="mais-selecoes" style="display:none;">
+        <div class="section-label" style="margin-top:0;">Todas as seleções</div>
+        <div class="products-grid">
+            <th:block th:each="s : ${ {
+                'COL|🇨🇴|Colômbia|Colombia',
+                'ECU|🇪🇨|Equador|Ecuador',
+                'VEN|🇻🇪|Venezuela|Venezuela',
+                'CHI|🇨🇱|Chile|Chile',
+                'PAR|🇵🇾|Paraguai|Paraguay',
+                'BOL|🇧🇴|Bolívia|Bolivia',
+                'CAN|🇨🇦|Canadá|Canada',
+                'CRC|🇨🇷|Costa Rica|Costa Rica',
+                'PAN|🇵🇦|Panamá|Panama',
+                'NED|🇳🇱|Países Baixos|Netherlands',
+                'BEL|🇧🇪|Bélgica|Belgium',
+                'CRO|🇭🇷|Croácia|Croatia',
+                'SUI|🇨🇭|Suíça|Switzerland',
+                'DEN|🇩🇰|Dinamarca|Denmark',
+                'AUT|🇦🇹|Áustria|Austria',
+                'SRB|🇷🇸|Sérvia|Serbia',
+                'POL|🇵🇱|Polónia|Poland',
+                'SCO|🏴󠁧󠁢󠁳󠁣󠁴󠁿|Escócia|Scotland',
+                'TUR|🇹🇷|Turquia|Turkey',
+                'GRE|🇬🇷|Grécia|Greece',
+                'SEN|🇸🇳|Senegal|Senegal',
+                'NGA|🇳🇬|Nigéria|Nigeria',
+                'EGY|🇪🇬|Egito|Egypt',
+                'CMR|🇨🇲|Camarões|Cameroon',
+                'GHA|🇬🇭|Gana|Ghana',
+                'CIV|🇨🇮|Costa do Marfim|Ivory Coast',
+                'ALG|🇩🇿|Argélia|Algeria',
+                'RSA|🇿🇦|África do Sul|South Africa',
+                'JPN|🇯🇵|Japão|Japan',
+                'KOR|🇰🇷|Coreia do Sul|South Korea',
+                'IRN|🇮🇷|Irão|Iran',
+                'AUS|🇦🇺|Austrália|Australia',
+                'SAU|🇸🇦|Arábia Saudita|Saudi Arabia',
+                'QAT|🇶🇦|Qatar|Qatar',
+                'JOR|🇯🇴|Jordânia|Jordan',
+                'NZL|🇳🇿|Nova Zelândia|New Zealand'
+            } }">
+                <th:block th:with="parts=${s.split('\\|')}">
+                    <div class="prod-card">
+                        <div class="prod-card__top">
+                            <span class="prod-card__tag">GUIA SELEÇÃO</span>
+                            <span class="prod-card__price">€9,99</span>
+                        </div>
+                        <h2 class="prod-card__title" th:text="${parts[1] + ' Guia da Seleção de ' + parts[2]}">🇨🇴 Guia de Colômbia</h2>
+                        <p class="prod-card__desc" th:text="${'Tudo sobre a seleção de ' + parts[2] + ' — história, lendas, Copa 2026.'}">Descrição</p>
+                        <a th:href="@{/ebook/iniciar/{code}(code=${parts[0]})}"
+                           class="prod-card__btn prod-card__btn--gold">
+                            Comprar — €9,99
+                        </a>
+                    </div>
+                </th:block>
+            </th:block>
+        </div>
     </div>
 
     <div class="empty-state" th:if="${produtos.isEmpty()}">
@@ -110,5 +185,17 @@
     </div>
 </footer>
 
+<script>
+(function(){
+    var btn = document.getElementById('loja-nav-toggle');
+    var nav = btn && btn.closest('nav');
+    if (!btn || !nav) return;
+    function open()  { nav.classList.add('nav--open');    btn.setAttribute('aria-expanded','true');  document.body.classList.add('nav-menu-open'); }
+    function close() { nav.classList.remove('nav--open'); btn.setAttribute('aria-expanded','false'); document.body.classList.remove('nav-menu-open'); }
+    btn.addEventListener('click', function(){ nav.classList.contains('nav--open') ? close() : open(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+    document.addEventListener('click', function(e){ if (nav.classList.contains('nav--open') && !nav.contains(e.target)) close(); });
+}());
+</script>
 </body>
 </html>
