@@ -14,8 +14,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -124,17 +126,20 @@ public class BrandingModelAdvice {
     private final ResourceLoader resourceLoader;
     private final UsuarioRepository usuarios;
     private final CustomerRepository customers;
+    private final Environment env;
 
     public BrandingModelAdvice(ObjectProvider<TenantScopedSettingsService> tenantScopedSettingsProvider,
                                ObjectProvider<AppSettingService> appSettingsProvider,
                                ResourceLoader resourceLoader,
                                ObjectProvider<UsuarioRepository> usuariosProvider,
-                               ObjectProvider<CustomerRepository> customersProvider) {
+                               ObjectProvider<CustomerRepository> customersProvider,
+                               Environment env) {
         this.tenantScopedSettings = tenantScopedSettingsProvider.getIfAvailable();
         this.appSettings = appSettingsProvider.getIfAvailable();
         this.resourceLoader = resourceLoader;
         this.usuarios = usuariosProvider.getIfAvailable();
         this.customers = customersProvider.getIfAvailable();
+        this.env = env;
     }
 
     @ModelAttribute
@@ -370,6 +375,8 @@ public class BrandingModelAdvice {
         model.addAttribute("brandingHeroFallbackAvailable", fallbackAvailable);
         model.addAttribute(SESSION_TENANT_CONTEXT_ID, tenantContextId);
         model.addAttribute(ATTR_TENANT_CONTEXT_ACTIVE, !tenantContextId.isBlank());
+        model.addAttribute("oauth2Enabled",
+                StringUtils.hasText(env.getProperty("spring.security.oauth2.client.registration.google.client-id")));
         addHeaderUser(request, model);
 
         log.debug("Hero available publicly (logged-out) {} (fallbackUsed={}, fileExists={}, heroSetting={})",
