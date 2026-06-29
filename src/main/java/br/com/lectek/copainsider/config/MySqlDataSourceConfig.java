@@ -21,6 +21,9 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.migration.JavaMigration;
+
+import java.util.List;
 
 import javax.sql.DataSource;
 import java.net.URI;
@@ -144,18 +147,25 @@ public class MySqlDataSourceConfig {
 
     @Bean(name = "flyway")
     @Primary
-    public Flyway flyway(@Qualifier("dataSource") DataSource dataSource) {
+    public Flyway flyway(@Qualifier("dataSource") DataSource dataSource,
+                         @Autowired(required = false) List<JavaMigration> javaMigrations) {
         boolean outOfOrder = Boolean.parseBoolean(
                 System.getenv().getOrDefault("FLYWAY_OUT_OF_ORDER", "true"));
-        LOGGER.info("Flyway config outOfOrder={}", outOfOrder);
+        LOGGER.info("Flyway config outOfOrder={} javaMigrations={}", outOfOrder,
+                javaMigrations != null ? javaMigrations.size() : 0);
 
-        Flyway flyway = Flyway.configure()
+        var config = Flyway.configure()
                 .dataSource(dataSource)
                 .locations("classpath:db/migration", "classpath:db/migration-mysql",
                         "classpath:db/migration/PROD", "classpath:db/migration/USER")
                 .baselineOnMigrate(true)
-                .outOfOrder(outOfOrder)
-                .load();
+                .outOfOrder(outOfOrder);
+
+        if (javaMigrations != null && !javaMigrations.isEmpty()) {
+            config.javaMigrations(javaMigrations.toArray(new JavaMigration[0]));
+        }
+
+        Flyway flyway = config.load();
         flyway.repair();
         flyway.migrate();
         return flyway;
