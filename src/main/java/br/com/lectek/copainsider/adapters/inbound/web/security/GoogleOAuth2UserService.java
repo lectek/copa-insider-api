@@ -61,6 +61,11 @@ public class GoogleOAuth2UserService
                         existing.setEmailVerificado(true);
                         log.info("[oauth2] email activado via Google: {}", finalEmail);
                     }
+                    if (existing.getRoles() == null || existing.getRoles().isEmpty()) {
+                        existing.addRole(resolveClienteRole());
+                        log.info("[oauth2] ROLE_CLIENTE adicionado a utilizador existente sem roles: {}", finalEmail);
+                        usuarioRepo.save(existing);
+                    }
                     return existing;
                 })
                 .orElseGet(() -> {
