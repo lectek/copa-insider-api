@@ -37,6 +37,8 @@ public class SettingsMailSenderAdapter implements MailSenderAdapter {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String PROVIDER_BREVO = "brevo";
     private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+    private static final String PROVIDER_RESEND = "resend";
+    private static final String RESEND_API_URL = "https://api.resend.com/emails";
 
     private static final String KEY_ENABLED = "email.enabled";
     private static final String KEY_SMTP_HOST = "email.smtp_host";
@@ -156,6 +158,9 @@ public class SettingsMailSenderAdapter implements MailSenderAdapter {
             @Nullable List<String> bcc,
             MailIdentity identity
     ) {
+        if (PROVIDER_RESEND.equals(apiConfig.provider())) {
+            return sendViaResend(apiConfig, to, subject, htmlBody, bcc, identity);
+        }
         if (!PROVIDER_BREVO.equals(apiConfig.provider())) {
             throw new IllegalStateException("Provedor de email API nao suportado: " + apiConfig.provider());
         }
@@ -201,6 +206,60 @@ public class SettingsMailSenderAdapter implements MailSenderAdapter {
         } catch (Exception ex) {
             log.error("[mail] falha no fallback API '{}'", subject, ex);
             throw new RuntimeException("Falha ao enviar e-mail via API.", ex);
+        }
+    }
+
+    private String sendViaResend(
+            MailApiConfig apiConfig,
+            String to,
+            String subject,
+            String htmlBody,
+            @Nullable List<String> bcc,
+            MailIdentity identity
+    ) {
+        try {
+            com.fasterxml.jackson.databind.node.ObjectNode payload =
+                    OBJECT_MAPPER.createObjectNode();
+            payload.put("from", identity.fromName().isBlank()
+                    ? identity.fromEmail()
+                    : identity.fromName() + " <" + identity.fromEmail() + ">");
+            payload.putArray("to").add(to);
+            payload.put("subject", subject);
+            payload.put("html", htmlBody);
+            List<String> cleanBcc = sanitizeRecipients(bcc);
+            if (!cleanBcc.isEmpty()) {
+                com.fasterxml.jackson.databind.node.ArrayNode bccNode = payload.putArray("bcc");
+                cleanBcc.forEach(bccNode::add);
+            }
+            if (!identity.replyTo().isBlank()) {
+                payload.putArray("reply_to").add(identity.replyTo());
+            }
+
+            String url = apiConfig.baseUrl().isBlank() ? RESEND_API_URL : apiConfig.baseUrl();
+            HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+                    .timeout(Duration.ofSeconds(15))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + apiConfig.apiKey())
+                    .POST(HttpRequest.BodyPublishers.ofString(
+                            OBJECT_MAPPER.writeValueAsString(payload), StandardCharsets.UTF_8))
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(10))
+                    .build()
+                    .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+            int status = response.statusCode();
+            if (status >= 200 && status < 300) {
+                return extractMessageId(response.body());
+            }
+            throw new IllegalStateException("Resend API falhou. status=" + status
+                    + ", body=" + truncate(response.body(), 400));
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Envio Resend interrompido.", ex);
+        } catch (IOException ex) {
+            throw new RuntimeException("Falha na comunicacao com Resend API.", ex);
         }
     }
 
