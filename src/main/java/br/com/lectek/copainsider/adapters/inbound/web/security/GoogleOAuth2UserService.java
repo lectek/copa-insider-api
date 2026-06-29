@@ -82,7 +82,10 @@ public class GoogleOAuth2UserService
                 });
 
         List<GrantedAuthority> authorities = usuario.getRoles().stream()
-                .map(r -> new SimpleGrantedAuthority(r.getNome()))
+                .map(r -> {
+                    String nome = r.getNome();
+                    return new SimpleGrantedAuthority(nome.startsWith("ROLE_") ? nome : "ROLE_" + nome);
+                })
                 .collect(Collectors.toList());
 
         return new DefaultOAuth2User(authorities, googleUser.getAttributes(), ATTR_EMAIL);
