@@ -64,10 +64,10 @@
         </div>
     </th:block>
 
-    <!-- ── Produtos individuais ── -->
+    <!-- ── Produtos individuais (exclui GUIA_SELECAO — tem secção própria abaixo) ── -->
     <div class="section-label">Guias individuais</div>
     <div class="products-grid">
-        <th:block th:each="p : ${produtos}" th:unless="${p.tipo().name() == 'COPA_PASS'}">
+        <th:block th:each="p : ${produtos}" th:unless="${p.tipo().name() == 'COPA_PASS' or p.tipo().name() == 'GUIA_SELECAO'}">
             <div class="prod-card">
                 <div class="prod-card__top">
                     <span class="prod-card__tag"
@@ -101,72 +101,26 @@
         </th:block>
     </div>
 
-    <!-- ── Carregar mais seleções ── -->
-    <div style="text-align:center;margin:2rem 0 1rem;">
-        <button id="btn-mais-selecoes" onclick="document.getElementById('mais-selecoes').style.display='block';this.style.display='none';"
-                style="background:transparent;border:1px solid rgba(245,166,35,.4);color:#f5a623;font-weight:700;font-size:.9rem;padding:.65rem 1.75rem;border-radius:8px;cursor:pointer;">
-            ⚽ Ver mais seleções
-        </button>
+    <!-- ── Guia da Seleção — pesquisa por qualquer nação ── -->
+    <div class="section-label" style="margin-top:2.5rem;">Guia da Seleção</div>
+    <p style="color:#9090a8;font-size:.9rem;margin:-0.5rem 0 1.5rem;">
+        Escolhe qualquer nação que já participou na Copa do Mundo — o guia é gerado na hora.
+    </p>
+
+    <div class="selecao-search-wrap">
+        <label for="selecao-search" class="sr-only">Pesquisar seleção</label>
+        <input id="selecao-search"
+               type="search"
+               placeholder="🔍  Pesquisar seleção... (ex: Brasil, Marrocos, Japão)"
+               autocomplete="off"
+               aria-label="Pesquisar seleção"
+               class="selecao-search-input"/>
     </div>
 
-    <div id="mais-selecoes" style="display:none;">
-        <div class="section-label" style="margin-top:0;">Todas as seleções</div>
-        <div class="products-grid">
-            <th:block th:each="s : ${ {
-                'COL|🇨🇴|Colômbia|Colombia',
-                'ECU|🇪🇨|Equador|Ecuador',
-                'VEN|🇻🇪|Venezuela|Venezuela',
-                'CHI|🇨🇱|Chile|Chile',
-                'PAR|🇵🇾|Paraguai|Paraguay',
-                'BOL|🇧🇴|Bolívia|Bolivia',
-                'CAN|🇨🇦|Canadá|Canada',
-                'CRC|🇨🇷|Costa Rica|Costa Rica',
-                'PAN|🇵🇦|Panamá|Panama',
-                'NED|🇳🇱|Países Baixos|Netherlands',
-                'BEL|🇧🇪|Bélgica|Belgium',
-                'CRO|🇭🇷|Croácia|Croatia',
-                'SUI|🇨🇭|Suíça|Switzerland',
-                'DEN|🇩🇰|Dinamarca|Denmark',
-                'AUT|🇦🇹|Áustria|Austria',
-                'SRB|🇷🇸|Sérvia|Serbia',
-                'POL|🇵🇱|Polónia|Poland',
-                'SCO|🏴󠁧󠁢󠁳󠁣󠁴󠁿|Escócia|Scotland',
-                'TUR|🇹🇷|Turquia|Turkey',
-                'GRE|🇬🇷|Grécia|Greece',
-                'SEN|🇸🇳|Senegal|Senegal',
-                'NGA|🇳🇬|Nigéria|Nigeria',
-                'EGY|🇪🇬|Egito|Egypt',
-                'CMR|🇨🇲|Camarões|Cameroon',
-                'GHA|🇬🇭|Gana|Ghana',
-                'CIV|🇨🇮|Costa do Marfim|Ivory Coast',
-                'ALG|🇩🇿|Argélia|Algeria',
-                'RSA|🇿🇦|África do Sul|South Africa',
-                'JPN|🇯🇵|Japão|Japan',
-                'KOR|🇰🇷|Coreia do Sul|South Korea',
-                'IRN|🇮🇷|Irão|Iran',
-                'AUS|🇦🇺|Austrália|Australia',
-                'SAU|🇸🇦|Arábia Saudita|Saudi Arabia',
-                'QAT|🇶🇦|Qatar|Qatar',
-                'JOR|🇯🇴|Jordânia|Jordan',
-                'NZL|🇳🇿|Nova Zelândia|New Zealand'
-            } }">
-                <th:block th:with="parts=${s.split('\\|')}">
-                    <div class="prod-card">
-                        <div class="prod-card__top">
-                            <span class="prod-card__tag">GUIA SELEÇÃO</span>
-                            <span class="prod-card__price">€9,99</span>
-                        </div>
-                        <h2 class="prod-card__title" th:text="${parts[1] + ' Guia da Seleção de ' + parts[2]}">🇨🇴 Guia de Colômbia</h2>
-                        <p class="prod-card__desc" th:text="${'Tudo sobre a seleção de ' + parts[2] + ' — história, lendas, Copa 2026.'}">Descrição</p>
-                        <a th:href="@{/ebook/iniciar/{code}(code=${parts[0]})}"
-                           class="prod-card__btn prod-card__btn--gold">
-                            Comprar — €9,99
-                        </a>
-                    </div>
-                </th:block>
-            </th:block>
-        </div>
-    </div>
+    <div id="selecao-grid" class="products-grid" style="margin-top:1.25rem;"></div>
+    <p id="selecao-nenhum" style="display:none;color:#9090a8;text-align:center;padding:2rem 0;">
+        Nenhuma seleção encontrada. Experimenta outro nome.
+    </p>
 
     <div class="empty-state" th:if="${produtos.isEmpty()}">
         Nenhum produto disponível no momento.
@@ -186,6 +140,128 @@
 </footer>
 
 <script>
+// ── Todas as nações que já participaram na Copa do Mundo ──────────────────
+var SELECOES = [
+  // CAMPEÕES MUNDIAIS
+  {c:'BRA',f:'🇧🇷',n:'Brasil'},
+  {c:'ALE',f:'🇩🇪',n:'Alemanha'},
+  {c:'ITA',f:'🇮🇹',n:'Itália'},
+  {c:'ARG',f:'🇦🇷',n:'Argentina'},
+  {c:'FRA',f:'🇫🇷',n:'França'},
+  {c:'URU',f:'🇺🇾',n:'Uruguai'},
+  {c:'ENG',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',n:'Inglaterra'},
+  {c:'ESP',f:'🇪🇸',n:'Espanha'},
+  // EUROPA
+  {c:'POR',f:'🇵🇹',n:'Portugal'},
+  {c:'NED',f:'🇳🇱',n:'Países Baixos'},
+  {c:'BEL',f:'🇧🇪',n:'Bélgica'},
+  {c:'CRO',f:'🇭🇷',n:'Croácia'},
+  {c:'SUI',f:'🇨🇭',n:'Suíça'},
+  {c:'DEN',f:'🇩🇰',n:'Dinamarca'},
+  {c:'SWE',f:'🇸🇪',n:'Suécia'},
+  {c:'NOR',f:'🇳🇴',n:'Noruega'},
+  {c:'AUT',f:'🇦🇹',n:'Áustria'},
+  {c:'SRB',f:'🇷🇸',n:'Sérvia'},
+  {c:'POL',f:'🇵🇱',n:'Polónia'},
+  {c:'SCO',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',n:'Escócia'},
+  {c:'WAL',f:'🏴󠁧󠁢󠁷󠁬󠁳󠁿',n:'País de Gales'},
+  {c:'TUR',f:'🇹🇷',n:'Turquia'},
+  {c:'GRE',f:'🇬🇷',n:'Grécia'},
+  {c:'HUN',f:'🇭🇺',n:'Hungria'},
+  {c:'ROM',f:'🇷🇴',n:'Roménia'},
+  {c:'CZE',f:'🇨🇿',n:'República Checa'},
+  {c:'SVK',f:'🇸🇰',n:'Eslováquia'},
+  {c:'BUL',f:'🇧🇬',n:'Bulgária'},
+  {c:'RUS',f:'🇷🇺',n:'Rússia'},
+  {c:'UKR',f:'🇺🇦',n:'Ucrânia'},
+  {c:'IRL',f:'🇮🇪',n:'Irlanda'},
+  {c:'SVN',f:'🇸🇮',n:'Eslovénia'},
+  {c:'ISL',f:'🇮🇸',n:'Islândia'},
+  {c:'BIH',f:'🇧🇦',n:'Bósnia-Herzegovina'},
+  {c:'ISR',f:'🇮🇱',n:'Israel'},
+  // AMÉRICAS
+  {c:'USA',f:'🇺🇸',n:'Estados Unidos'},
+  {c:'MEX',f:'🇲🇽',n:'México'},
+  {c:'CAN',f:'🇨🇦',n:'Canadá'},
+  {c:'COL',f:'🇨🇴',n:'Colômbia'},
+  {c:'ECU',f:'🇪🇨',n:'Equador'},
+  {c:'CHI',f:'🇨🇱',n:'Chile'},
+  {c:'PAR',f:'🇵🇾',n:'Paraguai'},
+  {c:'BOL',f:'🇧🇴',n:'Bolívia'},
+  {c:'PER',f:'🇵🇪',n:'Peru'},
+  {c:'CRC',f:'🇨🇷',n:'Costa Rica'},
+  {c:'PAN',f:'🇵🇦',n:'Panamá'},
+  {c:'HON',f:'🇭🇳',n:'Honduras'},
+  {c:'SLV',f:'🇸🇻',n:'El Salvador'},
+  {c:'HAI',f:'🇭🇹',n:'Haiti'},
+  {c:'JAM',f:'🇯🇲',n:'Jamaica'},
+  {c:'TRI',f:'🇹🇹',n:'Trinidad e Tobago'},
+  {c:'CUB',f:'🇨🇺',n:'Cuba'},
+  // ÁFRICA
+  {c:'MAR',f:'🇲🇦',n:'Marrocos'},
+  {c:'SEN',f:'🇸🇳',n:'Senegal'},
+  {c:'NGA',f:'🇳🇬',n:'Nigéria'},
+  {c:'CMR',f:'🇨🇲',n:'Camarões'},
+  {c:'GHA',f:'🇬🇭',n:'Gana'},
+  {c:'CIV',f:'🇨🇮',n:'Costa do Marfim'},
+  {c:'EGY',f:'🇪🇬',n:'Egito'},
+  {c:'ALG',f:'🇩🇿',n:'Argélia'},
+  {c:'TUN',f:'🇹🇳',n:'Tunísia'},
+  {c:'RSA',f:'🇿🇦',n:'África do Sul'},
+  {c:'ANG',f:'🇦🇴',n:'Angola'},
+  {c:'TOG',f:'🇹🇬',n:'Togo'},
+  {c:'COD',f:'🇨🇩',n:'República Democrática do Congo'},
+  // ÁSIA & OCEÂNIA
+  {c:'JPN',f:'🇯🇵',n:'Japão'},
+  {c:'KOR',f:'🇰🇷',n:'Coreia do Sul'},
+  {c:'IRN',f:'🇮🇷',n:'Irão'},
+  {c:'SAU',f:'🇸🇦',n:'Arábia Saudita'},
+  {c:'AUS',f:'🇦🇺',n:'Austrália'},
+  {c:'IRQ',f:'🇮🇶',n:'Iraque'},
+  {c:'KUW',f:'🇰🇼',n:'Kuwait'},
+  {c:'CHN',f:'🇨🇳',n:'China'},
+  {c:'UAE',f:'🇦🇪',n:'Emirados Árabes'},
+  {c:'QAT',f:'🇶🇦',n:'Qatar'},
+  {c:'PRK',f:'🇰🇵',n:'Coreia do Norte'},
+  {c:'IDN',f:'🇮🇩',n:'Indonésia'},
+  {c:'NZL',f:'🇳🇿',n:'Nova Zelândia'},
+  {c:'JOR',f:'🇯🇴',n:'Jordânia'}
+];
+
+(function() {
+  var grid = document.getElementById('selecao-grid');
+  var inp  = document.getElementById('selecao-search');
+  var nenhum = document.getElementById('selecao-nenhum');
+
+  function card(s) {
+    return '<div class="prod-card" data-nome="' + s.n.toLowerCase() + '" data-code="' + s.c + '">' +
+      '<div class="prod-card__top">' +
+        '<span class="prod-card__tag">GUIA SELEÇÃO</span>' +
+        '<span class="prod-card__price">€9,99</span>' +
+      '</div>' +
+      '<h2 class="prod-card__title" style="font-size:1rem;">' + s.f + ' ' + s.n + '</h2>' +
+      '<p class="prod-card__desc">História, lendas e análise completa para a Copa 2026.</p>' +
+      '<a href="/ebook/iniciar/' + s.c + '" class="prod-card__btn prod-card__btn--gold">' +
+        'Comprar — €9,99' +
+      '</a>' +
+    '</div>';
+  }
+
+  grid.innerHTML = SELECOES.map(card).join('');
+
+  inp.addEventListener('input', function() {
+    var q = inp.value.toLowerCase().trim();
+    var cards = grid.querySelectorAll('.prod-card');
+    var visible = 0;
+    cards.forEach(function(el) {
+      var match = !q || el.dataset.nome.includes(q) || el.dataset.code.toLowerCase().includes(q);
+      el.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    nenhum.style.display = visible === 0 ? 'block' : 'none';
+  });
+}());
+
 (function(){
     var btn = document.getElementById('loja-nav-toggle');
     var nav = btn && btn.closest('nav');

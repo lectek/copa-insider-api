@@ -96,9 +96,16 @@ public class SiteController {
 
     @GetMapping("/")
     public String landing(Model model, Locale locale) {
+        // Exclui guias individuais por seleção (selecaoCode != null) — têm secção própria na loja
+        // O produto genérico 'guia-selecao' fica marcado como categoriaComMultiplos=true
         List<CopaProdutoVM> produtos = produtoRepo.findByAtivoTrueOrderByOrdemAsc()
                 .stream()
-                .map(p -> toVM(p, locale, false, 1))
+                .filter(p -> p.getSelecaoCode() == null)
+                .map(p -> {
+                    boolean multi = p.getTipo() != null &&
+                            "GUIA_SELECAO".equals(p.getTipo().name());
+                    return toVM(p, locale, multi, 1L);
+                })
                 .toList();
         model.addAttribute("produtos", produtos);
         return "pages/site/landing";
