@@ -48,6 +48,9 @@ public class EbookPedidoEntity {
     @Column(nullable = false, length = 30)
     private EbookStatus status;
 
+    @Column(nullable = false)
+    private int progresso = 0;
+
     @Column(name = "criado_em", nullable = false, updatable = false)
     private Instant criadoEm;
 
@@ -75,6 +78,11 @@ public class EbookPedidoEntity {
 
     public void marcarGerando() {
         this.status = EbookStatus.GERANDO;
+        this.progresso = 10;
+    }
+
+    public void atualizarProgresso(int progresso) {
+        this.progresso = progresso;
     }
 
     public void marcarPronto(String pdfCaminho, String downloadToken) {
@@ -82,6 +90,7 @@ public class EbookPedidoEntity {
         this.downloadToken = downloadToken;
         this.status = EbookStatus.PRONTO;
         this.geradoEm = Instant.now();
+        this.progresso = 100;
     }
 
     public void marcarErro() {
@@ -98,6 +107,7 @@ public class EbookPedidoEntity {
     public String getPdfCaminho()       { return pdfCaminho; }
     public String getDownloadToken()    { return downloadToken; }
     public EbookStatus getStatus()      { return status; }
+    public int getProgresso()           { return progresso; }
     public Instant getCriadoEm()        { return criadoEm; }
     public Instant getGeradoEm()        { return geradoEm; }
 }

@@ -73,6 +73,11 @@
       border-top-color: #64b5f6; border-radius: 50%; animation: spin .8s linear infinite; margin-right: .35rem; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    .progress-track { width: 140px; height: 6px; background: rgba(255,255,255,.08);
+      border-radius: 4px; overflow: hidden; margin-top: .4rem; }
+    .progress-fill { height: 100%; background: #64b5f6; border-radius: 4px; transition: width .5s ease; }
+    .progress-label { font-size: .75rem; color: #9090a8; margin-top: .3rem; text-align: right; }
+
     @media (max-width: 640px) {
       .nav-links { display: none; }
       .ebook-card { flex-wrap: wrap; }
@@ -134,6 +139,10 @@
           <!-- GERANDO -->
           <th:block th:if="${p.status.name() == 'GERANDO'}">
             <span class="badge badge--gerando"><span class="spinner"></span> A gerar...</span>
+            <div class="progress-track">
+              <div class="progress-fill" data-progresso-fill th:style="'width:' + ${p.progresso} + '%'"></div>
+            </div>
+            <div class="progress-label" data-progresso-label th:text="${p.progresso} + '%'">10%</div>
             <span style="font-size:.8rem;color:#9090a8;">Receberás um email quando estiver pronto</span>
           </th:block>
 
@@ -173,20 +182,25 @@
 </footer>
 
 <script>
-  // Polling: atualiza automaticamente os cartões em estado GERANDO
+  // Polling: atualiza automaticamente os cartões em estado GERANDO/PENDENTE
   document.querySelectorAll('[data-status="GERANDO"], [data-status="PENDENTE"]').forEach(function(card) {
     var transacao = card.dataset.transacao;
     var interval = setInterval(function() {
       fetch('/ebook/status/' + transacao)
         .then(function(r) { return r.json(); })
         .then(function(data) {
-          if (data.status === 'PRONTO') {
+          if (data.status === 'PRONTO' || data.status === 'ERRO') {
             clearInterval(interval);
             window.location.reload();
+            return;
           }
+          var fill  = card.querySelector('[data-progresso-fill]');
+          var label = card.querySelector('[data-progresso-label]');
+          if (fill && data.progresso)  fill.style.width = data.progresso + '%';
+          if (label && data.progresso) label.textContent = data.progresso + '%';
         })
         .catch(function() { clearInterval(interval); });
-    }, 8000);
+    }, 4000);
   });
 </script>
 

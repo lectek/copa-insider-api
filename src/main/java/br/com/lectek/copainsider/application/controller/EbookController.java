@@ -51,7 +51,7 @@ public class EbookController {
     }
 
     // ── Rota intermédia: guarda a seleção em cookie e redireciona para Hotmart ─
-    // Contas dev/admin saltam o Hotmart e disparam a geração directamente.
+    // Contas dev/admin saltam o Hotmart e vão directas para a escolha de idioma.
 
     @GetMapping("/iniciar/{selecaoCode}")
     public String iniciarCheckout(@PathVariable String selecaoCode,
@@ -59,24 +59,25 @@ public class EbookController {
                                    Authentication auth) {
         String code = selecaoCode.toUpperCase();
 
-        if (acessoService.isContaDev()) {
-            String email = extrairEmail(auth);
-            if (email != null) {
-                String transacao = "DEV-" + code + "-" + java.util.UUID.randomUUID();
-                var pedido = geracaoService.registrarPedido(
-                        transacao, email, extrairNome(auth), code, nomeSelecao(code), "pt-BR");
-                geracaoService.gerarAsync(pedido.getId());
-                log.info("[ebook] geração dev disparada — email={} selecao={} transacao={}", email, code, transacao);
-                return "redirect:/ebook/meus-ebooks";
-            }
-        }
-
         Cookie cookie = new Cookie(COOKIE_SELECAO, code);
         cookie.setPath("/");
         cookie.setMaxAge(7200);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         response.addCookie(cookie);
+
+        if (acessoService.isContaDev()) {
+            String email = extrairEmail(auth);
+            if (email != null) {
+                String transacao = "DEV-" + code + "-" + java.util.UUID.randomUUID();
+                // Regista sem idioma (AGUARDANDO_SELECAO) — o próprio cliente escolhe
+                // o idioma no formulário /ebook/selecionar/{transacao}, tal como um
+                // comprador normal; a seleção já vem pré-preenchida pelo cookie acima.
+                geracaoService.registrarPedido(transacao, email, extrairNome(auth), null, null, null);
+                log.info("[ebook] pedido dev registado — email={} selecao={} transacao={}", email, code, transacao);
+                return "redirect:/ebook/selecionar/" + transacao;
+            }
+        }
 
         if (hotmartUrl != null && !hotmartUrl.isBlank()) {
             return "redirect:" + hotmartUrl;
@@ -207,6 +208,7 @@ public class EbookController {
 
         Map<String, String> resp = new java.util.HashMap<>();
         resp.put("status", pedido.getStatus().name());
+        resp.put("progresso", String.valueOf(pedido.getProgresso()));
         if (downloadUrl != null) resp.put("downloadUrl", downloadUrl);
         return ResponseEntity.ok(resp);
     }

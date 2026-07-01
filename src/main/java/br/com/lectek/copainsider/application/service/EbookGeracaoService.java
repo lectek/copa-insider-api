@@ -108,9 +108,16 @@ public class EbookGeracaoService {
 
         try {
             SelecaoDataResult dados  = aggregator.agregar(pedido.getSelecaoCode(), pedido.getIdioma());
-            EbookConteudo     conteudo = templateEngine.gerar(dados, pedido.getIdioma());
+            pedido.atualizarProgresso(50);
+            repository.save(pedido);
+
+            EbookConteudo conteudo = templateEngine.gerar(dados, pedido.getIdioma());
+            pedido.atualizarProgresso(75);
+            repository.save(pedido);
+
             String token   = UUID.randomUUID().toString().replace("-", "");
             String caminho = pdfBuilder.construir(conteudo, token, storageDir);
+            pedido.atualizarProgresso(95);
 
             pedido.marcarPronto(caminho, token);
             repository.save(pedido);
