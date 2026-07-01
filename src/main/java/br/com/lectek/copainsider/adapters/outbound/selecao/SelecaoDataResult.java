@@ -36,7 +36,8 @@ public class SelecaoDataResult {
             int copas,
             String momentoMarcante,
             String legado,
-            String biografia
+            String biografia,
+            String fotoUrl
     ) {}
 
     public record Partida(
@@ -61,7 +62,8 @@ public class SelecaoDataResult {
             String clube,
             String posicao,
             int idade,
-            String descricao
+            String descricao,
+            String fotoUrl
     ) {}
 
     public String getSelecaoCode()              { return selecaoCode; }

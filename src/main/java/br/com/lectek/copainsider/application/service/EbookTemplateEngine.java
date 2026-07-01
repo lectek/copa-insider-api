@@ -31,6 +31,7 @@ public class EbookTemplateEngine {
             dados.getCorPrimaria(),
             dados.getCorSecundaria(),
             EbookTextos.fraseCapa(est.eCampeao(), idioma),
+            dados.getLogoUrl(),
             gerarAlmaSeleção(est, dados, idioma),
             gerarLendas(est, dados),
             gerarPartidas(est),
@@ -71,11 +72,14 @@ public class EbookTemplateEngine {
         List<SelecaoDataResult.Lenda> lendasApi = dados.getLendas() != null ? dados.getLendas() : List.of();
 
         for (String nomeLenda : est.legendas()) {
-            String bio = lendasApi.stream()
+            SelecaoDataResult.Lenda match = lendasApi.stream()
                     .filter(l -> nomeLenda.equalsIgnoreCase(l.nome()))
                     .findFirst()
-                    .map(l -> l.biografia().isBlank() ? l.legado() : l.biografia())
-                    .orElse("");
+                    .orElse(null);
+
+            String bio = match != null
+                    ? (match.biografia().isBlank() ? match.legado() : match.biografia())
+                    : "";
 
             // Fallback: usar tom emocional da seleção se não há bio
             if (bio.isBlank()) {
@@ -84,8 +88,9 @@ public class EbookTemplateEngine {
                         : nomeLenda + " -- uma lenda desta selecao.";
             }
 
-            lendas.add(new EbookConteudo.Lenda(nomeLenda, "", bio, ""));
-            if (lendas.size() >= 4) break; // máximo 4 lendas por ebook
+            String fotoUrl = match != null ? match.fotoUrl() : null;
+            lendas.add(new EbookConteudo.Lenda(nomeLenda, "", bio, "", fotoUrl));
+            if (lendas.size() >= 6) break; // até 6 lendas por ebook
         }
         return lendas;
     }
@@ -111,7 +116,8 @@ public class EbookTemplateEngine {
                         j.nome(),
                         j.clube(),
                         j.posicao(),
-                        EbookTextos.descricaoGuerreiro(j.nome(), j.posicao(), j.clube(), idioma)))
+                        EbookTextos.descricaoGuerreiro(j.nome(), j.posicao(), j.clube(), idioma),
+                        j.fotoUrl()))
                 .toList();
     }
 }

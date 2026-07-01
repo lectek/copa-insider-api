@@ -9,6 +9,7 @@ public record EbookConteudo(
         String corPrimaria,
         String corSecundaria,
         String fraseCapa,
+        String logoUrl,
         String almaSeleção,
         List<Lenda> lendas,
         List<PartidaHistorica> partidas,
@@ -19,7 +20,7 @@ public record EbookConteudo(
         String sabiaque,
         String manifestoTorcedor
 ) {
-    public record Lenda(String nome, String apelido, String bioNarrativa, String legado) {}
+    public record Lenda(String nome, String apelido, String bioNarrativa, String legado, String fotoUrl) {}
     public record PartidaHistorica(String titulo, String adversario, String placar, String data, String narrativa) {}
-    public record Guerreiro(String nome, String clube, String posicao, String descricao) {}
+    public record Guerreiro(String nome, String clube, String posicao, String descricao, String fotoUrl) {}
 }

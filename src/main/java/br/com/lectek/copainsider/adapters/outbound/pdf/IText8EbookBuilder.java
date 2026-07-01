@@ -2,17 +2,27 @@ package br.com.lectek.copainsider.adapters.outbound.pdf;
 
 import br.com.lectek.copainsider.application.service.EbookConteudo;
 import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.events.Event;
+import com.itextpdf.kernel.events.IEventHandler;
+import com.itextpdf.kernel.events.PdfDocumentEvent;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.AreaBreak;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.AreaBreakType;
+import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +30,22 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 @Component
 public class IText8EbookBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(IText8EbookBuilder.class);
     private static final String SEP = "  --  ";
+    private static final String RODAPE_MARCA = "Copa Insider  --  Copa do Mundo 2026";
+
+    private final HttpClient imagemHttpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(3))
+            .build();
 
     public String construir(EbookConteudo conteudo, String token, String storageDir) throws IOException {
         File dir = new File(storageDir);
@@ -40,52 +60,55 @@ public class IText8EbookBuilder {
         DeviceRgb corSecundaria = parseHex(conteudo.corSecundaria(), 255, 215,  0);
 
         try (PdfWriter writer = new PdfWriter(caminho);
-             PdfDocument pdf  = new PdfDocument(writer);
-             Document doc     = new Document(pdf, PageSize.A4)) {
+             PdfDocument pdf  = new PdfDocument(writer)) {
 
-            doc.setMargins(60, 60, 60, 60);
+            pdf.addEventHandler(PdfDocumentEvent.END_PAGE, new RodapeHandler(pdf));
 
-            PdfFont fonteTitulo  = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-            PdfFont fonteTexto   = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-            PdfFont fonteItalico = PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE);
+            try (Document doc = new Document(pdf, PageSize.A4)) {
+                doc.setMargins(60, 60, 60, 60);
 
-            adicionarCapa(doc, conteudo, fonteTitulo, fonteItalico, corPrimaria, corSecundaria);
+                PdfFont fonteTitulo  = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+                PdfFont fonteTexto   = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+                PdfFont fonteItalico = PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE);
 
-            adicionarSecao(doc, "A Alma da Selecao",
-                    conteudo.almaSeleção(), fonteTitulo, fonteTexto, corPrimaria);
+                adicionarCapa(doc, conteudo, fonteTitulo, fonteItalico, corPrimaria, corSecundaria);
 
-            if (!conteudo.lendas().isEmpty()) {
-                adicionarTituloSecao(doc, "As Lendas Imortais", fonteTitulo, corPrimaria);
-                for (EbookConteudo.Lenda lenda : conteudo.lendas()) {
-                    adicionarLenda(doc, lenda, fonteTitulo, fonteTexto, fonteItalico, corPrimaria);
+                adicionarSecao(doc, "A Alma da Selecao",
+                        conteudo.almaSeleção(), fonteTitulo, fonteTexto, corPrimaria);
+
+                if (!conteudo.lendas().isEmpty()) {
+                    adicionarTituloSecao(doc, "As Lendas Imortais", fonteTitulo, corPrimaria);
+                    for (EbookConteudo.Lenda lenda : conteudo.lendas()) {
+                        adicionarLenda(doc, lenda, fonteTitulo, fonteTexto, fonteItalico, corPrimaria);
+                    }
                 }
-            }
 
-            if (!conteudo.partidas().isEmpty()) {
-                adicionarTituloSecao(doc, "As Partidas que Pararam o Mundo", fonteTitulo, corPrimaria);
-                for (EbookConteudo.PartidaHistorica partida : conteudo.partidas()) {
-                    adicionarPartida(doc, partida, fonteTitulo, fonteTexto, corPrimaria);
+                if (!conteudo.partidas().isEmpty()) {
+                    adicionarTituloSecao(doc, "As Partidas que Pararam o Mundo", fonteTitulo, corPrimaria);
+                    for (EbookConteudo.PartidaHistorica partida : conteudo.partidas()) {
+                        adicionarPartida(doc, partida, fonteTitulo, fonteTexto, corPrimaria);
+                    }
                 }
-            }
 
-            adicionarSecao(doc, "A Historia nas Copas",
-                    conteudo.historiaCopas(), fonteTitulo, fonteTexto, corPrimaria);
+                adicionarSecao(doc, "A Historia nas Copas",
+                        conteudo.historiaCopas(), fonteTitulo, fonteTexto, corPrimaria);
 
-            if (!conteudo.guerreirosHoje().isEmpty()) {
-                adicionarTituloSecao(doc, "Os Guerreiros de Hoje", fonteTitulo, corPrimaria);
-                for (EbookConteudo.Guerreiro guerreiro : conteudo.guerreirosHoje()) {
-                    adicionarGuerreiro(doc, guerreiro, fonteTitulo, fonteTexto, corPrimaria);
+                if (!conteudo.guerreirosHoje().isEmpty()) {
+                    adicionarTituloSecao(doc, "Os Guerreiros de Hoje", fonteTitulo, corPrimaria);
+                    for (EbookConteudo.Guerreiro guerreiro : conteudo.guerreirosHoje()) {
+                        adicionarGuerreiro(doc, guerreiro, fonteTitulo, fonteTexto, corPrimaria);
+                    }
                 }
+
+                adicionarSecao(doc, "A Copa 2026 que Esta por Vir",
+                        conteudo.copa2026(), fonteTitulo, fonteTexto, corPrimaria);
+
+                adicionarEmNumeros(doc, conteudo.emNumeros(), fonteTitulo, fonteTexto, corPrimaria, corSecundaria);
+
+                adicionarSabiaque(doc, conteudo.sabiaque(), fonteTitulo, fonteItalico, corPrimaria);
+
+                adicionarManifesto(doc, conteudo, fonteTitulo, fonteItalico, corPrimaria);
             }
-
-            adicionarSecao(doc, "A Copa 2026 que Esta por Vir",
-                    conteudo.copa2026(), fonteTitulo, fonteTexto, corPrimaria);
-
-            adicionarEmNumeros(doc, conteudo.emNumeros(), fonteTitulo, fonteTexto, corPrimaria, corSecundaria);
-
-            adicionarSabiaque(doc, conteudo.sabiaque(), fonteTitulo, fonteItalico, corPrimaria);
-
-            adicionarManifesto(doc, conteudo, fonteTitulo, fonteItalico, corPrimaria);
         }
 
         log.info("[pdf] ebook gerado — {}", caminho);
@@ -97,7 +120,16 @@ public class IText8EbookBuilder {
     private void adicionarCapa(Document doc, EbookConteudo c,
                                 PdfFont fonteTitulo, PdfFont fonteItalico,
                                 DeviceRgb corPrimaria, DeviceRgb corSecundaria) {
-        doc.add(new Paragraph("\n\n\n\n"));
+        doc.add(new Paragraph("\n\n"));
+
+        Image escudo = carregarImagem(c.logoUrl(), 110, 110);
+        if (escudo != null) {
+            escudo.setHorizontalAlignment(HorizontalAlignment.CENTER);
+            doc.add(escudo);
+            doc.add(new Paragraph("\n"));
+        } else {
+            doc.add(new Paragraph("\n\n"));
+        }
 
         doc.add(new Paragraph("GUIA DA SELECAO")
                 .setFont(fonteTitulo).setFontSize(14)
@@ -126,7 +158,7 @@ public class IText8EbookBuilder {
         }
 
         doc.add(new Paragraph("\n\n\n\n\n\n\n"));
-        doc.add(new Paragraph("Copa Insider  --  Copa do Mundo 2026")
+        doc.add(new Paragraph(RODAPE_MARCA)
                 .setFont(fonteItalico).setFontSize(10)
                 .setFontColor(new DeviceRgb(120, 120, 120))
                 .setTextAlignment(TextAlignment.CENTER));
@@ -164,6 +196,12 @@ public class IText8EbookBuilder {
                                  DeviceRgb cor) {
         if (lenda.nome().isBlank()) return;
 
+        Image foto = carregarImagem(lenda.fotoUrl(), 60, 60);
+        if (foto != null) {
+            foto.setMarginTop(16);
+            doc.add(foto);
+        }
+
         Paragraph nomePara = new Paragraph();
         nomePara.add(new Text(lenda.nome()).setFont(fonteTitulo).setFontSize(14).setFontColor(cor));
         if (!lenda.apelido().isBlank()) {
@@ -171,7 +209,9 @@ public class IText8EbookBuilder {
                     .setFont(fonteItalico).setFontSize(12)
                     .setFontColor(new DeviceRgb(80, 80, 80)));
         }
-        doc.add(nomePara.setMarginTop(16).setMarginBottom(6));
+        nomePara.setMarginBottom(6);
+        nomePara.setMarginTop(foto != null ? 6 : 16);
+        doc.add(nomePara);
 
         if (!lenda.bioNarrativa().isBlank()) {
             doc.add(new Paragraph(lenda.bioNarrativa())
@@ -216,6 +256,12 @@ public class IText8EbookBuilder {
 
     private void adicionarGuerreiro(Document doc, EbookConteudo.Guerreiro g,
                                      PdfFont fonteTitulo, PdfFont fonteTexto, DeviceRgb cor) {
+        Image foto = carregarImagem(g.fotoUrl(), 60, 60);
+        if (foto != null) {
+            foto.setMarginTop(14);
+            doc.add(foto);
+        }
+
         Paragraph titulo = new Paragraph();
         titulo.add(new Text(g.nome()).setFont(fonteTitulo).setFontSize(13).setFontColor(cor));
         if (g.clube() != null && !g.clube().isBlank()) {
@@ -223,7 +269,9 @@ public class IText8EbookBuilder {
                     .setFont(fonteTexto).setFontSize(11)
                     .setFontColor(new DeviceRgb(80, 80, 80)));
         }
-        doc.add(titulo.setMarginTop(14).setMarginBottom(4));
+        titulo.setMarginBottom(4);
+        titulo.setMarginTop(foto != null ? 4 : 14);
+        doc.add(titulo);
 
         if (!g.descricao().isBlank()) {
             doc.add(new Paragraph(g.descricao())
@@ -294,13 +342,76 @@ public class IText8EbookBuilder {
         }
 
         doc.add(new Paragraph("\n\n\n"));
-        doc.add(new Paragraph("Copa Insider  --  Copa do Mundo 2026  --  " + conteudo.selecaoNome())
+        doc.add(new Paragraph(RODAPE_MARCA + SEP + conteudo.selecaoNome())
                 .setFont(fonteItalico).setFontSize(9)
                 .setFontColor(new DeviceRgb(150, 150, 150))
                 .setTextAlignment(TextAlignment.CENTER));
     }
 
+    // ── Rodapé com numeração de páginas (todas as páginas exceto a capa) ────────
+
+    private final class RodapeHandler implements IEventHandler {
+        private final PdfDocument pdf;
+
+        private RodapeHandler(PdfDocument pdf) {
+            this.pdf = pdf;
+        }
+
+        @Override
+        public void handleEvent(Event event) {
+            PdfDocumentEvent docEvent = (PdfDocumentEvent) event;
+            PdfPage page = docEvent.getPage();
+            int numero = pdf.getPageNumber(page);
+            if (numero <= 1) return; // capa tem o seu próprio rodapé
+
+            Rectangle tamanho = page.getPageSize();
+            PdfCanvas canvas = new PdfCanvas(page);
+            try {
+                PdfFont fonte = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+                canvas.beginText()
+                        .setFontAndSize(fonte, 8)
+                        .setColor(new DeviceRgb(150, 150, 150), true)
+                        .moveText(60, 30)
+                        .showText(RODAPE_MARCA)
+                        .endText();
+                canvas.beginText()
+                        .setFontAndSize(fonte, 8)
+                        .setColor(new DeviceRgb(150, 150, 150), true)
+                        .moveText(tamanho.getWidth() - 80, 30)
+                        .showText(String.valueOf(numero))
+                        .endText();
+            } catch (IOException e) {
+                log.debug("[pdf] falha ao desenhar rodape: {}", e.getMessage());
+            } finally {
+                canvas.release();
+            }
+        }
+    }
+
     // ── Utilitários ───────────────────────────────────────────────────────────
+
+    private Image carregarImagem(String url, float largura, float altura) {
+        if (url == null || url.isBlank()) return null;
+        try {
+            HttpRequest req = HttpRequest.newBuilder(URI.create(url))
+                    .timeout(Duration.ofSeconds(4))
+                    .GET()
+                    .build();
+            HttpResponse<byte[]> resp = imagemHttpClient.send(req, HttpResponse.BodyHandlers.ofByteArray());
+            if (resp.statusCode() != 200) {
+                log.debug("[pdf] imagem indisponivel ({}) — {}", resp.statusCode(), url);
+                return null;
+            }
+            ImageData dados = ImageDataFactory.create(resp.body());
+            return new Image(dados).setWidth(largura).setHeight(altura);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        } catch (Exception e) {
+            log.debug("[pdf] falha ao carregar imagem '{}': {}", url, e.getMessage());
+            return null;
+        }
+    }
 
     private DeviceRgb parseHex(String hex, int rDef, int gDef, int bDef) {
         try {

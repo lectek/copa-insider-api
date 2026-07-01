@@ -2,12 +2,19 @@ package br.com.lectek.copainsider.adapters.outbound.selecao;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class WikipediaClient {
@@ -69,7 +76,15 @@ public class WikipediaClient {
     private final WebClient webClient;
 
     public WikipediaClient(WebClient.Builder builder) {
-        this.webClient = builder.build();
+        HttpClient httpClient = HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3_000)
+                .responseTimeout(Duration.ofSeconds(6))
+                .doOnConnected(conn -> conn
+                        .addHandlerLast(new ReadTimeoutHandler(6, TimeUnit.SECONDS))
+                        .addHandlerLast(new WriteTimeoutHandler(6, TimeUnit.SECONDS)));
+        this.webClient = builder.clone()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
     }
 
     public String buscarResumo(String selecaoCode, String idioma) {

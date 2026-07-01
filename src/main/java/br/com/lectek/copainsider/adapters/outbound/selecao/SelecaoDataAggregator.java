@@ -1,11 +1,16 @@
 package br.com.lectek.copainsider.adapters.outbound.selecao;
 
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class SelecaoDataAggregator {
@@ -31,10 +36,25 @@ public class SelecaoDataAggregator {
 
     private final TheSportsDBClient sportsDBClient;
     private final WikipediaClient wikipediaClient;
+    private final ExecutorService ioExecutor = Executors.newFixedThreadPool(8,
+            r -> new Thread(r, "selecao-data-io"));
 
     public SelecaoDataAggregator(TheSportsDBClient sportsDBClient, WikipediaClient wikipediaClient) {
         this.sportsDBClient = sportsDBClient;
         this.wikipediaClient = wikipediaClient;
+    }
+
+    @PreDestroy
+    void shutdown() {
+        ioExecutor.shutdown();
+        try {
+            if (!ioExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                ioExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            ioExecutor.shutdownNow();
+        }
     }
 
     public SelecaoDataResult agregar(String selecaoCode, String idioma) {
@@ -51,16 +71,22 @@ public class SelecaoDataAggregator {
         result.setCorPrimaria(meta[2]);
         result.setCorSecundaria(meta[3]);
 
-        // TheSportsDB — dados da equipa
-        TheSportsDBClient.TeamInfo teamInfo = sportsDBClient.buscarEquipa(code);
+        // As três chamadas iniciais são independentes entre si — correm em paralelo
+        CompletableFuture<TheSportsDBClient.TeamInfo> teamInfoF =
+                CompletableFuture.supplyAsync(() -> sportsDBClient.buscarEquipa(code), ioExecutor);
+        CompletableFuture<String> wikiResumoF =
+                CompletableFuture.supplyAsync(() -> wikipediaClient.buscarResumo(code, idioma), ioExecutor);
+        CompletableFuture<List<TheSportsDBClient.Player>> jogadoresF =
+                CompletableFuture.supplyAsync(() -> sportsDBClient.buscarJogadores(code), ioExecutor);
+
+        TheSportsDBClient.TeamInfo teamInfo = teamInfoF.join();
         result.setSelecaoNome(teamInfo.nome() != null ? teamInfo.nome() : code);
         result.setLogoUrl(teamInfo.logoUrl());
         if (teamInfo.descricao() != null && !teamInfo.descricao().isBlank()) {
             result.setHistoriaFundacao(teamInfo.descricao());
         }
 
-        // Wikipedia — história e significado cultural
-        String wikiResumo = wikipediaClient.buscarResumo(code, idioma);
+        String wikiResumo = wikiResumoF.join();
         if (!wikiResumo.isBlank()) {
             if (result.getHistoriaFundacao() == null) {
                 result.setHistoriaFundacao(wikiResumo);
@@ -69,7 +95,7 @@ public class SelecaoDataAggregator {
         }
 
         // Jogadores — filtra lendas (sem clube atual = aposentado) e ativos
-        List<TheSportsDBClient.Player> jogadores = sportsDBClient.buscarJogadores(code);
+        List<TheSportsDBClient.Player> jogadores = jogadoresF.join();
 
         List<SelecaoDataResult.JogadorAtual> atuais = jogadores.stream()
                 .filter(p -> p.strPlayer() != null)
@@ -80,26 +106,32 @@ public class SelecaoDataAggregator {
                         p.strPosition() != null ? p.strPosition() : "",
                         0,
                         p.strDescriptionPT() != null ? p.strDescriptionPT()
-                                : (p.strDescriptionEN() != null ? p.strDescriptionEN() : "")
+                                : (p.strDescriptionEN() != null ? p.strDescriptionEN() : ""),
+                        p.strThumb()
                 ))
                 .toList();
         result.setJogadoresAtuais(atuais);
 
-        // Lendas — usamos os primeiros jogadores com biografia para construir o perfil
-        List<SelecaoDataResult.Lenda> lendas = jogadores.stream()
+        // Lendas — biografias da Wikipedia buscadas em paralelo (até 8 chamadas concorrentes)
+        List<TheSportsDBClient.Player> candidatosLenda = jogadores.stream()
                 .filter(p -> p.strPlayer() != null)
                 .filter(p -> p.strDescriptionEN() != null || p.strDescriptionPT() != null)
                 .limit(8)
-                .map(p -> {
+                .toList();
+
+        List<CompletableFuture<SelecaoDataResult.Lenda>> lendaFutures = candidatosLenda.stream()
+                .map(p -> CompletableFuture.supplyAsync(() -> {
                     String bio = wikipediaClient.buscarResumoJogador(p.strPlayer(), idioma);
                     String desc = p.strDescriptionPT() != null ? p.strDescriptionPT()
                             : (p.strDescriptionEN() != null ? p.strDescriptionEN() : "");
                     return new SelecaoDataResult.Lenda(
                             p.strPlayer(), "", p.strPosition() != null ? p.strPosition() : "",
-                            "", 0, 0, 0, "", bio.isBlank() ? desc : bio, bio.isBlank() ? desc : bio
+                            "", 0, 0, 0, "", bio.isBlank() ? desc : bio, bio.isBlank() ? desc : bio,
+                            p.strThumb()
                     );
-                })
+                }, ioExecutor))
                 .toList();
+        List<SelecaoDataResult.Lenda> lendas = lendaFutures.stream().map(CompletableFuture::join).toList();
         result.setLendas(lendas);
 
         // Partidas e Copas — ficam vazias aqui; Claude enriquece com o seu conhecimento
