@@ -100,6 +100,9 @@ public class IText8EbookBuilder {
                     }
                 }
 
+                adicionarSecao(doc, "Rumo a 2026 — A Equipa Atual",
+                        conteudo.equipaAtual(), fonteTitulo, fonteTexto, corPrimaria);
+
                 adicionarSecao(doc, "A Copa 2026 que Esta por Vir",
                         conteudo.copa2026(), fonteTitulo, fonteTexto, corPrimaria);
 

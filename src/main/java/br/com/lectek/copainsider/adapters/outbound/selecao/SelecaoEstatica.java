@@ -16,7 +16,10 @@ public record SelecaoEstatica(
         String autorCitacao,
         boolean anfitriao2026,
         List<String> legendas,
-        List<PartidaRef> partidas
+        List<PartidaRef> partidas,
+        String treinadorAtual,
+        String estiloTaticoAtual,
+        String historiaRecente
 ) {
     public record PartidaRef(String titulo, String adversario, String placar, String ano, String narrativa) {}
 

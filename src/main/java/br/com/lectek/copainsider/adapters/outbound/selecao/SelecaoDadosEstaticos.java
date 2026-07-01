@@ -43,6 +43,7 @@ public class SelecaoDadosEstaticos {
                     "O jornalista Nélson Rodrigues chamaria a este momento 'a nossa Hiroshima'."
                 )
             )
+            , "Carlo Ancelotti", "O treinador italiano trouxe uma gestao mais flexivel ao elenco estrelado, com uma equipa mais compacta e bem posicionada taticamente.", "Depois de um inicio dificil na Copa do Mundo de 2026, o Brasil reagiu com duas vitorias seguidas e liderou o Grupo C, com Neymar de volta a selecao apos quase tres anos de ausencia."
         ));
 
         // ── ARGENTINA ──────────────────────────────────────────────────────────
@@ -71,6 +72,7 @@ public class SelecaoDadosEstaticos {
                     "Messi, aos 35 anos, chorava abraçado ao troféu. A Argentina era tricampeã do mundo."
                 )
             )
+            , "Lionel Scaloni", "Scaloni comanda a Argentina ha sete anos com um 4-3-3 fluido, dominio do meio-campo e rotacoes posicionais constantes na construcao de jogo.", "Campea do Mundo em 2022 e bicampea da Copa America, a Argentina chegou a Copa 2026 como numero um do ranking FIFA e venceu o seu grupo com 100% de aproveitamento, com Messi ainda em acao pela selecao."
         ));
 
         // ── FRANÇA ─────────────────────────────────────────────────────────────
@@ -98,6 +100,7 @@ public class SelecaoDadosEstaticos {
                     "Uma geração de talentos extraordinários, liderada por Mbappé e Griezmann, mostrou que o futuro do futebol francês não podia ser mais brilhante."
                 )
             )
+            , "Didier Deschamps", "Depois de catorze anos no comando — este e o seu ultimo torneio a frente da selecao — Deschamps constroi uma estrutura solida e pragmatica em torno de Mbappe.", "A Franca venceu o seu grupo de apuramento com apenas um golo sofrido em seis jogos, liderada por Kylian Mbappe, agora capitao e melhor marcador da historia francesa."
         ));
 
         // ── ALEMANHA ───────────────────────────────────────────────────────────
@@ -126,6 +129,7 @@ public class SelecaoDadosEstaticos {
                     "A Alemanha venceu a final e conquistou o seu quarto título, com golo de Götze na prorrogação."
                 )
             )
+            , "Julian Nagelsmann", "Aos 38 anos, o mais jovem selecionador do torneio aposta num 4-2-3-1 com contrapressao agressiva e transicoes rapidas — o gegenpressing tipico do futebol alemao moderno.", "A Alemanha apurou-se como lider do seu grupo, com 16 golos marcados e apenas tres sofridos, contando ja com Jamal Musiala recuperado de uma lesao grave."
         ));
 
         // ── INGLATERRA ─────────────────────────────────────────────────────────
@@ -147,6 +151,7 @@ public class SelecaoDadosEstaticos {
                     "Bobby Moore levantou a Jules Rimet. A Inglaterra jamais voltaria tão perto do topo."
                 )
             )
+            , "Thomas Tuchel", "Mais flexivel do que o antecessor, Tuchel alterna entre defesa a tres e a quatro, ajustando o bloco defensivo consoante o adversario.", "A Inglaterra teve um apuramento perfeito — sem perder nem sofrer um unico golo — e goleou a Croacia por 4-2 na estreia da Copa 2026, com Harry Kane a liderar como capitao e maior goleador da historia da selecao."
         ));
 
         // ── ITÁLIA ─────────────────────────────────────────────────────────────
@@ -175,6 +180,7 @@ public class SelecaoDadosEstaticos {
                     "Dez anos depois, admitiu que ainda sonhava com aquele penálti."
                 )
             )
+            , null, "Sem treinador efetivo desde abril de 2026, a federacao italiana procura ainda o sucessor ideal para reconstruir a selecao a partir do zero.", "Pela terceira vez consecutiva, a Italia falhou o apuramento para a fase final — eliminada nos play-offs pela Bosnia — deixando de fora do Mundial 2026 uma das selecoes mais vencedoras da historia."
         ));
 
         // ── URUGUAI ────────────────────────────────────────────────────────────
@@ -196,6 +202,7 @@ public class SelecaoDadosEstaticos {
                     "O maior silêncio da história do futebol instalou-se no maior estádio do mundo. O Uruguai era bicampeão."
                 )
             )
+            , "Marcelo Bielsa", "Bielsa mantem a sua assinatura tatica: 4-3-3 com pressao alta, verticalidade extrema e uma preparacao obsessiva em video antes de cada adversario.", "O Uruguai foi eliminado na fase de grupos da Copa 2026, apos empates com Arabia Saudita e Cabo Verde e derrota com Espanha — uma saida precoce que gerou tensao entre Bielsa e o plantel."
         ));
 
         // ── ESPANHA ────────────────────────────────────────────────────────────
@@ -217,6 +224,7 @@ public class SelecaoDadosEstaticos {
                     "Arrancou a camisola e correu em delírio. A Espanha era campeã do mundo pela primeira e única vez."
                 )
             )
+            , "Luis de la Fuente", "De la Fuente mantem a posse posicional que sempre definiu a Espanha, mas com mais diretismo e amplitude do que as geracoes anteriores, construindo o jogo em 4-3-3.", "Campea da Eurocopa 2024, a Espanha chega a Copa 2026 como uma das grandes favoritas, liderada pela nova geracao de Lamine Yamal e pelo capitao Rodri, Bola de Ouro em titulo."
         ));
 
         // ── PORTUGAL ───────────────────────────────────────────────────────────
@@ -239,6 +247,7 @@ public class SelecaoDadosEstaticos {
                     "Torres fechou a contagem em 5-3. Portugal chegava às meias-finais do seu melhor Mundial alguma vez."
                 )
             )
+            , "Roberto Martínez", "O tecnico espanhol mantem a base da equipa mas tem apostado em sangue novo, com foco em qualidade em espacos curtos e controlo da zona central do campo.", "Portugal marcou seis golos e sofreu apenas um na fase de grupos da Copa 2026, mas dois empates deixaram a equipa atras da Colombia — com Cristiano Ronaldo, aos 41 anos, a disputar o seu sexto Mundial."
         ));
 
         // ── MÉXICO ─────────────────────────────────────────────────────────────
@@ -252,6 +261,7 @@ public class SelecaoDadosEstaticos {
             "Hugo Sánchez", true,
             List.of("Hugo Sánchez", "Cuauhtémoc Blanco", "Jorge Campos", "Andrés Guardado", "Javier Hernández"),
             List.of()
+            , "Javier Aguirre", "Na sua terceira passagem a frente do Mexico num Mundial, Aguirre aposta num 4-2-3-1 pragmatico, com armadilha de fora de jogo e foco total em nao sofrer golos.", "O Mexico teve a sua melhor fase de grupos de sempre na Copa 2026 — tres vitorias seguidas sem sofrer um unico golo, como anfitriao ao lado dos Estados Unidos e do Canada."
         ));
 
         // ── ESTADOS UNIDOS ─────────────────────────────────────────────────────
@@ -272,6 +282,7 @@ public class SelecaoDadosEstaticos {
                     "onde foram eliminados pela Alemanha. Foi a melhor participação dos EUA desde 1930."
                 )
             )
+            , "Mauricio Pochettino", "Pochettino promove um futebol de pressao alta e ofensivo, com os laterais avancados a abrir espaco para os extremos jogarem por dentro.", "Anfitria da Copa do Mundo de 2026, a selecao norte-americana entra no torneio com uma mentalidade de candidata, ja nao de azarao, sob o comando do argentino."
         ));
 
         // ── MARROCOS ───────────────────────────────────────────────────────────
@@ -293,6 +304,7 @@ public class SelecaoDadosEstaticos {
                     "Uma geração única mudou a história do futebol africano para sempre."
                 )
             )
+            , "Mohamed Ouahbi", "Ouahbi herdou de Walid Regragui a identidade defensiva que definiu o Marrocos — bloco medio organizado, 4-3-3, pressao coletiva coordenada.", "Nove sobreviventes do plantel que fez historia nas meias-finais de 2022 continuam no grupo, agora sob um novo treinador nomeado apenas meses antes do Mundial 2026."
         ));
 
         // ── CANADÁ ─────────────────────────────────────────────────────────────
@@ -306,6 +318,7 @@ public class SelecaoDadosEstaticos {
             "Alphonso Davies", true,
             List.of("Alphonso Davies", "Jonathan David", "Atiba Hutchinson", "Milan Borjan"),
             List.of()
+            , "Jesse Marsch", "O tecnico norte-americano constroi uma equipa organizada e de pressao coordenada, com contrato renovado ate 2030 depois dos resultados historicos no Mundial.", "Como anfitriao da Copa 2026, o Canada bateu o seu primeiro ponto de sempre (empate com a Bosnia) e a sua primeira vitoria de sempre (6-0 sobre o Qatar), avancando pela primeira vez aos oitavos de final."
         ));
 
         // ── PAÍSES BAIXOS ──────────────────────────────────────────────────────
@@ -327,6 +340,7 @@ public class SelecaoDadosEstaticos {
                     "A Holanda perdeu a final, mas ganhou o coração do mundo. O 'Futebol Total' ficou para sempre na história do jogo."
                 )
             )
+            , "Ronald Koeman", "Na sua segunda passagem pela selecao, Koeman mantem o 4-3-3 estruturado e a posse tecnica holandesa, com flexibilidade para mudar para 4-4-2 ou 3-4-3 sem bola.", "Os Paises Baixos entraram na Copa 2026 como candidata de segundo escalao, num grupo com Japao, Suecia e Tunisia, apesar das baixas de Xavi Simons e Jeremy Frimpong."
         ));
 
         // ── COLÔMBIA ───────────────────────────────────────────────────────────
@@ -340,6 +354,7 @@ public class SelecaoDadosEstaticos {
             "James Rodríguez", false,
             List.of("Carlos Valderrama", "René Higuita", "Radamel Falcao", "James Rodríguez", "Freddy Rincón"),
             List.of()
+            , "Néstor Lorenzo", "O tecnico argentino alterna entre 4-2-3-1 e 4-3-3, com pressao de alta intensidade e transicoes verticais rapidas construidas em torno de James Rodriguez.", "A Colombia esteve 28 jogos invicta em 2024 — batendo Alemanha, Brasil, Uruguai e Espanha — e terminou a frente de Portugal no seu grupo da Copa 2026."
         ));
 
         // ── BÉLGICA ────────────────────────────────────────────────────────────
@@ -353,6 +368,7 @@ public class SelecaoDadosEstaticos {
             "Eden Hazard", false,
             List.of("Eden Hazard", "Kevin De Bruyne", "Romelu Lukaku", "Jan Vertonghen", "Thibaut Courtois"),
             List.of()
+            , "Rudi Garcia", "No seu primeiro grande torneio a frente da Belgica, o tecnico frances prefere um 4-3-3 ofensivo e tecnico, construido em torno dos avancados de elite do plantel.", "Num grupo com Egito, Irao e Nova Zelandia, a Belgica de Kevin De Bruyne — aos 34 anos, provavelmente no seu ultimo Mundial — chega com expectativa de alcancar confortavelmente os quartos de final."
         ));
 
         // ── CROÁCIA ────────────────────────────────────────────────────────────
@@ -366,6 +382,7 @@ public class SelecaoDadosEstaticos {
             "Luka Modrić", false,
             List.of("Luka Modrić", "Davor Šuker", "Ivan Rakitić", "Robert Kovač", "Zvonimir Boban"),
             List.of()
+            , "Zlatko Dalić", "O selecionador mais longevo da historia da Croacia mantem o 4-3-3 fluido e o dominio do meio-campo que levaram a selecao a duas finais consecutivas de podio.", "Vice-campea em 2018 e terceira classificada em 2022, a Croacia teve um apuramento invicto para 2026 — a melhor campanha da sua historia — com Luka Modric, aos 40 anos, a disputar o seu quinto Mundial."
         ));
 
         // ── JAPÃO ──────────────────────────────────────────────────────────────
@@ -379,6 +396,7 @@ public class SelecaoDadosEstaticos {
             "Shinji Kagawa", false,
             List.of("Hidetoshi Nakata", "Shinji Kagawa", "Keisuke Honda", "Yasuhito Endo", "Shunsuke Nakamura"),
             List.of()
+            , "Hajime Moriyasu", "Moriyasu alterna entre 4-2-3-1 e 4-3-3 consoante o adversario, com ajustes taticos ao vivo que ja o tornaram conhecido por comunicar instrucoes atraves de um quadro branco na area tecnica.", "O Japao terminou em segundo no seu grupo da Copa 2026 e foi eliminado nos oitavos de final pelo Brasil, por 2-1, apesar da ausencia de Kaoru Mitoma por lesao grave."
         ));
 
         // ── SENEGAL ────────────────────────────────────────────────────────────
@@ -392,6 +410,7 @@ public class SelecaoDadosEstaticos {
             "Sadio Mané", false,
             List.of("Sadio Mané", "El Hadji Diouf", "Kalidou Koulibaly", "Aliou Cissé"),
             List.of()
+            , "Pape Thiaw", "O ex-avancado, promovido depois de vencer o CHAN com a selecao local, aposta em poder fisico, maturidade tatica e uma combinacao de urgencia com controlo do jogo.", "O Senegal goleou o Iraque por 5-0 na fase de grupos da Copa 2026 e seguiu para os oitavos de final, com Sadio Mane, aos 34 anos, a disputar o que anunciou ser o seu ultimo Mundial."
         ));
 
         // ── COREIA DO SUL ──────────────────────────────────────────────────────
@@ -405,6 +424,7 @@ public class SelecaoDadosEstaticos {
             "Park Ji-sung", false,
             List.of("Park Ji-sung", "Cha Bum-kun", "Son Heung-min", "Lee Young-pyo", "Hong Myung-bo"),
             List.of()
+            , null, "Sem selecionador confirmado desde a demissao de Hong Myung-bo em junho de 2026, a federacao sul-coreana procura um sucessor depois da pior participacao da historia do pais num Mundial.", "A Coreia do Sul apurou-se invicta mas foi eliminada na fase de grupos da Copa 2026, com apenas uma vitoria em tres jogos — uma queda que custou o cargo ao treinador."
         ));
 
         // ── AUSTRÁLIA ──────────────────────────────────────────────────────────
@@ -418,6 +438,7 @@ public class SelecaoDadosEstaticos {
             "Tim Cahill", false,
             List.of("Tim Cahill", "Mark Schwarzer", "Harry Kewell", "Mile Jedinak", "Ange Postecoglou"),
             List.of()
+            , "Tony Popovic", "Popovic aposta num bloco defensivo compacto (3-4-2-1 ou 4-2-3-1), disciplina tatica e transicoes rapidas de alta intensidade.", "Sob a nova abordagem de Popovic, a Australia garantiu o apuramento com jogos de antecedencia e entrou na Copa 2026 no mesmo grupo da anfitria Estados Unidos."
         ));
     }
 
@@ -432,7 +453,8 @@ public class SelecaoDadosEstaticos {
             null, "equilibrado",
             "Cada seleção traz a sua cultura e identidade para o maior palco do futebol mundial.",
             "O futebol une o mundo.", "FIFA",
-            false, List.of(), List.of()
+            false, List.of(), List.of(),
+            null, null, null
         );
     }
 }

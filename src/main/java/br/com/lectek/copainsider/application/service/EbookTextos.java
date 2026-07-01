@@ -168,6 +168,42 @@ public class EbookTextos {
         };
     }
 
+    // ── Equipa Atual (treinador, tatica, historia recente) ──────────────────────
+
+    public static String equipaAtual(String selecaoNome, String treinador,
+                                       String estiloTaticoAtual, String historiaRecente, String idioma) {
+        String tecnico = (treinador != null && !treinador.isBlank())
+                ? tecnicoIntro(selecaoNome, treinador, idioma)
+                : tecnicoDesconhecido(selecaoNome, idioma);
+
+        StringBuilder sb = new StringBuilder(tecnico);
+        if (estiloTaticoAtual != null && !estiloTaticoAtual.isBlank()) {
+            sb.append(" ").append(estiloTaticoAtual);
+        }
+        if (historiaRecente != null && !historiaRecente.isBlank()) {
+            sb.append("\n\n").append(historiaRecente);
+        }
+        return sb.toString();
+    }
+
+    private static String tecnicoIntro(String nome, String treinador, String idioma) {
+        return switch (idioma) {
+            case PT_BR, PT_PT -> "Sob o comando de " + treinador + ", " + nome + " define hoje a sua identidade rumo ao Mundial 2026.";
+            case "es"         -> "Bajo el mando de " + treinador + ", " + nome + " define hoy su identidad rumbo al Mundial 2026.";
+            case "fr"         -> "Sous la direction de " + treinador + ", " + nome + " definit aujourd'hui son identite pour la Coupe du Monde 2026.";
+            default           -> "Under " + treinador + ", " + nome + " is shaping its identity ahead of the 2026 World Cup.";
+        };
+    }
+
+    private static String tecnicoDesconhecido(String nome, String idioma) {
+        return switch (idioma) {
+            case PT_BR, PT_PT -> nome + " prepara-se para o Mundial 2026 sob a orientacao da sua comissao tecnica.";
+            case "es"         -> nome + " se prepara para el Mundial 2026 bajo la direccion de su cuerpo tecnico.";
+            case "fr"         -> nome + " se prepare pour la Coupe du Monde 2026 sous la direction de son encadrement technique.";
+            default           -> nome + " is preparing for the 2026 World Cup under its coaching staff.";
+        };
+    }
+
     // ── Em Numeros ────────────────────────────────────────────────────────────
 
     public static String emNumeros(int participacoes, boolean eCampeao, int numTitulos,

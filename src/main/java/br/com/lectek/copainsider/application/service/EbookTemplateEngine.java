@@ -38,6 +38,8 @@ public class EbookTemplateEngine {
             EbookTextos.historiaCopas(dados.getSelecaoNome(), est.participacoesCopa(),
                     est.eCampeao(), est.numTitulos(), est.resumoAnos(), melhor, idioma),
             gerarGuerreiros(dados, idioma),
+            EbookTextos.equipaAtual(dados.getSelecaoNome(), est.treinadorAtual(),
+                    est.estiloTaticoAtual(), est.historiaRecente(), idioma),
             EbookTextos.copa2026(dados.getSelecaoNome(), est.eCampeao(), est.anfitriao2026(), idioma),
             EbookTextos.emNumeros(est.participacoesCopa(), est.eCampeao(), est.numTitulos(),
                     melhor, est.estiloJogo(), est.rivalHistorico(), idioma),

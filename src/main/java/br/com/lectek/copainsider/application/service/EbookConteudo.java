@@ -15,6 +15,7 @@ public record EbookConteudo(
         List<PartidaHistorica> partidas,
         String historiaCopas,
         List<Guerreiro> guerreirosHoje,
+        String equipaAtual,
         String copa2026,
         String emNumeros,
         String sabiaque,
