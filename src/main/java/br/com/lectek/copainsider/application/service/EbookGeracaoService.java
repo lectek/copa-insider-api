@@ -133,16 +133,27 @@ public class EbookGeracaoService {
 
     // ── Selecionar e gerar (chamado pelo controller após cliente escolher) ─────
 
-    @Transactional
+    /**
+     * Não é @Transactional: dispara gerarAsync() só depois de definirSelecao() ter
+     * feito commit. Se a chamada assíncrona corresse dentro da mesma transação
+     * desta, a thread do executor podia ler o pedido antes do commit e abortar
+     * (ver gerarAsync — "sem selecao/idioma").
+     */
     public void selecionarEGerar(String transacao, String selecaoCode, String selecaoNome, String idioma) {
+        // Invocar via ApplicationContext para respeitar os proxies @Transactional/@Async
+        EbookGeracaoService self = ctx.getBean(EbookGeracaoService.class);
+        Long pedidoId = self.definirSelecao(transacao, selecaoCode, selecaoNome, idioma);
+        self.gerarAsync(pedidoId);
+    }
+
+    @Transactional
+    public Long definirSelecao(String transacao, String selecaoCode, String selecaoNome, String idioma) {
         EbookPedidoEntity pedido = repository.findByTransacao(transacao)
                 .orElseThrow(() -> new IllegalArgumentException("Pedido nao encontrado: " + transacao));
 
         pedido.definirSelecao(selecaoCode, selecaoNome, idioma);
         repository.save(pedido);
-
-        // Invocar via ApplicationContext para respeitar o proxy @Async
-        ctx.getBean(EbookGeracaoService.class).gerarAsync(pedido.getId());
+        return pedido.getId();
     }
 
     // ── Email de entrega ──────────────────────────────────────────────────────
