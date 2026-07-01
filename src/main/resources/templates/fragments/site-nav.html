@@ -83,7 +83,7 @@
 <!-- Fragment: sessionLinks — única fonte de verdade para Acessos/Admin/Sair/Login,
      reutilizada pelas páginas com navbar próprio para evitar links desatualizados -->
 <th:block th:fragment="sessionLinks">
-    <a th:href="@{/conta}" sec:authorize="isAuthenticated()"
+    <a th:href="@{/cliente/conta}" sec:authorize="isAuthenticated()"
        class="navbar__acessos-link">A minha conta</a>
     <a th:href="@{/conta/acessos}" sec:authorize="isAuthenticated() and !hasAnyRole('ADMIN','DEVELOPER')"
        class="navbar__acessos-link">Os meus acessos</a>
