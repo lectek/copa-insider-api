@@ -327,10 +327,13 @@ public class SecurityMvcConfig {
 
         @Override
         public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+            // Header (JS/fetch): valor cru do cookie XSRF-TOKEN, sem máscara — usar como está.
+            // Sem header (formulário Thymeleaf via ${_csrf.token}): valor vem mascarado,
+            // por isso tem de passar pelo delegate Xor para ser desmascarado correctamente.
             String headerValue = request.getHeader(csrfToken.getHeaderName());
             return StringUtils.hasText(headerValue)
                     ? headerValue
-                    : super.resolveCsrfTokenValue(request, csrfToken);
+                    : this.delegate.resolveCsrfTokenValue(request, csrfToken);
         }
     }
 }
