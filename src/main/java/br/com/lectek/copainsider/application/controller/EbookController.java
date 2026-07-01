@@ -13,8 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class EbookController {
     private String hotmartUrl;
 
     public EbookController(EbookPedidoJPARepository repository, EbookGeracaoService geracaoService) {
-        this.repository    = repository;
+        this.repository     = repository;
         this.geracaoService = geracaoService;
     }
 
@@ -52,7 +53,7 @@ public class EbookController {
                                    HttpServletResponse response) {
         Cookie cookie = new Cookie(COOKIE_SELECAO, selecaoCode.toUpperCase());
         cookie.setPath("/");
-        cookie.setMaxAge(7200); // 2 horas
+        cookie.setMaxAge(7200);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         response.addCookie(cookie);
@@ -63,40 +64,40 @@ public class EbookController {
         return "redirect:/loja";
     }
 
-    // ── Minhas Compras — lista os ebooks do cliente logado ──────────────────
+    // ── Minhas Compras ─────────────────────────────────────────────────────────
 
     @GetMapping("/meus-ebooks")
-    public String meusEbooks(@AuthenticationPrincipal UserDetails user, Model model) {
-        if (user == null) return "redirect:/auth/login";
+    public String meusEbooks(Authentication auth, Model model) {
+        String email = extrairEmail(auth);
+        if (email == null) return "redirect:/auth/login";
 
         List<EbookPedidoEntity> pedidos = repository
-                .findByCompradorEmailOrderByCriadoEmDesc(user.getUsername());
+                .findByCompradorEmailOrderByCriadoEmDesc(email);
 
         model.addAttribute("pedidos", pedidos);
         return "pages/cliente/meus-ebooks";
     }
 
-    // ── Seleção pós-compra — cliente escolhe seleção e idioma ───────────────
+    // ── Seleção pós-compra ─────────────────────────────────────────────────────
 
     @GetMapping("/selecionar/{transacao}")
     public String paginaSelecao(@PathVariable String transacao,
-                                 @AuthenticationPrincipal UserDetails user,
+                                 Authentication auth,
                                  HttpServletRequest request,
                                  HttpServletResponse response,
                                  Model model) {
-        if (user == null) return "redirect:/auth/login";
+        String email = extrairEmail(auth);
+        if (email == null) return "redirect:/auth/login";
 
         EbookPedidoEntity pedido = repository.findByTransacao(transacao).orElse(null);
-        if (pedido == null || !pedido.getCompradorEmail().equalsIgnoreCase(user.getUsername())) {
+        if (pedido == null || !pedido.getCompradorEmail().equalsIgnoreCase(email)) {
             return "redirect:/ebook/meus-ebooks";
         }
 
-        // Lê a seleção guardada quando o cliente clicou "Comprar" na loja
         String preSelecao = lerCookieSelecao(request);
         if (preSelecao != null) {
             model.addAttribute("preSelecaoCode", preSelecao);
             model.addAttribute("preSelecaoNome", nomeSelecao(preSelecao));
-            // Limpa o cookie após consumir
             Cookie clear = new Cookie(COOKIE_SELECAO, "");
             clear.setPath("/");
             clear.setMaxAge(0);
@@ -109,45 +110,6 @@ public class EbookController {
         return "pages/cliente/ebook-selecionar";
     }
 
-    private String lerCookieSelecao(HttpServletRequest request) {
-        if (request.getCookies() == null) return null;
-        return Arrays.stream(request.getCookies())
-                .filter(c -> COOKIE_SELECAO.equals(c.getName()) && c.getValue() != null && !c.getValue().isBlank())
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
-    }
-
-    private static String nomeSelecao(String code) {
-        return switch (code) {
-            case "BRA" -> "Brasil";       case "POR" -> "Portugal";
-            case "ARG" -> "Argentina";    case "FRA" -> "França";
-            case "ESP" -> "Espanha";      case "ENG" -> "Inglaterra";
-            case "ALE" -> "Alemanha";     case "ITA" -> "Itália";
-            case "URU" -> "Uruguai";      case "MEX" -> "México";
-            case "MAR" -> "Marrocos";     case "USA" -> "Estados Unidos";
-            case "CAN" -> "Canadá";       case "COL" -> "Colômbia";
-            case "ECU" -> "Equador";      case "NED" -> "Países Baixos";
-            case "BEL" -> "Bélgica";      case "CRO" -> "Croácia";
-            case "SUI" -> "Suíça";        case "DEN" -> "Dinamarca";
-            case "AUT" -> "Áustria";      case "SRB" -> "Sérvia";
-            case "POL" -> "Polónia";      case "SCO" -> "Escócia";
-            case "TUR" -> "Turquia";      case "SEN" -> "Senegal";
-            case "NGA" -> "Nigéria";      case "EGY" -> "Egito";
-            case "CMR" -> "Camarões";     case "GHA" -> "Gana";
-            case "CIV" -> "Costa do Marfim"; case "ALG" -> "Argélia";
-            case "JPN" -> "Japão";        case "KOR" -> "Coreia do Sul";
-            case "IRN" -> "Irão";         case "AUS" -> "Austrália";
-            case "SAU" -> "Arábia Saudita"; case "QAT" -> "Qatar";
-            case "JOR" -> "Jordânia";     case "IRQ" -> "Iraque";
-            case "CRC" -> "Costa Rica";   case "PAN" -> "Panamá";
-            case "VEN" -> "Venezuela";    case "CHI" -> "Chile";
-            case "PAR" -> "Paraguai";     case "BOL" -> "Bolívia";
-            case "RSA" -> "África do Sul"; case "NZL" -> "Nova Zelândia";
-            default -> code;
-        };
-    }
-
     @PostMapping("/selecionar/{transacao}")
     @ResponseBody
     public ResponseEntity<Map<String, String>> confirmarSelecao(
@@ -155,14 +117,15 @@ public class EbookController {
             @RequestParam String selecaoCode,
             @RequestParam String selecaoNome,
             @RequestParam String idioma,
-            @AuthenticationPrincipal UserDetails user) {
+            Authentication auth) {
 
-        if (user == null) {
+        String email = extrairEmail(auth);
+        if (email == null) {
             return ResponseEntity.status(401).body(Map.of("erro", "Não autenticado"));
         }
 
         EbookPedidoEntity pedido = repository.findByTransacao(transacao).orElse(null);
-        if (pedido == null || !pedido.getCompradorEmail().equalsIgnoreCase(user.getUsername())) {
+        if (pedido == null || !pedido.getCompradorEmail().equalsIgnoreCase(email)) {
             return ResponseEntity.status(403).body(Map.of("erro", "Acesso negado"));
         }
         if (pedido.getStatus() == EbookStatus.GERANDO || pedido.getStatus() == EbookStatus.PRONTO) {
@@ -175,7 +138,7 @@ public class EbookController {
         return ResponseEntity.ok(Map.of("mensagem", "Geração iniciada! Receberá um email quando estiver pronto."));
     }
 
-    // ── Download seguro via token ────────────────────────────────────────────
+    // ── Download seguro via token ──────────────────────────────────────────────
 
     @GetMapping("/download/{token}")
     public void download(@PathVariable String token, HttpServletResponse response) throws IOException {
@@ -202,18 +165,19 @@ public class EbookController {
         log.info("[ebook] download servido — token={} email={}", token, pedido.getCompradorEmail());
     }
 
-    // ── Status (polling da UI enquanto o ebook está a ser gerado) ───────────
+    // ── Status (polling da UI) ─────────────────────────────────────────────────
 
     @GetMapping("/status/{transacao}")
     @ResponseBody
     public ResponseEntity<Map<String, String>> status(
             @PathVariable String transacao,
-            @AuthenticationPrincipal UserDetails user) {
+            Authentication auth) {
 
-        if (user == null) return ResponseEntity.status(401).build();
+        String email = extrairEmail(auth);
+        if (email == null) return ResponseEntity.status(401).build();
 
         EbookPedidoEntity pedido = repository.findByTransacao(transacao).orElse(null);
-        if (pedido == null || !pedido.getCompradorEmail().equalsIgnoreCase(user.getUsername())) {
+        if (pedido == null || !pedido.getCompradorEmail().equalsIgnoreCase(email)) {
             return ResponseEntity.status(403).build();
         }
 
@@ -225,5 +189,86 @@ public class EbookController {
         resp.put("status", pedido.getStatus().name());
         if (downloadUrl != null) resp.put("downloadUrl", downloadUrl);
         return ResponseEntity.ok(resp);
+    }
+
+    // ── Utilitários ───────────────────────────────────────────────────────────
+
+    private String extrairEmail(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) return null;
+
+        // Form login: principal é UserDetails, getName() devolve o username/email
+        if (auth.getName() != null && auth.getName().contains("@")) {
+            return auth.getName().toLowerCase().strip();
+        }
+
+        Object principal = auth.getPrincipal();
+        if (principal instanceof UserDetails ud) {
+            String u = ud.getUsername();
+            return u != null && u.contains("@") ? u.toLowerCase().strip() : null;
+        }
+        // OAuth2 (Google): email está nos atributos
+        if (principal instanceof OAuth2User ou) {
+            Object emailAttr = ou.getAttributes().get("email");
+            if (emailAttr != null && !emailAttr.toString().isBlank()) {
+                return emailAttr.toString().toLowerCase().strip();
+            }
+        }
+        return null;
+    }
+
+    private String lerCookieSelecao(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+        return Arrays.stream(request.getCookies())
+                .filter(c -> COOKIE_SELECAO.equals(c.getName()) && c.getValue() != null && !c.getValue().isBlank())
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static final Map<String, String> NOMES_SELECAO = Map.ofEntries(
+        Map.entry("BRA","Brasil"),         Map.entry("ARG","Argentina"),
+        Map.entry("FRA","França"),         Map.entry("ALE","Alemanha"),
+        Map.entry("ITA","Itália"),         Map.entry("URU","Uruguai"),
+        Map.entry("ENG","Inglaterra"),     Map.entry("ESP","Espanha"),
+        Map.entry("POR","Portugal"),       Map.entry("NED","Países Baixos"),
+        Map.entry("BEL","Bélgica"),        Map.entry("CRO","Croácia"),
+        Map.entry("SUI","Suíça"),          Map.entry("DEN","Dinamarca"),
+        Map.entry("SWE","Suécia"),         Map.entry("NOR","Noruega"),
+        Map.entry("AUT","Áustria"),        Map.entry("SRB","Sérvia"),
+        Map.entry("POL","Polónia"),        Map.entry("SCO","Escócia"),
+        Map.entry("WAL","País de Gales"),  Map.entry("TUR","Turquia"),
+        Map.entry("GRE","Grécia"),         Map.entry("HUN","Hungria"),
+        Map.entry("ROM","Roménia"),        Map.entry("CZE","República Checa"),
+        Map.entry("SVK","Eslováquia"),     Map.entry("BUL","Bulgária"),
+        Map.entry("RUS","Rússia"),         Map.entry("UKR","Ucrânia"),
+        Map.entry("IRL","Irlanda"),        Map.entry("SVN","Eslovénia"),
+        Map.entry("ISL","Islândia"),       Map.entry("BIH","Bósnia-Herzegovina"),
+        Map.entry("USA","Estados Unidos"), Map.entry("MEX","México"),
+        Map.entry("CAN","Canadá"),         Map.entry("COL","Colômbia"),
+        Map.entry("ECU","Equador"),        Map.entry("CHI","Chile"),
+        Map.entry("PAR","Paraguai"),       Map.entry("BOL","Bolívia"),
+        Map.entry("PER","Peru"),           Map.entry("CRC","Costa Rica"),
+        Map.entry("PAN","Panamá"),         Map.entry("HON","Honduras"),
+        Map.entry("SLV","El Salvador"),    Map.entry("HAI","Haiti"),
+        Map.entry("JAM","Jamaica"),        Map.entry("TRI","Trinidad e Tobago"),
+        Map.entry("CUB","Cuba"),           Map.entry("MAR","Marrocos"),
+        Map.entry("SEN","Senegal"),        Map.entry("NGA","Nigéria"),
+        Map.entry("CMR","Camarões"),       Map.entry("GHA","Gana"),
+        Map.entry("CIV","Costa do Marfim"),Map.entry("EGY","Egito"),
+        Map.entry("ALG","Argélia"),        Map.entry("TUN","Tunísia"),
+        Map.entry("RSA","África do Sul"),  Map.entry("ANG","Angola"),
+        Map.entry("TOG","Togo"),           Map.entry("COD","RD Congo"),
+        Map.entry("JPN","Japão"),          Map.entry("KOR","Coreia do Sul"),
+        Map.entry("IRN","Irão"),           Map.entry("SAU","Arábia Saudita"),
+        Map.entry("AUS","Austrália"),      Map.entry("IRQ","Iraque"),
+        Map.entry("KUW","Kuwait"),         Map.entry("CHN","China"),
+        Map.entry("UAE","Emirados Árabes"),Map.entry("QAT","Qatar"),
+        Map.entry("PRK","Coreia do Norte"),Map.entry("IDN","Indonésia"),
+        Map.entry("NZL","Nova Zelândia"),  Map.entry("JOR","Jordânia"),
+        Map.entry("ISR","Israel")
+    );
+
+    private static String nomeSelecao(String code) {
+        return NOMES_SELECAO.getOrDefault(code, code);
     }
 }
