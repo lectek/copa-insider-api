@@ -2,6 +2,7 @@ package br.com.lectek.copainsider.application.controller;
 
 import br.com.lectek.copainsider.adapters.outbound.persistence.entity.EbookPedidoEntity;
 import br.com.lectek.copainsider.adapters.outbound.persistence.jpa.EbookPedidoJPARepository;
+import br.com.lectek.copainsider.application.service.CopaAcessoService;
 import br.com.lectek.copainsider.application.service.EbookGeracaoService;
 import br.com.lectek.copainsider.domain.enums.EbookStatus;
 import jakarta.servlet.http.Cookie;
@@ -37,21 +38,40 @@ public class EbookController {
 
     private final EbookPedidoJPARepository repository;
     private final EbookGeracaoService geracaoService;
+    private final CopaAcessoService acessoService;
 
     @Value("${app.ebook.hotmart-url:}")
     private String hotmartUrl;
 
-    public EbookController(EbookPedidoJPARepository repository, EbookGeracaoService geracaoService) {
+    public EbookController(EbookPedidoJPARepository repository, EbookGeracaoService geracaoService,
+                            CopaAcessoService acessoService) {
         this.repository     = repository;
         this.geracaoService = geracaoService;
+        this.acessoService  = acessoService;
     }
 
     // ── Rota intermédia: guarda a seleção em cookie e redireciona para Hotmart ─
+    // Contas dev/admin saltam o Hotmart e disparam a geração directamente.
 
     @GetMapping("/iniciar/{selecaoCode}")
     public String iniciarCheckout(@PathVariable String selecaoCode,
-                                   HttpServletResponse response) {
-        Cookie cookie = new Cookie(COOKIE_SELECAO, selecaoCode.toUpperCase());
+                                   HttpServletResponse response,
+                                   Authentication auth) {
+        String code = selecaoCode.toUpperCase();
+
+        if (acessoService.isContaDev()) {
+            String email = extrairEmail(auth);
+            if (email != null) {
+                String transacao = "DEV-" + code + "-" + java.util.UUID.randomUUID();
+                var pedido = geracaoService.registrarPedido(
+                        transacao, email, extrairNome(auth), code, nomeSelecao(code), "pt-BR");
+                geracaoService.gerarAsync(pedido.getId());
+                log.info("[ebook] geração dev disparada — email={} selecao={} transacao={}", email, code, transacao);
+                return "redirect:/ebook/meus-ebooks";
+            }
+        }
+
+        Cookie cookie = new Cookie(COOKIE_SELECAO, code);
         cookie.setPath("/");
         cookie.setMaxAge(7200);
         cookie.setHttpOnly(true);
@@ -214,6 +234,16 @@ public class EbookController {
             }
         }
         return null;
+    }
+
+    private String extrairNome(Authentication auth) {
+        Object principal = auth.getPrincipal();
+        if (principal instanceof OAuth2User ou) {
+            Object nomeAttr = ou.getAttributes().get("name");
+            if (nomeAttr != null && !nomeAttr.toString().isBlank()) return nomeAttr.toString();
+        }
+        String email = extrairEmail(auth);
+        return email != null ? email.substring(0, email.indexOf('@')) : auth.getName();
     }
 
     private String lerCookieSelecao(HttpServletRequest request) {

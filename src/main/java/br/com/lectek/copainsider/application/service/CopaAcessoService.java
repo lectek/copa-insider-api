@@ -34,13 +34,15 @@ public class CopaAcessoService {
         this.compraRepo = compraRepo;
     }
 
-    public boolean temAcesso(String email, String produtoSlug) {
+    public boolean isContaDev() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getAuthorities().stream()
+        return auth != null && auth.getAuthorities().stream()
                 .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())
-                           || "ROLE_DEVELOPER".equals(a.getAuthority()))) {
-            return true;
-        }
+                           || "ROLE_DEVELOPER".equals(a.getAuthority()));
+    }
+
+    public boolean temAcesso(String email, String produtoSlug) {
+        if (isContaDev()) return true;
         if (email == null || email.isBlank()) return false;
         String norm = email.toLowerCase();
         return repo.existsByEmailIgnoreCaseAndProdutoSlug(norm, produtoSlug)
