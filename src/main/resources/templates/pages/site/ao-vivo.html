@@ -93,8 +93,13 @@
         <div class="av-next-card" th:if="${proxJogo != null}">
             <div class="av-next-card__head">
                 <span class="av-fase-tag" th:if="${proxJogo.fase() != null}" th:text="${proxJogo.fase()}"></span>
-                <span class="av-next-datetime"
-                      th:text="${#temporals.format(proxJogo.dataHora(), 'dd/MM · HH:mm')}"></span>
+                <span class="av-next-datetime">
+                    <span th:text="${#temporals.format(proxJogo.dataHora(), 'dd/MM')}"></span>
+                    <span> · </span>
+                    <span class="utc-time"
+                          th:text="${#temporals.format(proxJogo.dataHora(), 'HH:mm')}"
+                          th:attr="data-utc-ms=${proxJogo.epochMs()}"></span>
+                </span>
             </div>
 
             <div class="av-scoreboard-next">
@@ -110,7 +115,7 @@
             </div>
 
             <div class="av-countdown"
-                 th:attr="data-kick=${#temporals.format(proxJogo.dataHora(), 'yyyy-MM-dd') + 'T' + #temporals.format(proxJogo.dataHora(), 'HH:mm:ss')}">
+                 th:attr="data-kick-ms=${proxJogo.epochMs()}">
                 <div class="av-cd-item">
                     <span class="av-cd-n" id="cd-h">--</span>
                     <span class="av-cd-l">horas</span>
@@ -169,7 +174,9 @@
         <div class="av-hoje-list">
             <div th:each="j : ${jogosHoje}" class="av-hoje-row"
                  th:classappend="${j.encerrada()} ? 'av-hoje-row--done' : ''">
-                <span class="av-hoje-hora" th:text="${#temporals.format(j.dataHora(), 'HH:mm')}"></span>
+                <span class="av-hoje-hora utc-time"
+                      th:text="${#temporals.format(j.dataHora(), 'HH:mm')}"
+                      th:attr="data-utc-ms=${j.epochMs()}"></span>
                 <span class="av-hoje-flag" th:text="${j.bandeiraCasa()}"></span>
                 <span class="av-hoje-nome" th:text="${j.selecaoCasa()}"></span>
                 <span class="av-hoje-placar" th:if="${j.temResultado()}"
@@ -193,15 +200,16 @@
 
 <footer th:replace="~{fragments/site-footer :: footer}"></footer>
 
-<!-- Countdown para próximo jogo -->
+<!-- Countdown para próximo jogo + conversão de fusos -->
 <script th:if="${#lists.isEmpty(aoVivo) and proxJogo != null}">
+    // Countdown — usa epoch ms (absoluto, independente de fuso)
     (function () {
         var el   = document.querySelector('.av-countdown');
         var hEl  = document.getElementById('cd-h');
         var mEl  = document.getElementById('cd-m');
         var sEl  = document.getElementById('cd-s');
         if (!el || !hEl) return;
-        var kick = new Date(el.dataset.kick);
+        var kick = new Date(Number(el.dataset.kickMs));
         var reloading = false;
         function tick() {
             var diff = kick - new Date();
@@ -219,7 +227,18 @@
         }
         tick();
         setInterval(tick, 1000);
-    })();
+    }());
+
+    // Converte horários UTC para fuso local do utilizador
+    (function () {
+        document.querySelectorAll('.utc-time[data-utc-ms]').forEach(function (el) {
+            var ms = parseInt(el.dataset.utcMs, 10);
+            if (isNaN(ms)) return;
+            el.textContent = new Date(ms).toLocaleTimeString(undefined, {
+                hour: '2-digit', minute: '2-digit', hour12: false
+            });
+        });
+    }());
 </script>
 
 <!-- Auto-refresh a cada 30s quando há jogo ao vivo -->

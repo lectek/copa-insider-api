@@ -36,5 +36,10 @@ public record PartidaVM(
         return golsCasa + " : " + golsVisitante;
     }
 
+    // Millisegundos UTC absolutos — para conversão de fuso no browser
+    public long epochMs() {
+        return dataHora.toInstant(java.time.ZoneOffset.UTC).toEpochMilli();
+    }
+
     public enum StatusPartida { AGENDADA, AO_VIVO, ENCERRADA }
 }

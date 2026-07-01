@@ -64,8 +64,9 @@
             <div class="proxima-card" th:each="p : ${proximas}">
                 <div class="proxima-date"
                      th:text="${#temporals.format(p.dataHora(), 'dd MMM')}"></div>
-                <div class="proxima-time"
-                     th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></div>
+                <div class="proxima-time utc-time"
+                     th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"
+                     th:attr="data-utc-ms=${p.epochMs()}"></div>
                 <div class="proxima-teams">
                     <span th:text="${p.bandeiraCasa() + ' ' + p.selecaoCasa()}"></span>
                     <span class="vs">vs</span>
@@ -147,7 +148,9 @@
                        th:each="p : ${partidasFiltradas}">
                         <div class="partida-date">
                             <span th:text="${#temporals.format(p.dataHora(), 'dd/MM')}"></span>
-                            <span th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></span>
+                            <span class="utc-time"
+                                  th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"
+                                  th:attr="data-utc-ms=${p.epochMs()}"></span>
                         </div>
                         <div class="partida-teams">
                             <span class="team-cell">
@@ -191,7 +194,9 @@
                        th:each="p : ${entry.value}">
                         <div class="partida-date">
                             <span th:text="${#temporals.format(p.dataHora(), 'dd/MM')}"></span>
-                            <span th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></span>
+                            <span class="utc-time"
+                                  th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"
+                                  th:attr="data-utc-ms=${p.epochMs()}"></span>
                         </div>
                         <div class="partida-teams">
                             <span class="team-cell">
@@ -224,6 +229,19 @@
 </main>
 
 <footer th:replace="~{fragments/site-footer :: footer}"></footer>
+
+<script>
+// Converte horários UTC para fuso local do utilizador
+(function () {
+    document.querySelectorAll('.utc-time[data-utc-ms]').forEach(function (el) {
+        var ms = parseInt(el.dataset.utcMs, 10);
+        if (isNaN(ms)) return;
+        el.textContent = new Date(ms).toLocaleTimeString(undefined, {
+            hour: '2-digit', minute: '2-digit', hour12: false
+        });
+    });
+}());
+</script>
 
 </body>
 </html>
