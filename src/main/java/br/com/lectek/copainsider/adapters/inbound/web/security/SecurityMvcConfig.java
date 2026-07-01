@@ -22,6 +22,9 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
@@ -79,6 +82,7 @@ public class SecurityMvcConfig {
                 PathPatternRequestMatcher.Builder pathMatcherBuilder = PathPatternRequestMatcher.withDefaults();
                 CookieCsrfTokenRepository repo = CookieCsrfTokenRepository.withHttpOnlyFalse();
                 csrf.csrfTokenRepository(repo);
+                csrf.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler());
                 csrf.ignoringRequestMatchers(
                         pathMatcherBuilder.matcher("/admin/export/**"),
                         pathMatcherBuilder.matcher(HttpMethod.POST, "/login"),
@@ -303,6 +307,30 @@ public class SecurityMvcConfig {
                 token.getToken();
             }
             chain.doFilter(request, response);
+        }
+    }
+
+    /**
+     * Permite validar tanto o token mascarado (formulários Thymeleaf via ${_csrf.token})
+     * quanto o token bruto lido do cookie XSRF-TOKEN e enviado via header por clientes JS
+     * (fetch/XHR). Sem isto, o header cru falha a validação do XorCsrfTokenRequestAttributeHandler
+     * (padrão do Spring Security 6), que espera sempre um valor mascarado.
+     */
+    static class SpaCsrfTokenRequestHandler extends CsrfTokenRequestAttributeHandler {
+        private final CsrfTokenRequestHandler delegate = new XorCsrfTokenRequestAttributeHandler();
+
+        @Override
+        public void handle(HttpServletRequest request, HttpServletResponse response,
+                            java.util.function.Supplier<CsrfToken> csrfToken) {
+            this.delegate.handle(request, response, csrfToken);
+        }
+
+        @Override
+        public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+            String headerValue = request.getHeader(csrfToken.getHeaderName());
+            return StringUtils.hasText(headerValue)
+                    ? headerValue
+                    : super.resolveCsrfTokenValue(request, csrfToken);
         }
     }
 }
