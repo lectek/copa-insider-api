@@ -230,18 +230,6 @@
 
 <footer th:replace="~{fragments/site-footer :: footer}"></footer>
 
-<script>
-// Converte horários UTC para fuso local do utilizador
-(function () {
-    document.querySelectorAll('.utc-time[data-utc-ms]').forEach(function (el) {
-        var ms = parseInt(el.dataset.utcMs, 10);
-        if (isNaN(ms)) return;
-        el.textContent = new Date(ms).toLocaleTimeString(undefined, {
-            hour: '2-digit', minute: '2-digit', hour12: false
-        });
-    });
-}());
-</script>
 
 </body>
 </html>

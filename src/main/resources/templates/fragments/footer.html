@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
 <body>
 
-<footer th:fragment="footer" class="ci-footer site-footer">
+<th:block th:fragment="footer">
+<footer class="ci-footer site-footer">
     <div class="ci-footer__inner">
         <p class="ci-footer__brand">Copa Insider</p>
         <p class="ci-footer__tagline">Tudo sobre a Copa do Mundo 2026</p>
@@ -14,6 +15,18 @@
         <p class="ci-footer__copy">&copy; 2026 Copa Insider. Todos os direitos reservados.</p>
     </div>
 </footer>
+<script>
+(function () {
+    document.querySelectorAll('.utc-time[data-utc-ms]').forEach(function (el) {
+        var ms = parseInt(el.dataset.utcMs, 10);
+        if (isNaN(ms)) return;
+        el.textContent = new Date(ms).toLocaleTimeString(undefined, {
+            hour: '2-digit', minute: '2-digit', hour12: false
+        });
+    });
+}());
+</script>
+</th:block>
 
 </body>
 </html>

@@ -182,8 +182,14 @@
                     <span th:text="${resultado.encontroCopa2026().bandeiraVisitante()}"></span>
                 </div>
             </div>
-            <div class="enc-info"
-                 th:text="${#temporals.format(resultado.encontroCopa2026().dataHora(), 'dd MMM yyyy · HH:mm')} + ' · ' + ${resultado.encontroCopa2026().cidade()}">
+            <div class="enc-info">
+                <span th:text="${#temporals.format(resultado.encontroCopa2026().dataHora(), 'dd MMM yyyy')}"></span>
+                <span> · </span>
+                <span class="utc-time"
+                      th:text="${#temporals.format(resultado.encontroCopa2026().dataHora(), 'HH:mm')}"
+                      th:attr="data-utc-ms=${resultado.encontroCopa2026().epochMs()}"></span>
+                <span th:if="${resultado.encontroCopa2026().cidade() != null}"
+                      th:text="' · ' + ${resultado.encontroCopa2026().cidade()}"></span>
             </div>
         </div>
 

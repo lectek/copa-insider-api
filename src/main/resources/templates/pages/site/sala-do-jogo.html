@@ -37,7 +37,7 @@
       "@type": "SportsEvent",
       "name": "[[${partida.selecaoCasa()}]] × [[${partida.selecaoVisitante()}]] — Copa do Mundo 2026",
       "description": "Acompanha ao vivo com chat em tempo real, reações e notas dos jogadores. Gratuito e sem anúncios.",
-      "startDate": "[[${partida.dataHora() != null ? #temporals.format(partida.dataHora(), 'yyyy-MM-dd') + 'T' + #temporals.format(partida.dataHora(), 'HH:mm:ss') : ''}]]",
+      "startDate": "[[${partida.dataHora() != null ? #temporals.format(partida.dataHora(), 'yyyy-MM-dd') + 'T' + #temporals.format(partida.dataHora(), 'HH:mm:ss') + 'Z' : ''}]]",
       "location": { "@type": "Place", "name": "[[${partida.estadio() ?: ''}]]", "address": "[[${partida.cidade() ?: ''}]]" },
       "sport": "Futebol",
       "url": "[[${baseUrl}]]/jogo/[[${partida.id()}]]/sala",
@@ -48,6 +48,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/site-base.css}"/>
     <link rel="stylesheet" th:href="@{/css/partida.css}"/>
     <style>
         :root{--bg:#0a0a0a;--surface:#141414;--card:#161616;--gold:#e8b930;--border:#2a2a2a;--text:#fff;--muted:#8a8a8a;}

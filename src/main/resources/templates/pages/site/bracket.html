@@ -58,8 +58,13 @@
                         </div>
 
                         <!-- Data/hora (agendado) -->
-                        <div th:if="${p.agendada() and p.dataHora() != null}" class="br-game__time"
-                             th:text="${#temporals.format(p.dataHora(), 'dd/MM · HH:mm')}"></div>
+                        <div th:if="${p.agendada() and p.dataHora() != null}" class="br-game__time">
+                            <span th:text="${#temporals.format(p.dataHora(), 'dd/MM')}"></span>
+                            <span> · </span>
+                            <span class="utc-time"
+                                  th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"
+                                  th:attr="data-utc-ms=${p.epochMs()}"></span>
+                        </div>
 
                         <!-- Team Casa -->
                         <div class="br-team" th:classappend="${p.encerrada() and p.golsCasa() != null and p.golsVisitante() != null and p.golsCasa() > p.golsVisitante()} ? ' br-team--winner'">

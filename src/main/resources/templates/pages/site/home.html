@@ -32,8 +32,12 @@
                 </div>
                 <div class="ci-match-card__meta">
                     <span class="ci-match-card__fase" th:text="${partida.fase}">Grupo A</span>
-                    <span class="ci-match-card__data"
-                          th:text="${#temporals.format(partida.dataHora, 'dd/MM HH:mm')}">18/06 15:00</span>
+                    <span class="ci-match-card__data">
+                        <span th:text="${#temporals.format(partida.dataHora, 'dd/MM')}">18/06</span>
+                        <span class="utc-time"
+                              th:text="${#temporals.format(partida.dataHora, 'HH:mm')}"
+                              th:attr="data-utc-ms=${partida.epochMs()}">15:00</span>
+                    </span>
                 </div>
                 <a th:href="@{/partida/{id}(id=${partida.id})}"
                    class="ci-btn ci-btn--primary ci-btn--sm ci-btn--full">Ver partida</a>

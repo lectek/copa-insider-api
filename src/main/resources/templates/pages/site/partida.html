@@ -49,8 +49,9 @@
             </div>
             <!-- Horário (jogo não encerrado) -->
             <div th:if="${!partida.temResultado()}" class="horario-block">
-                <span class="horario-hora"
-                      th:text="${#temporals.format(partida.dataHora(), 'HH:mm')}"></span>
+                <span class="horario-hora utc-time"
+                      th:text="${#temporals.format(partida.dataHora(), 'HH:mm')}"
+                      th:attr="data-utc-ms=${partida.epochMs()}"></span>
                 <span class="horario-data"
                       th:text="${#temporals.format(partida.dataHora(), 'dd MMM yyyy')}"></span>
             </div>
@@ -247,7 +248,11 @@
             <h2 class="section-title">⏰ Data e hora</h2>
             <div class="upcoming-card">
                 <div class="upcoming-date"
-                     th:text="${#temporals.format(partida.dataHora(), 'dd MMM yyyy')} + ' — ' + ${#temporals.format(partida.dataHora(), 'HH:mm')}">
+                     th:text="${#temporals.format(partida.dataHora(), 'dd MMM yyyy')}">
+                </div>
+                <div class="upcoming-date utc-time"
+                     th:attr="data-utc-ms=${partida.epochMs()}"
+                     th:text="${#temporals.format(partida.dataHora(), 'HH:mm')}">
                 </div>
                 <div class="upcoming-venue"
                      th:text="${(partida.estadio() != null ? partida.estadio() + ' · ' : '') + (partida.cidade() != null ? partida.cidade() : '')}">

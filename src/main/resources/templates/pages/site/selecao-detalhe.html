@@ -47,7 +47,9 @@
             <div class="partida-row" th:each="p : ${partidas}">
                 <div class="partida-date">
                     <span th:text="${#temporals.format(p.dataHora(), 'dd/MM')}"></span>
-                    <span th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"></span>
+                    <span class="utc-time"
+                          th:text="${#temporals.format(p.dataHora(), 'HH:mm')}"
+                          th:attr="data-utc-ms=${p.epochMs()}"></span>
                 </div>
                 <div class="partida-teams">
                     <span class="team-cell" th:classappend="${p.slugCasa() == selecao.slug()} ? ' highlight' : ''">

@@ -120,7 +120,10 @@
                     ⏰ Próximo jogo:
                     <span th:text="${proximoJogo.bandeiraCasa()} + ' ' + ${proximoJogo.selecaoCasa()}
                                    + ' × ' + ${proximoJogo.bandeiraVisitante()} + ' ' + ${proximoJogo.selecaoVisitante()}"></span>
-                    <span th:text="'(' + ${#temporals.format(proximoJogo.dataHora(), 'dd MMM HH:mm')} + ')'"></span>
+                    (<span th:text="${#temporals.format(proximoJogo.dataHora(), 'dd MMM')}"></span>
+                    <span class="utc-time"
+                          th:text="${#temporals.format(proximoJogo.dataHora(), 'HH:mm')}"
+                          th:attr="data-utc-ms=${proximoJogo.epochMs()}"></span>)
                 </a>
                 <a th:if="${produto.slugTime1() != null}"
                    th:href="@{/comparar(time1=${produto.slugTime1()})}"
