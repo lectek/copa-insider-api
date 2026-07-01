@@ -273,20 +273,27 @@
       credentials: 'same-origin',
       body: params.toString()
     })
-    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(r) {
+      return r.text().then(function(text) {
+        var data = {};
+        try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { erro: 'HTTP ' + r.status + ': ' + text.slice(0, 200) }; }
+        return { ok: r.ok, status: r.status, data: data };
+      });
+    })
     .then(function(res) {
       document.getElementById('selecao-form').style.display = 'none';
       if (res.ok) {
         document.getElementById('feedback-ok').style.display = 'block';
       } else {
-        document.getElementById('erro-msg').textContent = res.data.erro || 'Erro desconhecido.';
+        document.getElementById('erro-msg').textContent = res.data.erro || ('HTTP ' + res.status);
         document.getElementById('feedback-erro').style.display = 'block';
         btn.disabled = false;
         btn.textContent = 'Gerar o meu Guia';
         document.getElementById('selecao-form').style.display = 'block';
       }
     })
-    .catch(function() {
+    .catch(function(err) {
+      document.getElementById('erro-msg').textContent = 'Falha de rede: ' + (err && err.message ? err.message : err);
       document.getElementById('feedback-erro').style.display = 'block';
       btn.disabled = false;
       btn.textContent = 'Gerar o meu Guia';
