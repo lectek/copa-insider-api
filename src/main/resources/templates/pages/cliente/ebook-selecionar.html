@@ -214,6 +214,21 @@
 </footer>
 
 <script>
+  // Lê CSRF das metas OU do cookie XSRF-TOKEN (padrão do Spring Security nesta app)
+  function readCookie(name) {
+    var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+  function getCsrf() {
+    var metaTok = document.querySelector('meta[name="_csrf"]');
+    var metaHdr = document.querySelector('meta[name="_csrf_header"]');
+    var cookieTok = readCookie('XSRF-TOKEN');
+    return {
+      header: (metaHdr && metaHdr.content) || 'X-XSRF-TOKEN',
+      token: cookieTok || (metaTok && metaTok.content) || ''
+    };
+  }
+
   document.getElementById('selecao-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -248,9 +263,14 @@
     params.append('selecaoNome', selecaoNome);
     params.append('idioma', idioma);
 
+    var csrf = getCsrf();
+    var headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (csrf.token) headers[csrf.header] = csrf.token;
+
     fetch('/ebook/selecionar/' + transacao, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: headers,
+      credentials: 'same-origin',
       body: params.toString()
     })
     .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
