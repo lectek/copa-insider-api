@@ -354,6 +354,76 @@ public class EbookTextos {
         };
     }
 
+    // ── Tradução de posições (TheSportsDB devolve sempre em inglês) ─────────────
+
+    public static String traduzirPosicao(String posicaoEn, String idioma) {
+        if (posicaoEn == null || posicaoEn.isBlank()) return "";
+        String chave = posicaoEn.trim().toLowerCase();
+        return switch (chave) {
+            case "goalkeeper" -> switch (idioma) {
+                case PT_BR -> "Goleiro"; case PT_PT -> "Guarda-Redes";
+                case "es"  -> "Portero"; case "fr"   -> "Gardien";
+                default    -> "Goalkeeper";
+            };
+            case "defender" -> switch (idioma) {
+                case PT_BR, PT_PT -> "Defensor";
+                case "es"         -> "Defensa"; case "fr" -> "Defenseur";
+                default           -> "Defender";
+            };
+            case "centre-back", "center-back" -> switch (idioma) {
+                case PT_BR -> "Zagueiro"; case PT_PT -> "Central";
+                case "es"  -> "Defensa Central"; case "fr" -> "Defenseur Central";
+                default    -> "Centre-Back";
+            };
+            case "left-back" -> switch (idioma) {
+                case PT_BR -> "Lateral-Esquerdo"; case PT_PT -> "Lateral Esquerdo";
+                case "es"  -> "Lateral Izquierdo"; case "fr" -> "Arriere Gauche";
+                default    -> "Left-Back";
+            };
+            case "right-back" -> switch (idioma) {
+                case PT_BR -> "Lateral-Direito"; case PT_PT -> "Lateral Direito";
+                case "es"  -> "Lateral Derecho"; case "fr"  -> "Arriere Droit";
+                default    -> "Right-Back";
+            };
+            case "midfielder" -> switch (idioma) {
+                case PT_BR, PT_PT -> "Meio-Campista";
+                case "es"         -> "Centrocampista"; case "fr" -> "Milieu de Terrain";
+                default           -> "Midfielder";
+            };
+            case "defensive midfield" -> switch (idioma) {
+                case PT_BR -> "Volante"; case PT_PT -> "Medio Defensivo";
+                case "es"  -> "Centrocampista Defensivo"; case "fr" -> "Milieu Defensif";
+                default    -> "Defensive Midfielder";
+            };
+            case "central midfield" -> switch (idioma) {
+                case PT_BR, PT_PT -> "Meio-Campista Central";
+                case "es"         -> "Centrocampista Central"; case "fr" -> "Milieu Central";
+                default           -> "Central Midfielder";
+            };
+            case "attacking midfield" -> switch (idioma) {
+                case PT_BR -> "Meia-Atacante"; case PT_PT -> "Medio Ofensivo";
+                case "es"  -> "Centrocampista Ofensivo"; case "fr" -> "Milieu Offensif";
+                default    -> "Attacking Midfielder";
+            };
+            case "left midfield", "left winger" -> switch (idioma) {
+                case PT_BR -> "Ponta-Esquerda"; case PT_PT -> "Extremo Esquerdo";
+                case "es"  -> "Extremo Izquierdo"; case "fr" -> "Ailier Gauche";
+                default    -> "Left Winger";
+            };
+            case "right midfield", "right winger" -> switch (idioma) {
+                case PT_BR -> "Ponta-Direita"; case PT_PT -> "Extremo Direito";
+                case "es"  -> "Extremo Derecho"; case "fr" -> "Ailier Droit";
+                default    -> "Right Winger";
+            };
+            case "forward", "centre-forward", "center-forward", "striker" -> switch (idioma) {
+                case PT_BR, PT_PT -> "Atacante";
+                case "es"         -> "Delantero"; case "fr" -> "Attaquant";
+                default           -> "Forward";
+            };
+            default -> posicaoEn;
+        };
+    }
+
     // ── Util interno ──────────────────────────────────────────────────────────
 
     private static String traduzirEstilo(String estilo, String idioma) {

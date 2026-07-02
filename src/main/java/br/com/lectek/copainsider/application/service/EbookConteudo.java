@@ -14,14 +14,17 @@ public record EbookConteudo(
         List<Lenda> lendas,
         List<PartidaHistorica> partidas,
         String historiaCopas,
+        List<Marco> linhaDoTempo,
         List<Guerreiro> guerreirosHoje,
         String equipaAtual,
         String copa2026,
         String emNumeros,
         String sabiaque,
-        String manifestoTorcedor
+        String manifestoTorcedor,
+        String pressaoNarrativa
 ) {
     public record Lenda(String nome, String apelido, String bioNarrativa, String legado, String fotoUrl) {}
     public record PartidaHistorica(String titulo, String adversario, String placar, String data, String narrativa) {}
     public record Guerreiro(String nome, String clube, String posicao, String descricao, String fotoUrl) {}
+    public record Marco(int ano, String titulo, String descricao) {}
 }

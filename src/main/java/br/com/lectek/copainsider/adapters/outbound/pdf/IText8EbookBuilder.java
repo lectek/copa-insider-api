@@ -18,6 +18,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.AreaBreak;
+import com.itextpdf.layout.element.Div;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
@@ -76,6 +77,8 @@ public class IText8EbookBuilder {
                 adicionarSecao(doc, "A Alma da Selecao",
                         conteudo.almaSeleção(), fonteTitulo, fonteTexto, corPrimaria);
 
+                adicionarPressao(doc, conteudo.pressaoNarrativa(), fonteTitulo, fonteItalico, corPrimaria);
+
                 if (!conteudo.lendas().isEmpty()) {
                     adicionarTituloSecao(doc, "As Lendas Imortais", fonteTitulo, corPrimaria);
                     for (EbookConteudo.Lenda lenda : conteudo.lendas()) {
@@ -92,6 +95,13 @@ public class IText8EbookBuilder {
 
                 adicionarSecao(doc, "A Historia nas Copas",
                         conteudo.historiaCopas(), fonteTitulo, fonteTexto, corPrimaria);
+
+                if (!conteudo.linhaDoTempo().isEmpty()) {
+                    adicionarTituloSecao(doc, "A Linha do Tempo", fonteTitulo, corPrimaria);
+                    for (EbookConteudo.Marco marco : conteudo.linhaDoTempo()) {
+                        adicionarMarco(doc, marco, fonteTitulo, fonteTexto, corPrimaria);
+                    }
+                }
 
                 if (!conteudo.guerreirosHoje().isEmpty()) {
                     adicionarTituloSecao(doc, "Os Guerreiros de Hoje", fonteTitulo, corPrimaria);
@@ -199,10 +209,12 @@ public class IText8EbookBuilder {
                                  DeviceRgb cor) {
         if (lenda.nome().isBlank()) return;
 
+        Div bloco = new Div().setKeepTogether(true);
+
         Image foto = carregarImagem(lenda.fotoUrl(), 60, 60);
         if (foto != null) {
             foto.setMarginTop(16);
-            doc.add(foto);
+            bloco.add(foto);
         }
 
         Paragraph nomePara = new Paragraph();
@@ -214,55 +226,61 @@ public class IText8EbookBuilder {
         }
         nomePara.setMarginBottom(6);
         nomePara.setMarginTop(foto != null ? 6 : 16);
-        doc.add(nomePara);
+        bloco.add(nomePara);
 
         if (!lenda.bioNarrativa().isBlank()) {
-            doc.add(new Paragraph(lenda.bioNarrativa())
+            bloco.add(new Paragraph(lenda.bioNarrativa())
                     .setFont(fonteTexto).setFontSize(11)
                     .setTextAlignment(TextAlignment.JUSTIFIED)
                     .setMultipliedLeading(1.5f));
         }
 
         if (!lenda.legado().isBlank()) {
-            doc.add(new Paragraph("\" " + lenda.legado() + " \"")
+            bloco.add(new Paragraph("\" " + lenda.legado() + " \"")
                     .setFont(fonteItalico).setFontSize(11)
                     .setFontColor(cor)
                     .setTextAlignment(TextAlignment.CENTER)
                     .setMarginTop(6).setMarginBottom(20));
         }
+        doc.add(bloco);
     }
 
     // ── Partida histórica ─────────────────────────────────────────────────────
 
     private void adicionarPartida(Document doc, EbookConteudo.PartidaHistorica p,
                                    PdfFont fonteTitulo, PdfFont fonteTexto, DeviceRgb cor) {
-        doc.add(new Paragraph(p.titulo())
+        Div bloco = new Div().setKeepTogether(true);
+
+        bloco.add(new Paragraph(p.titulo())
                 .setFont(fonteTitulo).setFontSize(13)
                 .setFontColor(cor)
                 .setMarginTop(16).setMarginBottom(4));
 
-        doc.add(new Paragraph(p.adversario() + "  " + p.placar() + SEP + p.data())
+        bloco.add(new Paragraph(p.adversario() + "  " + p.placar() + SEP + p.data())
                 .setFont(fonteTitulo).setFontSize(10)
                 .setFontColor(new DeviceRgb(100, 100, 100))
                 .setMarginBottom(8));
 
         if (!p.narrativa().isBlank()) {
-            doc.add(new Paragraph(p.narrativa())
+            bloco.add(new Paragraph(p.narrativa())
                     .setFont(fonteTexto).setFontSize(11)
                     .setTextAlignment(TextAlignment.JUSTIFIED)
                     .setMultipliedLeading(1.5f)
                     .setMarginBottom(20));
         }
+        doc.add(bloco);
     }
 
     // ── Guerreiro ─────────────────────────────────────────────────────────────
 
     private void adicionarGuerreiro(Document doc, EbookConteudo.Guerreiro g,
                                      PdfFont fonteTitulo, PdfFont fonteTexto, DeviceRgb cor) {
+        Div bloco = new Div().setKeepTogether(true);
+
         Image foto = carregarImagem(g.fotoUrl(), 60, 60);
         if (foto != null) {
             foto.setMarginTop(14);
-            doc.add(foto);
+            bloco.add(foto);
         }
 
         Paragraph titulo = new Paragraph();
@@ -274,15 +292,55 @@ public class IText8EbookBuilder {
         }
         titulo.setMarginBottom(4);
         titulo.setMarginTop(foto != null ? 4 : 14);
-        doc.add(titulo);
+        bloco.add(titulo);
 
         if (!g.descricao().isBlank()) {
-            doc.add(new Paragraph(g.descricao())
+            bloco.add(new Paragraph(g.descricao())
                     .setFont(fonteTexto).setFontSize(11)
                     .setTextAlignment(TextAlignment.JUSTIFIED)
                     .setMultipliedLeading(1.5f)
                     .setMarginBottom(14));
         }
+        doc.add(bloco);
+    }
+
+    // ── Linha do Tempo ────────────────────────────────────────────────────────
+
+    private void adicionarMarco(Document doc, EbookConteudo.Marco m,
+                                 PdfFont fonteTitulo, PdfFont fonteTexto, DeviceRgb cor) {
+        Div bloco = new Div().setKeepTogether(true);
+
+        Paragraph anoTitulo = new Paragraph();
+        anoTitulo.add(new Text(String.valueOf(m.ano())).setFont(fonteTitulo).setFontSize(16).setFontColor(cor));
+        anoTitulo.add(new Text(SEP + m.titulo()).setFont(fonteTitulo).setFontSize(13)
+                .setFontColor(new DeviceRgb(60, 60, 60)));
+        anoTitulo.setMarginTop(14).setMarginBottom(4);
+        bloco.add(anoTitulo);
+
+        if (m.descricao() != null && !m.descricao().isBlank()) {
+            bloco.add(new Paragraph(m.descricao())
+                    .setFont(fonteTexto).setFontSize(11)
+                    .setTextAlignment(TextAlignment.JUSTIFIED)
+                    .setMultipliedLeading(1.5f));
+        }
+        doc.add(bloco);
+    }
+
+    // ── A Pressão de Vestir a Camisa ────────────────────────────────────────────
+
+    private void adicionarPressao(Document doc, String pressaoNarrativa,
+                                   PdfFont fonteTitulo, PdfFont fonteItalico, DeviceRgb cor) {
+        if (pressaoNarrativa == null || pressaoNarrativa.isBlank()) return;
+
+        doc.add(new Paragraph("\n"));
+        doc.add(new Paragraph("A PRESSAO DE VESTIR A CAMISA")
+                .setFont(fonteTitulo).setFontSize(14)
+                .setFontColor(cor)
+                .setMarginBottom(10));
+        doc.add(new Paragraph(pressaoNarrativa)
+                .setFont(fonteItalico).setFontSize(11)
+                .setTextAlignment(TextAlignment.JUSTIFIED)
+                .setMultipliedLeading(1.6f));
     }
 
     // ── Em Números ────────────────────────────────────────────────────────────

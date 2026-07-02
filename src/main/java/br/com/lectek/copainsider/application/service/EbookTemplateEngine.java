@@ -20,6 +20,11 @@ public class EbookTemplateEngine {
         SelecaoEstatica est = SelecaoDadosEstaticos.get(code);
         log.info("[template] gerando conteudo — selecao={} idioma={} campeao={}", code, idioma, est.eCampeao());
 
+        // O nome da seleção nunca deve vir cru da TheSportsDB (devolve sempre em
+        // inglês, ex: "Brazil"). É sempre substituído pelo nome localizado no
+        // idioma do ebook, para nunca haver mistura de idiomas no texto gerado.
+        dados.setSelecaoNome(SelecaoDadosEstaticos.nomeLocalizado(code, idioma, dados.getSelecaoNome()));
+
         String melhor = est.eCampeao()
                 ? (est.numTitulos() + "x Campeao Mundial (" + est.resumoAnos() + ")")
                 : est.melhorResultado();
@@ -37,6 +42,7 @@ public class EbookTemplateEngine {
             gerarPartidas(est),
             EbookTextos.historiaCopas(dados.getSelecaoNome(), est.participacoesCopa(),
                     est.eCampeao(), est.numTitulos(), est.resumoAnos(), melhor, idioma),
+            gerarLinhaDoTempo(est),
             gerarGuerreiros(dados, idioma),
             EbookTextos.equipaAtual(dados.getSelecaoNome(), est.treinadorAtual(),
                     est.estiloTaticoAtual(), est.historiaRecente(), idioma),
@@ -45,7 +51,8 @@ public class EbookTemplateEngine {
                     melhor, est.estiloJogo(), est.rivalHistorico(), idioma),
             est.curiosidade(),
             EbookTextos.manifesto(dados.getSelecaoNome(), est.eCampeao(),
-                    est.citacao(), est.autorCitacao(), idioma)
+                    est.citacao(), est.autorCitacao(), idioma),
+            est.pressaoNarrativa()
         );
     }
 
@@ -70,10 +77,28 @@ public class EbookTemplateEngine {
     private List<EbookConteudo.Lenda> gerarLendas(SelecaoEstatica est, SelecaoDataResult dados) {
         List<EbookConteudo.Lenda> lendas = new ArrayList<>();
 
-        // Lendas estáticas com bio da Wikipedia (se disponível nos dados agregados)
+        // Lendas dinâmicas (TheSportsDB/Wikipedia) — usadas só como reforço/fallback
+        // quando não existe biografia curada à mão para o nome em questão.
         List<SelecaoDataResult.Lenda> lendasApi = dados.getLendas() != null ? dados.getLendas() : List.of();
 
-        for (String nomeLenda : est.legendas()) {
+        for (SelecaoEstatica.LendaCurada curada : est.legendas()) {
+            String nomeLenda = curada.nome();
+
+            // Prioridade 1: biografia curada à mão (rica, única, sem depender de APIs externas)
+            if (curada.bio() != null && !curada.bio().isBlank()) {
+                String fotoUrl = lendasApi.stream()
+                        .filter(l -> nomeLenda.equalsIgnoreCase(l.nome()))
+                        .findFirst()
+                        .map(SelecaoDataResult.Lenda::fotoUrl)
+                        .orElse(null);
+                String apelido = curada.periodo() != null ? curada.periodo() : "";
+                lendas.add(new EbookConteudo.Lenda(nomeLenda, apelido, curada.bio(),
+                        curada.legado() != null ? curada.legado() : "", fotoUrl));
+                if (lendas.size() >= 8) break;
+                continue;
+            }
+
+            // Prioridade 2 (fallback): biografia dinâmica da Wikipedia/TheSportsDB
             SelecaoDataResult.Lenda match = lendasApi.stream()
                     .filter(l -> nomeLenda.equalsIgnoreCase(l.nome()))
                     .findFirst()
@@ -83,18 +108,26 @@ public class EbookTemplateEngine {
                     ? (match.biografia().isBlank() ? match.legado() : match.biografia())
                     : "";
 
-            // Fallback: usar tom emocional da seleção se não há bio
             if (bio.isBlank()) {
                 bio = dados.getTomEmocional() != null
-                        ? nomeLenda + " -- " + dados.getTomEmocional() + "."
-                        : nomeLenda + " -- uma lenda desta selecao.";
+                        ? nomeLenda + " é uma das figuras mais marcantes da história desta seleção, símbolo do "
+                          + dados.getTomEmocional() + " que define o seu futebol."
+                        : nomeLenda + " é uma das lendas que marcaram a história desta seleção no futebol mundial.";
             }
 
             String fotoUrl = match != null ? match.fotoUrl() : null;
             lendas.add(new EbookConteudo.Lenda(nomeLenda, "", bio, "", fotoUrl));
-            if (lendas.size() >= 6) break; // até 6 lendas por ebook
+            if (lendas.size() >= 8) break; // até 8 lendas por ebook
         }
         return lendas;
+    }
+
+    // ── Linha do tempo ────────────────────────────────────────────────────────
+
+    private List<EbookConteudo.Marco> gerarLinhaDoTempo(SelecaoEstatica est) {
+        return est.linhaDoTempo().stream()
+                .map(m -> new EbookConteudo.Marco(m.ano(), m.titulo(), m.descricao()))
+                .toList();
     }
 
     // ── Partidas históricas ───────────────────────────────────────────────────
@@ -114,12 +147,15 @@ public class EbookTemplateEngine {
 
         return jogadores.stream()
                 .limit(5)
-                .map(j -> new EbookConteudo.Guerreiro(
-                        j.nome(),
-                        j.clube(),
-                        j.posicao(),
-                        EbookTextos.descricaoGuerreiro(j.nome(), j.posicao(), j.clube(), idioma),
-                        j.fotoUrl()))
+                .map(j -> {
+                    String posicao = EbookTextos.traduzirPosicao(j.posicao(), idioma);
+                    return new EbookConteudo.Guerreiro(
+                            j.nome(),
+                            j.clube(),
+                            posicao,
+                            EbookTextos.descricaoGuerreiro(j.nome(), posicao, j.clube(), idioma),
+                            j.fotoUrl());
+                })
                 .toList();
     }
 }

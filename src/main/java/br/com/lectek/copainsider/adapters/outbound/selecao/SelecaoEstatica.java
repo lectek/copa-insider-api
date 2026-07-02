@@ -15,13 +15,30 @@ public record SelecaoEstatica(
         String citacao,
         String autorCitacao,
         boolean anfitriao2026,
-        List<String> legendas,
+        List<LendaCurada> legendas,
         List<PartidaRef> partidas,
         String treinadorAtual,
         String estiloTaticoAtual,
-        String historiaRecente
+        String historiaRecente,
+        List<Marco> linhaDoTempo,
+        String pressaoNarrativa
 ) {
     public record PartidaRef(String titulo, String adversario, String placar, String ano, String narrativa) {}
+
+    /** Lenda com biografia curada à mão. Quando bio/legado forem null, o gerador
+     *  recorre à biografia dinâmica (TheSportsDB/Wikipedia) como antes. */
+    public record LendaCurada(String nome, String periodo, String bio, String legado) {}
+
+    /** Um marco da linha do tempo da seleção (fundação, primeira Copa, cada título, etc.). */
+    public record Marco(int ano, String titulo, String descricao) {}
+
+    /** Envolve nomes simples (sem biografia curada ainda) no novo formato,
+     *  mantendo o comportamento antigo (biografia dinâmica com fallback genérico). */
+    public static List<LendaCurada> nomesSimples(String... nomes) {
+        return java.util.Arrays.stream(nomes)
+                .map(n -> new LendaCurada(n, null, null, null))
+                .toList();
+    }
 
     public boolean eCampeao() { return !anosTitulosMundo.isEmpty(); }
 
